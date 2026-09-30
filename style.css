@@ -108,13 +108,24 @@ body {
     cursor: pointer;
 }
 
-.logo-icon {
-    font-size: 2.2rem;
-    background: #dcfce7;
-    padding: 6px 10px;
-    border-radius: 18px;
-    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
-    animation: gentleBounce 3s infinite ease-in-out;
+.logo-img-wrap {
+    width: 64px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.logo:hover .logo-img-wrap {
+    transform: scale(1.1) rotate(-2deg);
+}
+
+.nav-logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(13, 148, 136, 0.28));
 }
 
 .brand-title {
@@ -851,15 +862,21 @@ body {
 }
 
 .school-logo-badge {
-    font-size: 2.2rem;
     background: #ffffff;
-    width: 50px;
-    height: 50px;
+    width: 58px;
+    height: 48px;
     border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    padding: 3px 6px;
+}
+
+.exam-logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .school-title {
@@ -2640,25 +2657,120 @@ body {
     width: 100%;
 }
 
-/* Teacher Table Responsive */
+/* Table Header Toolbar & Arrow Navigation Controls */
+.table-header-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.2rem;
+    margin-bottom: 0.1rem;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.table-info-counter .badge-total-students {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-family: var(--font-heading);
+    font-size: 0.88rem;
+    font-weight: 700;
+    padding: 0.45rem 1rem;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1.5px solid #bae6fd;
+}
+
+.table-arrow-navigation {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-arrow-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #475569;
+}
+
+.btn-arrow-control {
+    background: #ffffff;
+    border: 2px solid #0d9488;
+    color: #0d9488;
+    padding: 0.45rem 1rem;
+    border-radius: 12px;
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 2px 6px rgba(13, 148, 136, 0.15);
+}
+
+.btn-arrow-control:hover {
+    background: #0d9488;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(13, 148, 136, 0.35);
+}
+
+.btn-arrow-control:active {
+    transform: translateY(0);
+}
+
+/* Wrapper & Responsive Container with Sticky Header */
+.teacher-table-wrapper-relative {
+    position: relative;
+    border-radius: 18px;
+}
+
 .teacher-table-responsive {
     background: #ffffff;
     border: 2px solid #e2e8f0;
     border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    max-height: 480px;
+    overflow-y: auto;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+}
+
+/* Custom Scrollbar for Teacher Table */
+.teacher-table-responsive::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.teacher-table-responsive::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+.teacher-table-responsive::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+.teacher-table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 .teacher-data-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     font-size: 0.92rem;
     text-align: left;
 }
 
-.teacher-data-table thead {
+.teacher-data-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 8;
     background: #f1f5f9;
     border-bottom: 2px solid #cbd5e1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .teacher-data-table th {
@@ -2669,6 +2781,23 @@ body {
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    user-select: none;
+    transition: background 0.15s ease;
+}
+
+.teacher-data-table th:hover {
+    background: #e2e8f0;
+}
+
+.th-sort-icon {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-left: 4px;
+    transition: color 0.2s ease;
+}
+
+.teacher-data-table th:hover .th-sort-icon {
+    color: #0d9488;
 }
 
 .teacher-data-table td {
@@ -2680,6 +2809,52 @@ body {
 
 .teacher-data-table tr:hover {
     background: #f8fafc;
+}
+
+/* Floating Arrows Pill Widget */
+.table-floating-nav {
+    position: absolute;
+    right: 18px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #0d9488, #059669);
+    border-radius: 28px;
+    box-shadow: 0 6px 18px rgba(13, 148, 136, 0.45);
+    z-index: 12;
+    border: 2px solid #ffffff;
+    overflow: hidden;
+}
+
+.table-nav-pill-btn {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.table-nav-pill-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    color: #fef08a;
+    transform: scale(1.15);
+}
+
+.table-nav-pill-btn:active {
+    transform: scale(0.95);
+}
+
+.table-nav-pill-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.3);
+    width: 80%;
+    margin: 0 auto;
 }
 
 /* Action Buttons inside Table */
@@ -3020,3 +3195,591 @@ body {
         min-width: 100%;
     }
 }
+
+/* ==============================================================
+   SCRATCH VISUAL BLOCKS & ICONS FOR KELAS 6 REMEDIAL
+   ============================================================== */
+.scratch-code-preview {
+    background: #0f172a;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin: 0.8rem 0;
+    color: #e2e8f0;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    border-left: 4px solid #10b981;
+}
+
+.scratch-blocks-subgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.2rem;
+    margin-top: 1rem;
+}
+
+.scratch-block-quiz-card {
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.scratch-block-quiz-card:hover {
+    border-color: #9333ea;
+    transform: translateY(-2px);
+}
+
+.scratch-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.92rem;
+    font-family: 'Consolas', 'Courier New', monospace;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+.badge-looks { background: #9966ff; }
+.badge-variables { background: #ff8c1a; }
+.badge-sensing { background: #5cb1d6; }
+.badge-motion { background: #4c97ff; }
+.badge-control { background: #ffab19; }
+.badge-events { background: #ffd500; color: #574100; }
+
+.scratch-ui-icons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.2rem;
+    margin-top: 1rem;
+}
+
+.scratch-ui-card {
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.2rem;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.scratch-circle-btn {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: #855cd6;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    box-shadow: 0 6px 14px rgba(133, 92, 214, 0.35);
+    margin-bottom: 0.8rem;
+    position: relative;
+}
+
+.scratch-circle-btn .plus-badge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    background: #059669;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 0.85rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+}
+
+.scratch-ct-pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.scratch-pillar-box {
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.scratch-pillar-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #6b21a8;
+}
+
+/* ==============================================================
+   POWERPOINT SLIDE LAYOUT MINIATURES FOR KELAS 5 REMEDIAL
+   ============================================================== */
+.slide-layouts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1.2rem;
+    margin: 1.2rem 0;
+}
+
+.slide-layout-card {
+    background: #ffffff;
+    border: 2px solid #cbd5e1;
+    border-radius: 16px;
+    padding: 1.2rem;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.slide-layout-card:hover {
+    border-color: #0284c7;
+    transform: translateY(-2px);
+}
+
+.slide-miniature {
+    width: 175px;
+    height: 110px;
+    background: #ffffff;
+    border: 2px solid #94a3b8;
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    position: relative;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+}
+
+.slide-box-dashed {
+    border: 1.5px dashed #94a3b8;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slide-title-box {
+    height: 28px;
+    font-size: 0.68rem;
+    color: #475569;
+    font-weight: 700;
+    background: #f8fafc;
+}
+
+.slide-subtitle-box {
+    height: 24px;
+    font-size: 0.62rem;
+    color: #94a3b8;
+    background: #f8fafc;
+}
+
+.slide-body-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: #64748b;
+    font-size: 0.78rem;
+    background: #f8fafc;
+}
+
+/* ==============================================================
+   STUDENT CARTOON ICONS BESIDE MATERI
+   ============================================================== */
+.card-student-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 22px;
+    object-fit: cover;
+    object-position: top center;
+    background: #ffffff;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease;
+    border: 2.5px solid #ffffff;
+}
+
+.card-class:hover .card-student-avatar {
+    transform: rotate(5deg) scale(1.08);
+}
+
+.card-materi-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.6rem 0 1rem 0;
+    background: #f8fafc;
+    border-radius: 14px;
+    padding: 0.6rem 0.85rem;
+    border: 1.5px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.card-class:hover .card-materi-info {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.materi-badge-icon {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top center;
+    border: 2.5px solid #3b82f6;
+    background: #ffffff;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-k4 .materi-badge-icon {
+    border-color: #f97316;
+}
+
+.card-k5 .materi-badge-icon {
+    border-color: #0284c7;
+}
+
+.card-k6 .materi-badge-icon {
+    border-color: #9333ea;
+}
+
+.materi-text-wrap {
+    flex: 1;
+}
+
+.materi-label-tag {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #475569;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.card-materi-info .card-subtitle {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.35;
+    color: #334155;
+    font-weight: 600;
+}
+
+.tab-materi-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top center;
+    border: 1.5px solid #4f46e5;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.materi-icon-wrap {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+}
+
+.materi-student-icon {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top center;
+    border: 2.5px solid #3b82f6;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+.materi-mini-badge {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    font-size: 0.85rem;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    padding: 1px 3px;
+    line-height: 1;
+}
+
+.tagline-student-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top center;
+    border: 1.5px solid #ffffff;
+    vertical-align: middle;
+    margin-right: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ========================================================
+   GOOGLE SHEETS CLOUD SYNC & CONFIG MODAL STYLES
+   ======================================================== */
+.btn-cloud-sync {
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35);
+    transition: all 0.2s ease;
+}
+.btn-cloud-sync:hover {
+    background: linear-gradient(135deg, #0369a1, #075985);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.45);
+}
+.btn-cloud-sync.syncing i {
+    animation: spinSync 1s linear infinite;
+}
+@keyframes spinSync {
+    100% { transform: rotate(360deg); }
+}
+
+.btn-cloud-config {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+.btn-cloud-config:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+    border-color: #94a3b8;
+}
+
+/* Status Banner */
+.cloud-status-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #f0fdf4, #e0f2fe);
+    border: 1.5px solid #bae6fd;
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    font-size: 0.88rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+.cloud-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #0f172a;
+    font-weight: 500;
+}
+.cloud-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+    display: inline-block;
+}
+.cloud-status-dot.offline {
+    background-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+}
+.btn-cloud-action-pill {
+    background: #ffffff;
+    border: 1px solid #93c5fd;
+    color: #0284c7;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+}
+.btn-cloud-action-pill:hover {
+    background: #0284c7;
+    color: #ffffff;
+}
+
+/* Modal Cloud Config */
+.modal-cloud-config-card {
+    background: #ffffff;
+    border-radius: 14px;
+    max-width: 680px;
+    width: 92%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.22);
+    overflow: hidden;
+    animation: modalScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cloud-modal-header {
+    background: linear-gradient(135deg, #0d9488, #0f766e);
+    color: #ffffff;
+    padding: 16px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.cloud-modal-header h3 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+.cloud-modal-body {
+    padding: 20px 24px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    color: #334155;
+    line-height: 1.55;
+}
+.cloud-step-badge {
+    background: #0284c7;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 6px;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+.code-copy-box {
+    background: #0f172a;
+    color: #f8fafc;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.8rem;
+    position: relative;
+    margin: 10px 0 16px 0;
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #334155;
+}
+.btn-copy-script {
+    position: sticky;
+    top: 0;
+    float: right;
+    background: #0284c7;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+.btn-copy-script:hover {
+    background: #0369a1;
+}
+.cloud-input-group {
+    margin: 14px 0;
+}
+.cloud-input-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #1e293b;
+}
+.cloud-input-field {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+.cloud-input-field:focus {
+    outline: none;
+    border-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+.cloud-modal-footer {
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    padding: 14px 22px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+.btn-test-cloud-connection {
+    background: #e2e8f0;
+    color: #1e293b;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-test-cloud-connection:hover {
+    background: #cbd5e1;
+}
+.btn-save-cloud-config {
+    background: linear-gradient(135deg, #059669, #047857);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-save-cloud-config:hover {
+    background: linear-gradient(135deg, #047857, #065f46);
+}
+
+
+

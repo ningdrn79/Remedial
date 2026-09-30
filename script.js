@@ -562,8 +562,8 @@ function calculateAndShowScore(event) {
         pg: pgScore,
         uraian: uraianScore,
         final: totalScore,
-        status: totalScore >= 70 ? 'LULUS REMEDIAL' : 'TUNTAS REMEDIAL',
-        predicate: totalScore >= 85 ? 'SANGAT MEMUASKAN' : (totalScore >= 70 ? 'BAIK SEKALI' : 'CUKUP BAIK')
+        status: totalScore >= 80 ? 'LULUS REMEDIAL' : 'TUNTAS REMEDIAL',
+        predicate: totalScore >= 90 ? 'SANGAT MEMUASKAN' : (totalScore >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK')
     };
 
     // Tampilkan Nama & Nilai Akhir dengan TULISAN BESAR
@@ -575,7 +575,7 @@ function calculateAndShowScore(event) {
     const motivationTitle = document.getElementById('motivationTitle');
     const motivationMessage = document.getElementById('motivationMessage');
 
-    if (totalScore >= 85) {
+    if (totalScore >= 90) {
         mascotIcon.innerText = '🏆';
         predicateBadge.innerText = '🌟 LULUS REMEDIAL DENGAN GEMILANG!';
         predicateBadge.style.background = 'linear-gradient(135deg, #059669, #10b981)';
@@ -585,25 +585,25 @@ function calculateAndShowScore(event) {
             <br><br>
             Kamu telah membuktikan bahwa dengan ketekunan, rumus Excel dan logika AI bisa kamu kuasai dengan sangat baik. Teruslah pertahankan semangat belajar yang tinggi dan jadilah inspirasi bagi teman-temanmu! 🚀✨
         `;
-    } else if (totalScore >= 70) {
+    } else if (totalScore >= 80) {
         mascotIcon.innerText = '🎉';
-        predicateBadge.innerText = '✨ DINYATAKAN TUNTAS REMEDIAL!';
+        predicateBadge.innerText = '✨ DINYATAKAN LULUS REMEDIAL (KKM 80)!';
         predicateBadge.style.background = 'linear-gradient(135deg, #0284c7, #38bdf8)';
         motivationTitle.innerHTML = `Kerja Bagus, ${studentName}! Terus Melangkah Maju! 💡`;
         motivationMessage.innerHTML = `
-            Hebat sekali! Skor remedialmu menunjukkan peningkatan pemahaman yang sangat bagus dan menggembirakan.
+            Hebat sekali! Skor remedialmu berhasil melampaui batas KKM 80 dan menunjukkan peningkatan pemahaman yang sangat bagus dan menggembirakan.
             <br><br>
             Koding dan logika komputer itu seperti petualangan seru: semakin sering kamu berlatih, pikiranmu akan semakin kreatif dan tangguh! Tetaplah rajin membaca, mempraktikkan rumus-rumus koding, dan jangan pernah ragu untuk terus mencoba hal-hal baru ya! Robi dan Bapak/Ibu Guru sangat bangga padamu! 🌱
         `;
     } else {
         mascotIcon.innerText = '💪';
-        predicateBadge.innerText = '📖 TETAP SEMANGAT BELAJAR!';
+        predicateBadge.innerText = '📖 PERLU PENGAYAAN & TETAP SEMANGAT!';
         predicateBadge.style.background = 'linear-gradient(135deg, #f59e0b, #ea580c)';
         motivationTitle.innerHTML = `Jangan Pernah Menyerah, ${studentName}! Kamu Pasti Bisa! 💖`;
         motivationMessage.innerHTML = `
             Terima kasih banyak sudah berani berusaha dan mengerjakan soal remedial ini dengan jujur dan mandiri!
             <br><br>
-            Dalam dunia koding dan teknologi, setiap kesalahan (*bug*) bukanlah kegagalan, melainkan sahabat terbaik yang mengajarkan kita untuk menjadi lebih teliti dan bijaksana. Jangan berkecil hati ya! Tetap tersenyum, teruslah berlatih bersama Bapak/Ibu Guru dan Robi. Selangkah demi selangkah, kamu pasti bisa menjadi juara! 🤖✨
+            Meskipun nilaimu belum mencapai batas KKM 80, setiap kesalahan (*bug*) dalam dunia koding adalah sahabat terbaik yang mengajarkan kita untuk menjadi lebih teliti dan bijaksana. Jangan berkecil hati ya! Tetap tersenyum, teruslah berlatih bersama Bapak/Ibu Guru dan Robi. Selangkah demi selangkah, kamu pasti bisa mencapai nilai terbaik! 🤖✨
         `;
     }
 
@@ -621,7 +621,7 @@ function calculateAndShowScore(event) {
         nilaiAkhir: totalScore,
         pgScore: pgScore,
         uraianScore: uraianScore,
-        status: totalScore >= 70 ? 'Lulus' : 'Tuntas',
+        status: totalScore >= 80 ? 'Lulus' : 'Tuntas',
         predicate: completedExamScores.predicate,
         duration: examDurationText,
         timestamp: timeString,
@@ -723,6 +723,1257 @@ function toggleScreenExpand() {
             document.exitFullscreen().then(() => {
                 icon.className = 'fa-solid fa-expand';
                 text.innerText = 'Layar Penuh';
+            });
+        }
+    }
+}
+
+/* ==============================================================
+   REMEDIAL KELAS 5 - DEDICATED EXAM SYSTEM LOGIC
+   ============================================================== */
+let currentStudentDataK5 = {
+    name: '',
+    kelas: '',
+    nilaiAwal: 0,
+    absen: ''
+};
+
+let examTimeRemainingK5 = 60 * 60; // 3600 seconds
+let examTimerIntervalK5 = null;
+let examDurationTextK5 = '';
+let completedExamScoresK5 = {
+    initial: 0,
+    pg: 0,
+    uraian: 0,
+    final: 0,
+    status: 'LULUS REMEDIAL',
+    predicate: 'SANGAT MEMUASKAN'
+};
+
+const pgQuestionsK5Metadata = [
+    {
+        num: 1,
+        question: "1. Langkah pertama yang harus kamu lakukan untuk menyimpan dokumen presentasi adalah memilih menu...",
+        options: {
+            A: "Home",
+            B: "File",
+            C: "Insert",
+            D: "Design"
+        },
+        key: 'B',
+        keyText: 'B. File',
+        explanation: 'Untuk menyimpan dokumen baru maupun dokumen yang sudah ada, langkah awal adalah membuka menu File (Save / Save As).'
+    },
+    {
+        num: 2,
+        question: "2. Bagian utama dari jendela Microsoft PowerPoint yang digunakan sebagai lembar kerja untuk membuat dan mendesain isi presentasimu adalah...",
+        options: {
+            A: "Area Catatan",
+            B: "Panel Slide",
+            C: "Halaman Slide",
+            D: "Bar Status"
+        },
+        key: 'C',
+        keyText: 'C. Halaman Slide',
+        explanation: 'Halaman Slide (Slide Pane) merupakan kanvas atau lembar kerja utama tempat kita mengetik, mendesain, dan memasukkan objek presentasi.'
+    },
+    {
+        num: 3,
+        question: "3. Apa fungsi utama dari perangkat lunak Microsoft PowerPoint?....",
+        options: {
+            A: "Mengirim pesan kepada singkat dan surat elektronik antar pengguna",
+            B: "Mengolah angka dan melakukan perhitungan rumus matematika",
+            C: "Menampilkan atau dokumen dalam bentuk slide presentasi",
+            D: "Mengedit file video dan merekam lagu berdurasi panjang"
+        },
+        key: 'C',
+        keyText: 'C. Menampilkan atau dokumen dalam bentuk slide presentasi',
+        explanation: 'Fungsi utama Microsoft PowerPoint adalah membuat, mengedit, dan menampilkan materi atau dokumen dalam bentuk slide presentasi visual.'
+    },
+    {
+        num: 4,
+        question: "4. Fitur yang digunakan untuk memberikan efek perpindahan menarik dari satu halaman slide ke slide berikutnya adalah...",
+        options: {
+            A: "Quick Access Toolbar",
+            B: "Transition",
+            C: "Animations",
+            D: "Hyperlink"
+        },
+        key: 'B',
+        keyText: 'B. Transition',
+        explanation: 'Transition (Transisi) digunakan untuk memberikan efek perpindahan animasi visual saat berpindah dari satu slide ke slide berikutnya.'
+    },
+    {
+        num: 5,
+        question: "5. Manakah di bawah ini yang merupakan salah satu contoh efek Transisi (Transitions)?",
+        options: {
+            A: "Fly In",
+            B: "Spin",
+            C: "Push",
+            D: "Float In"
+        },
+        key: 'C',
+        keyText: 'C. Push',
+        explanation: 'Push adalah efek transisi (Transitions). Sedangkan Fly In, Spin, dan Float In adalah efek animasi objek (Animations).'
+    },
+    {
+        num: 6,
+        question: "6. What is the primary function of Microsoft PowerPoint....",
+        options: {
+            A: "To manage large database",
+            B: "To edit long text documents",
+            C: "To create visual presentations",
+            D: "To perform complex math calculations"
+        },
+        key: 'C',
+        keyText: 'C. To create visual presentations',
+        explanation: 'The primary function of Microsoft PowerPoint is to design and present visual slide shows.'
+    },
+    {
+        num: 7,
+        question: "7. Which keyboard shortcut starts a slide show from the very first slide ....",
+        options: {
+            A: "F5",
+            B: "CTRL + S",
+            C: "ESC",
+            D: "CTRL + C"
+        },
+        key: 'A',
+        keyText: 'A. F5',
+        explanation: 'Tombol F5 pada keyboard digunakan sebagai pintasan cepat (shortcut) untuk memulai Slide Show dari slide pertama.'
+    },
+    {
+        num: 8,
+        question: "8. The menu for saving files in Microsoft PowerPoint....",
+        options: {
+            A: "File",
+            B: "Home",
+            C: "Insert",
+            D: "Design"
+        },
+        key: 'A',
+        keyText: 'A. File',
+        explanation: 'The File menu contains file management commands including Save, Save As, Open, and Print.'
+    },
+    {
+        num: 9,
+        question: "9. What is a single page within a PowerPoint presentation called?",
+        options: {
+            A: "Sheet",
+            B: "Slide",
+            C: "Document",
+            D: "Canvas"
+        },
+        key: 'B',
+        keyText: 'B. Slide',
+        explanation: 'Satu halaman lembar kerja tunggal pada presentasi PowerPoint disebut Slide.'
+    },
+    {
+        num: 10,
+        question: "10. Which button in the Home tab adds a new blank or pre-formatted slide to your presentation?",
+        options: {
+            A: "Open File",
+            B: "Save As",
+            C: "New Slide",
+            D: "Duplicate Window."
+        },
+        key: 'C',
+        keyText: 'C. New Slide',
+        explanation: 'Tombol New Slide pada tab Home digunakan untuk menambahkan slide baru dengan pilihan tata letak (layout) tertentu.'
+    }
+];
+
+function startCountdownTimerK5() {
+    examTimeRemainingK5 = 60 * 60;
+    if (examTimerIntervalK5) clearInterval(examTimerIntervalK5);
+    updateCountdownUIK5();
+
+    examTimerIntervalK5 = setInterval(() => {
+        examTimeRemainingK5--;
+        updateCountdownUIK5();
+
+        if (examTimeRemainingK5 <= 0) {
+            clearInterval(examTimerIntervalK5);
+            showToast('⏰ Waktu pengerjaan 60 menit telah habis! Mengirimkan jawaban...');
+            playCuteSound('pop');
+            const examForm = document.getElementById('k5ExamForm');
+            if (examForm) {
+                examForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+            }
+        }
+    }, 1000);
+}
+
+function updateCountdownUIK5() {
+    const timerTag = document.getElementById('examCountdownTagK5');
+    const timerText = document.getElementById('timerTextK5');
+    if (!timerText) return;
+
+    const minutes = Math.floor(examTimeRemainingK5 / 60);
+    const seconds = examTimeRemainingK5 % 60;
+    const formatted = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    timerText.innerText = formatted;
+
+    if (timerTag) {
+        if (examTimeRemainingK5 <= 300) {
+            timerTag.classList.add('timer-warning');
+        } else {
+            timerTag.classList.remove('timer-warning');
+        }
+    }
+}
+
+function openRemedialKelas5() {
+    playCuteSound('pop');
+    const modal = document.getElementById('examModalK5');
+    if (!modal) return;
+    modal.classList.add('open');
+
+    showExamStepK5('identity');
+
+    const bubble = document.getElementById('mascotBubble');
+    if (bubble) {
+        bubble.innerHTML = `<span>Selamat datang di Remedial Kelas 5D! Masukkan nama, nilai awal, dan nomor absenmu. Waktu: 60 Menit ⏰</span>`;
+    }
+}
+
+function closeExamModalK5() {
+    playCuteSound('pop');
+    if (examTimerIntervalK5) clearInterval(examTimerIntervalK5);
+    const modal = document.getElementById('examModalK5');
+    if (modal) modal.classList.remove('open');
+}
+
+function showExamStepK5(stepName) {
+    const stepIdentity = document.getElementById('k5-step-identity');
+    const stepQuestions = document.getElementById('k5-step-questions');
+    const stepResult = document.getElementById('k5-step-result');
+
+    if (stepIdentity) stepIdentity.classList.remove('active');
+    if (stepQuestions) stepQuestions.classList.remove('active');
+    if (stepResult) stepResult.classList.remove('active');
+
+    const targetStep = document.getElementById(`k5-step-${stepName}`);
+    if (targetStep) targetStep.classList.add('active');
+
+    const modalBody = document.querySelector('#examModalK5 .exam-modal-body');
+    if (modalBody) modalBody.scrollTop = 0;
+}
+
+function startExamK5(event) {
+    event.preventDefault();
+    playCuteSound('pop');
+
+    const name = document.getElementById('k5Name').value.trim();
+    const classChecked = document.querySelector('input[name="k5ClassChoice"]:checked');
+    const nilaiAwal = document.getElementById('k5NilaiAwal').value;
+    const absen = document.getElementById('k5Absen').value || '-';
+
+    const selectedClass = classChecked ? classChecked.value : '5D';
+
+    currentStudentDataK5 = {
+        name: name,
+        kelas: selectedClass,
+        nilaiAwal: parseInt(nilaiAwal) || 0,
+        absen: absen
+    };
+
+    document.getElementById('barStudentNameK5').innerText = currentStudentDataK5.name;
+    document.getElementById('barStudentClassK5').innerText = `Kelas ${currentStudentDataK5.kelas}`;
+    document.getElementById('barStudentInitialScoreK5').innerText = currentStudentDataK5.nilaiAwal;
+
+    startCountdownTimerK5();
+
+    showExamStepK5('questions');
+    showToast(`Selamat mengerjakan remedial Kelas 5, ${name}! Waktu: 60 Menit ⏰`);
+}
+
+function calculateAndShowScoreK5(event) {
+    event.preventDefault();
+    playCuteSound('fanfare');
+
+    let pgScore = 0;
+    const collectedPgAnswers = [];
+
+    // 1. Evaluate 10 Multiple Choice Questions (Bobot: 5 poin per soal = 50 poin max)
+    for (let i = 0; i < pgQuestionsK5Metadata.length; i++) {
+        const item = pgQuestionsK5Metadata[i];
+        const selected = document.querySelector(`input[name="pg_k5_${item.num}"]:checked`);
+        const userChoice = selected ? selected.value : '';
+        const userChoiceText = userChoice ? `${userChoice}. ${item.options[userChoice] || ''}` : '(Tidak dijawab)';
+        const isCorrect = (userChoice === item.key);
+        const pts = isCorrect ? 5 : 0;
+
+        if (isCorrect) {
+            pgScore += 5;
+        }
+
+        const keteranganText = getPgKeterangan(isCorrect, item.keyText, item.explanation);
+
+        collectedPgAnswers.push({
+            num: item.num,
+            question: item.question,
+            userChoice: userChoice || '-',
+            userChoiceText: userChoiceText,
+            key: item.key,
+            keyText: item.keyText,
+            explanation: item.explanation,
+            isCorrect: isCorrect,
+            points: pts,
+            keterangan: keteranganText
+        });
+    }
+
+    // 2. Evaluate 5 Uraian Questions (Bobot: 10 poin per soal = 50 poin max)
+    let uraianScore = 0;
+    const collectedUraianAnswers = [];
+
+    // Uraian 1 (No. 11): Langkah-langkah cara membuat presentasi dengan bantuan aplikasi AI
+    const rawAns1 = (document.getElementById('uraian_k5_1') ? document.getElementById('uraian_k5_1').value.trim() : '');
+    const ans1 = rawAns1.toLowerCase();
+    const hasPlatform = ans1.includes('buka') || ans1.includes('platform') || ans1.includes('aplikasi') || ans1.includes('web') || ans1.includes('gamma') || ans1.includes('tome') || ans1.includes('canva') || ans1.includes('ai');
+    const hasCreateNew = ans1.includes('create new') || ans1.includes('buat baru') || ans1.includes('baru') || ans1.includes('opsi') || ans1.includes('dokumen');
+    const hasPrompt = ans1.includes('prompt') || ans1.includes('perintah') || ans1.includes('topik') || ans1.includes('tujuan') || ans1.includes('struktur') || ans1.includes('teks') || ans1.includes('judul');
+    const hasTheme = ans1.includes('tema') || ans1.includes('gaya') || ans1.includes('visual') || ans1.includes('style') || ans1.includes('desain');
+    const hasGenerate = ans1.includes('generate') || ans1.includes('buat') || ans1.includes('tunggu') || ans1.includes('selesai');
+    const hasReview = ans1.includes('review') || ans1.includes('periksa') || ans1.includes('edit') || ans1.includes('sesuaikan') || ans1.includes('simpan');
+
+    let u1Pts = 0;
+    const matchCount1 = [hasPlatform, hasCreateNew, hasPrompt, hasTheme, hasGenerate, hasReview].filter(Boolean).length;
+    if (matchCount1 >= 4) {
+        u1Pts = 10;
+    } else if (matchCount1 === 3) {
+        u1Pts = 8;
+    } else if (matchCount1 === 2) {
+        u1Pts = 6;
+    } else if (matchCount1 === 1) {
+        u1Pts = 4;
+    } else if (rawAns1.length > 5) {
+        u1Pts = 3;
+    }
+    uraianScore += u1Pts;
+    collectedUraianAnswers.push({
+        num: 1,
+        question: "11. Langkah-langkah cara membuat presentasi dengan bantuan aplikasi AI",
+        userAnswer: rawAns1 || "(Tidak diisi)",
+        keyRef: "1. Buka platform AI pembuat presentasi (seperti Gamma.app atau Tome). 2. Pilih opsi untuk membuat dokumen atau presentasi baru (Create new). 3. Masukkan prompt atau perintah teks yang menjelaskan topik, tujuan, dan struktur slide yang diinginkan. 4. Pilih tema atau gaya visual yang disediakan oleh AI. 5. Klik tombol Generate dan tunggu hingga AI selesai membuat presentasi. 6. Periksa kembali (review) dan edit teks atau gambar jika ada yang perlu disesuaikan.",
+        points: u1Pts,
+        keterangan: u1Pts >= 10 ? "✔ Sangat Tepat & Runtut: Alur pembuatan presentasi AI dari platform, create new, prompt, tema, generate, hingga review dituliskan dengan lengkap." : getUraianKeterangan(u1Pts)
+    });
+
+    // Uraian 2 (No. 12): Nama Slide Tampilan Layout (A, B, C)
+    const raw2a = (document.getElementById('uraian_k5_2_a') ? document.getElementById('uraian_k5_2_a').value.trim() : '');
+    const raw2b = (document.getElementById('uraian_k5_2_b') ? document.getElementById('uraian_k5_2_b').value.trim() : '');
+    const raw2c = (document.getElementById('uraian_k5_2_c') ? document.getElementById('uraian_k5_2_c').value.trim() : '');
+
+    const ans2a = raw2a.toLowerCase();
+    const ans2b = raw2b.toLowerCase();
+    const ans2c = raw2c.toLowerCase();
+
+    let u2Pts = 0;
+    // A: Title and Content (Judul dan Konten)
+    if (ans2a.includes('title and content') || ans2a.includes('judul dan konten') || ans2a.includes('judul & konten') || ans2a.includes('content') || ans2a.includes('konten') || ans2a.includes('title & content') || ans2a.includes('title slide')) {
+        u2Pts += 3.5;
+    }
+    // B: Title, Content with Picture atau Picture with Caption
+    if (ans2b.includes('title, content with picture') || ans2b.includes('picture with caption') || ans2b.includes('content with picture') || ans2b.includes('picture') || ans2b.includes('gambar') || ans2b.includes('caption') || ans2b.includes('title with picture')) {
+        u2Pts += 3.5;
+    }
+    // C: Two Content (Dua Konten)
+    if (ans2c.includes('two content') || ans2c.includes('dua konten') || ans2c.includes('2 content') || ans2c.includes('dua isi') || ans2c.includes('two column') || ans2c.includes('two') || ans2c.includes('section header')) {
+        u2Pts += 3.0;
+    }
+
+    u2Pts = Math.min(10, Math.round(u2Pts));
+    uraianScore += u2Pts;
+    collectedUraianAnswers.push({
+        num: 2,
+        question: "12. Nama slide tampilan layout (A, B, C)",
+        userAnswer: `Tampilan A: ${raw2a || '-'} | Tampilan B: ${raw2b || '-'} | Tampilan C: ${raw2c || '-'}`,
+        keyRef: "A: Title and Content (Judul dan Konten) | B: Title, Content with Picture atau Picture with Caption (Layout dengan area gambar di bagian tengah) | C: Two Content (Dua Konten)",
+        points: u2Pts,
+        keterangan: u2Pts === 10 ? "✔ Sempurna: Ketiga nama slide tampilan layout (Title and Content, Picture with Caption/Picture, Two Content) dijawab dengan tepat." : `⚠ Memperoleh ${u2Pts}/10 poin. Pelajari kembali layout slide PowerPoint.`
+    });
+
+    // Uraian 3 (No. 13): Contoh prompt untuk Bu Santi (Pengenalan PowerPoint 3 Slide)
+    const rawAns3 = (document.getElementById('uraian_k5_3') ? document.getElementById('uraian_k5_3').value.trim() : '');
+    const ans3 = rawAns3.toLowerCase();
+    const hasAudience = ans3.includes('kelas 5') || ans3.includes('murid') || ans3.includes('sd') || ans3.includes('anak') || ans3.includes('santi') || ans3.includes('guru');
+    const hasTopic = ans3.includes('powerpoint') || ans3.includes('presentasi');
+    const hasSlide1 = ans3.includes('slide 1') || ans3.includes('pengenalan');
+    const hasSlide2 = ans3.includes('slide 2') || ans3.includes('tampilan');
+    const hasSlide3 = ans3.includes('slide 3') || ans3.includes('baru');
+    const hasTone = ans3.includes('sederhana') || ans3.includes('mudah dipahami') || ans3.includes('ramah') || ans3.includes('buatkan');
+
+    let u3Pts = 0;
+    const matchCount3 = [hasAudience, hasTopic, hasSlide1, hasSlide2, hasSlide3, hasTone].filter(Boolean).length;
+    if (matchCount3 >= 4) {
+        u3Pts = 10;
+    } else if (matchCount3 === 3) {
+        u3Pts = 7;
+    } else if (matchCount3 === 2) {
+        u3Pts = 5;
+    } else if (rawAns3.length > 5) {
+        u3Pts = 3;
+    }
+    uraianScore += u3Pts;
+    collectedUraianAnswers.push({
+        num: 3,
+        question: "13. Contoh prompt untuk Bu Santi",
+        userAnswer: rawAns3 || "(Tidak diisi)",
+        keyRef: "Contoh: \"Buatkan materi presentasi untuk murid kelas 5 SD bertemakan 'Pengenalan Microsoft PowerPoint' yang terdiri dari 3 slide: Slide 1 Pengenalan PowerPoint, Slide 2 Mengenal Tampilan, dan Slide 3 Membuat Slide Baru. Gunakan bahasa yang sederhana dan mudah dipahami anak-anak.\"",
+        points: u3Pts,
+        keterangan: u3Pts >= 10 ? "✔ Sangat Tepat: Prompt mencakup audiens kelas 5 SD, tema Pengenalan PowerPoint, rincian slide 1-3, dan instruksi bahasa yang mudah dipahami." : getUraianKeterangan(u3Pts)
+    });
+
+    // Uraian 4 (No. 14): Langkah-langkah cara menyimpan presentasi ke Local Disk D
+    const rawAns4 = (document.getElementById('uraian_k5_4') ? document.getElementById('uraian_k5_4').value.trim() : '');
+    const ans4 = rawAns4.toLowerCase();
+    const hasFileSave = ans4.includes('file') || ans4.includes('save as') || ans4.includes('save') || ans4.includes('simpan');
+    const hasBrowse = ans4.includes('browse') || ans4.includes('jendela');
+    const hasDiskD = ans4.includes('d:') || ans4.includes('disk d') || ans4.includes('local disk') || ans4.includes('localdisk');
+    const hasFolders = ans4.includes('kelas 5') || ans4.includes('5d') || ans4.includes('folder');
+    const hasFileName = ans4.includes('namakamu') || ans4.includes('nama kamu') || ans4.includes('latihan') || ans4.includes('5d-');
+
+    let u4Pts = 0;
+    const matchCount4 = [hasFileSave, hasBrowse, hasDiskD, hasFolders, hasFileName].filter(Boolean).length;
+    if (matchCount4 >= 4) {
+        u4Pts = 10;
+    } else if (matchCount4 === 3) {
+        u4Pts = 8;
+    } else if (matchCount4 === 2) {
+        u4Pts = 5;
+    } else if (rawAns4.length > 5) {
+        u4Pts = 3;
+    }
+    uraianScore += u4Pts;
+    collectedUraianAnswers.push({
+        num: 4,
+        question: "14. Langkah-langkah cara menyimpan presentasi ke Local Disk D",
+        userAnswer: rawAns4 || "(Tidak diisi)",
+        keyRef: "1. Klik menu File di pojok kiri atas jendela PowerPoint. 2. Pilih opsi Save As. 3. Klik Browse untuk membuka jendela penyimpanan komputer. 4. Pilih dan klik Local Disk (D:), lalu buka folder kelas 5, kemudian buka folder 5D. 5. Ketik nama file pada kolom File name dengan format: 5D-Namakamu-Latihan. 6. Klik tombol Save.",
+        points: u4Pts,
+        keterangan: u4Pts >= 10 ? "✔ Sangat Tepat: Urutan penyimpanan ke menu File -> Save As -> Browse -> Local Disk (D:) -> folder kelas 5 -> folder 5D -> 5D-Namakamu-Latihan -> Save dituliskan dengan lengkap dan benar." : getUraianKeterangan(u4Pts)
+    });
+
+    // Uraian 5 (No. 15): Lima aplikasi AI yang membantu dalam pembuatan presentasi
+    const raw5_1 = (document.getElementById('uraian_k5_5_1') ? document.getElementById('uraian_k5_5_1').value.trim() : '');
+    const raw5_2 = (document.getElementById('uraian_k5_5_2') ? document.getElementById('uraian_k5_5_2').value.trim() : '');
+    const raw5_3 = (document.getElementById('uraian_k5_5_3') ? document.getElementById('uraian_k5_5_3').value.trim() : '');
+    const raw5_4 = (document.getElementById('uraian_k5_5_4') ? document.getElementById('uraian_k5_5_4').value.trim() : '');
+    const raw5_5 = (document.getElementById('uraian_k5_5_5') ? document.getElementById('uraian_k5_5_5').value.trim() : '');
+
+    const checkAiApp = (val) => {
+        const v = val.toLowerCase();
+        return v.includes('gamma') || v.includes('tome') || v.includes('canva') || v.includes('copilot') || v.includes('beautiful') || v.includes('slidesai') || v.includes('chatgpt') || v.includes('perplexity') || v.includes('curipod') || v.includes('decktopus') || v.includes('pitch') || v.includes('wepik') || v.includes('visme') || (val.length >= 3);
+    };
+
+    let u5Pts = 0;
+    if (checkAiApp(raw5_1)) u5Pts += 2;
+    if (checkAiApp(raw5_2)) u5Pts += 2;
+    if (checkAiApp(raw5_3)) u5Pts += 2;
+    if (checkAiApp(raw5_4)) u5Pts += 2;
+    if (checkAiApp(raw5_5)) u5Pts += 2;
+
+    uraianScore += u5Pts;
+    collectedUraianAnswers.push({
+        num: 5,
+        question: "15. Lima aplikasi AI yang membantu dalam pembuatan presentasi",
+        userAnswer: `1: ${raw5_1 || '-'} | 2: ${raw5_2 || '-'} | 3: ${raw5_3 || '-'} | 4: ${raw5_4 || '-'} | 5: ${raw5_5 || '-'}`,
+        keyRef: "1. Gamma App (Gamma.app), 2. Tome (Tome.app), 3. Canva (fitur Magic Design / AI Presentation), 4. Microsoft Copilot (di dalam PowerPoint), 5. Beautiful.ai",
+        points: u5Pts,
+        keterangan: u5Pts >= 10 ? "✔ Sangat Tepat: Kelima aplikasi AI pembuat presentasi (Gamma App, Tome, Canva, Microsoft Copilot, Beautiful.ai) dijawab dengan benar." : `⚠ Memperoleh ${u5Pts}/10 poin (${u5Pts/2} aplikasi teridentifikasi).`
+    });
+
+    // Hentikan timer pengerjaan 60 menit & catat durasi
+    if (examTimerIntervalK5) clearInterval(examTimerIntervalK5);
+    const secondsSpent = Math.max(1, (60 * 60) - Math.max(0, examTimeRemainingK5));
+    const minSpent = Math.floor(secondsSpent / 60);
+    const secSpent = secondsSpent % 60;
+    examDurationTextK5 = `${minSpent} Menit ${secSpent} Detik`;
+
+    // Total Score (0 - 100)
+    const totalScore = pgScore + uraianScore;
+    const studentName = currentStudentDataK5.name || 'Sahabat Pintar Kelas 5';
+    const studentClass = currentStudentDataK5.kelas || '5D';
+
+    completedExamScoresK5 = {
+        initial: currentStudentDataK5.nilaiAwal,
+        pg: pgScore,
+        uraian: uraianScore,
+        final: totalScore,
+        status: totalScore >= 80 ? 'LULUS REMEDIAL' : 'TUNTAS REMEDIAL',
+        predicate: totalScore >= 90 ? 'SANGAT MEMUASKAN' : (totalScore >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK')
+    };
+
+    // Tampilkan Nama & Nilai Akhir dengan TULISAN BESAR
+    document.getElementById('scoreStudentSummaryK5').innerText = `${studentName} • Kelas ${studentClass} (Absen: ${currentStudentDataK5.absen})`;
+    document.getElementById('hugeFinalScoreK5').innerText = totalScore;
+
+    const mascotIcon = document.getElementById('scoreMascotIconK5');
+    const predicateBadge = document.getElementById('hugePredicateBadgeK5');
+    const motivationTitle = document.getElementById('motivationTitleK5');
+    const motivationMessage = document.getElementById('motivationMessageK5');
+
+    if (totalScore >= 90) {
+        mascotIcon.innerText = '🏆';
+        predicateBadge.innerText = '🌟 LULUS REMEDIAL DENGAN GEMILANG!';
+        predicateBadge.style.background = 'linear-gradient(135deg, #059669, #10b981)';
+        motivationTitle.innerHTML = `Luar Biasa, ${studentName}! Presentasimu Sangat Memukau! 🚀`;
+        motivationMessage.innerHTML = `
+            Selamat atas keberhasilanmu! Usaha keras, ketelitian, dan kejujuranmu dalam memahami konsep Microsoft PowerPoint, efek transisi, serta kecerdasan buatan (AI) pembuat slide hari ini membuahkan hasil yang luar biasa!
+            <br><br>
+            Kamu telah membuktikan bahwa dengan ketekunan, kamu bisa menjadi pembuat presentasi yang kreatif dan andal. Teruslah bereksplorasi dengan berbagai ide visual yang hebat dan jadilah inspirasi bagi teman-temanmu! ✨📊
+        `;
+    } else if (totalScore >= 80) {
+        mascotIcon.innerText = '🎉';
+        predicateBadge.innerText = '✨ DINYATAKAN LULUS REMEDIAL (KKM 80)!';
+        predicateBadge.style.background = 'linear-gradient(135deg, #0284c7, #38bdf8)';
+        motivationTitle.innerHTML = `Kerja Bagus, ${studentName}! Terus Kembangkan Kreasimu! 💡`;
+        motivationMessage.innerHTML = `
+            Hebat sekali! Skor remedialmu berhasil melampaui batas KKM 80 dan membuktikan pemahaman yang sangat baik dalam mendesain slide presentasi dan memanfaatkan teknologi AI.
+            <br><br>
+            Presentasi adalah media komunikasi masa depan: semakin sering kamu berlatih memadukan teks, gambar, dan transisi, presentasimu akan semakin keren dan mengagumkan! Tetaplah rajin berlatih bersama Ibu Guru Darningsih ya! 🌱
+        `;
+    } else {
+        mascotIcon.innerText = '💪';
+        predicateBadge.innerText = '📖 PERLU PENGAYAAN & TETAP SEMANGAT!';
+        predicateBadge.style.background = 'linear-gradient(135deg, #f59e0b, #ea580c)';
+        motivationTitle.innerHTML = `Jangan Pernah Menyerah, ${studentName}! Kamu Pasti Bisa! 💖`;
+        motivationMessage.innerHTML = `
+            Terima kasih banyak sudah berusaha dan mengerjakan soal remedial ini secara mandiri dan jujur!
+            <br><br>
+            Meskipun nilaimu belum mencapai batas KKM 80, setiap tantangan adalah kesempatan terbaik untuk mengasah kreativitas kita. Jangan berkecil hati ya! Pelajari kembali menu-menu PowerPoint dan cara membuat prompt AI. Teruslah mencoba bersama Bapak/Ibu Guru, kamu pasti akan menjadi ahli presentasi yang hebat! 🤖✨
+        `;
+    }
+
+    // Simpan ke Panel Guru
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+    const dateFormatted = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    const newStudentRecord = {
+        id: 'st_k5_' + Date.now(),
+        name: studentName,
+        kelas: studentClass,
+        absen: currentStudentDataK5.absen,
+        nilaiAwal: currentStudentDataK5.nilaiAwal,
+        nilaiAkhir: totalScore,
+        pgScore: pgScore,
+        uraianScore: uraianScore,
+        status: totalScore >= 80 ? 'Lulus' : 'Tuntas',
+        predicate: completedExamScoresK5.predicate,
+        duration: examDurationTextK5,
+        timestamp: timeString,
+        date: dateFormatted,
+        answers: {
+            pg: collectedPgAnswers,
+            uraian: collectedUraianAnswers
+        }
+    };
+
+    saveStudentToRecap(newStudentRecord);
+
+    if (window.confetti) {
+        confetti({
+            particleCount: 130,
+            spread: 95,
+            origin: { y: 0.4 }
+        });
+    }
+
+    showExamStepK5('result');
+    showToast(`Nilai Akhir Remedial Kelas 5: ${totalScore}! 🌟 (Waktu: ${examDurationTextK5})`);
+}
+
+function generateAndDownloadPDFK5() {
+    playCuteSound('pop');
+    showToast('📄 Sedang menyusun dokumen PDF Kelas 5...');
+
+    const today = new Date();
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    const formattedDate = today.toLocaleDateString('id-ID', options);
+
+    document.getElementById('pdfReportNameK5').innerText = currentStudentDataK5.name || 'Siswa Kelas 5';
+    document.getElementById('pdfReportClassK5').innerText = `Kelas ${currentStudentDataK5.kelas || '5D'}`;
+    document.getElementById('pdfReportAbsenK5').innerText = currentStudentDataK5.absen || '-';
+    document.getElementById('pdfReportDurationK5').innerText = `${examDurationTextK5} (Batas: 60 Menit)`;
+    document.getElementById('pdfReportDateK5').innerText = formattedDate;
+
+    document.getElementById('pdfReportInitialScoreK5').innerText = completedExamScoresK5.initial;
+    document.getElementById('pdfReportPgScoreK5').innerText = `${completedExamScoresK5.pg} / 50 Poin`;
+    document.getElementById('pdfReportUraianScoreK5').innerText = `${completedExamScoresK5.uraian} / 50 Poin`;
+    document.getElementById('pdfReportFinalScoreK5').innerText = completedExamScoresK5.final;
+
+    document.getElementById('pdfReportStatusK5').innerText = completedExamScoresK5.status;
+    document.getElementById('pdfReportPredicateK5').innerText = completedExamScoresK5.predicate;
+    document.getElementById('pdfReportLocationDateK5').innerText = `Jakarta, ${formattedDate}`;
+
+    const element = document.getElementById('pdfDocumentElementK5');
+    const safeStudentName = (currentStudentDataK5.name || 'Siswa_K5').replace(/[^a-zA-Z0-9]/g, '_');
+    const filename = `Laporan_Remedial_${safeStudentName}_Kelas_${currentStudentDataK5.kelas}.pdf`;
+
+    if (typeof html2pdf !== 'undefined') {
+        const opt = {
+            margin: [8, 8, 8, 8],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            playCuteSound('fanfare');
+            showToast('✅ Berhasil mengunduh Laporan Remedial Kelas 5 (PDF)!');
+        }).catch(err => {
+            console.error('Error generating PDF:', err);
+            window.print();
+        });
+    } else {
+        window.print();
+    }
+}
+
+function returnToMainMenuK5() {
+    playCuteSound('pop');
+    closeExamModalK5();
+    showToast('✨ Kembali ke Menu Utama. Terus berkreasi di Koding & AI!');
+}
+
+function toggleScreenExpandK5() {
+    const icon = document.getElementById('fullscreenIconK5');
+    const text = document.getElementById('fullscreenTextK5');
+
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().then(() => {
+            if (icon) icon.className = 'fa-solid fa-compress';
+            if (text) text.innerText = 'Keluar Layar Penuh';
+            showToast('🖥️ Mode Layar Penuh Diaktifkan');
+        }).catch(() => {
+            showToast('Layar penuh aktif');
+        });
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen().then(() => {
+                if (icon) icon.className = 'fa-solid fa-expand';
+                if (text) text.innerText = 'Layar Penuh';
+            });
+        }
+    }
+}
+
+/* ==============================================================
+   REMEDIAL KELAS 6 - DEDICATED EXAM SYSTEM LOGIC
+   ============================================================== */
+let currentStudentDataK6 = {
+    name: '',
+    kelas: '',
+    nilaiAwal: 0,
+    absen: ''
+};
+
+let examTimeRemainingK6 = 60 * 60; // 3600 seconds
+let examTimerIntervalK6 = null;
+let examDurationTextK6 = '';
+let completedExamScoresK6 = {
+    initial: 0,
+    pg: 0,
+    uraian: 0,
+    final: 0,
+    status: 'LULUS REMEDIAL',
+    predicate: 'SANGAT MEMUASKAN'
+};
+
+const pgQuestionsK6Metadata = [
+    {
+        num: 1,
+        question: "1. Deva ingin merayakan pesta ulang tahunnya di rumah. Ia membuat daftar persiapan: (1) Menyiapkan daftar undangan teman, (2) Menyiapkan kue dan makanan kecil, (3) Menghias ruang pesta. Pola berpikir komputasional yang dilakukan Deva adalah...",
+        options: {
+            A: "Abstraksi",
+            B: "Pengenalan pola",
+            C: "Dekomposisi",
+            D: "Algoritma"
+        },
+        key: 'C',
+        keyText: 'C. Dekomposisi',
+        explanation: 'Dekomposisi adalah teknik memecah masalah besar/kompleks menjadi bagian-bagian atau daftar tugas yang lebih kecil dan sederhana.'
+    },
+    {
+        num: 2,
+        question: "2. Inaya sedang merapikan buku di perpustakaan sekolah. Ia mengelompokkan buku cerita bergambar di rak A, buku pelajaran sains di rak B, dan buku komik petualangan di rak C berdasarkan kesamaan ciri-ciri jenis bukunya. Pola berpikir komputasional yang dilakukan Inaya adalah...",
+        options: {
+            A: "Pengenalan pola",
+            B: "Algoritma",
+            C: "Dekomposisi",
+            D: "Abstraksi"
+        },
+        key: 'A',
+        keyText: 'A. Pengenalan pola',
+        explanation: 'Pengenalan pola (Pattern Recognition) adalah mengenali kesamaan, keteraturan, atau ciri khas serupa pada data/objek.'
+    },
+    {
+        num: 3,
+        question: "3. William ingin membuat rute perjalanan dari rumah ke sekolah untuk temannya. Ia hanya menggambar garis jalan utama, belokan penting, dan nama jalan, tanpa menggambar pohon, tiang listrik, atau rumah di sekitarnya. Pola berpikir komputasional yang diterapkan William adalah...",
+        options: {
+            A: "Algoritma",
+            B: "Dekomposisi",
+            C: "Pengenalan pola",
+            D: "Abstraksi"
+        },
+        key: 'D',
+        keyText: 'D. Abstraksi',
+        explanation: 'Abstraksi adalah fokus pada informasi yang penting (jalan utama & belokan) dan menyaring/mengabaikan detail-detail yang tidak penting.'
+    },
+    {
+        num: 4,
+        question: "4. Shevi ingin membuat origami berbentuk pesawat terbang. Ia mengikuti langkah-langkah yang ada di buku petunjuk secara berurutan mulai dari melipat sisi kanan, kiri, hingga membentuk sayap. Pola berpikir komputasional yang dilakukan Shevi adalah...",
+        options: {
+            A: "Dekomposisi",
+            B: "Algoritma",
+            C: "Abstraksi",
+            D: "Pengenalan pola"
+        },
+        key: 'B',
+        keyText: 'B. Algoritma',
+        explanation: 'Algoritma adalah langkah-langkah terurut, sistematis, dan logis untuk menyelesaikan suatu masalah atau pekerjaan.'
+    },
+    {
+        num: 5,
+        question: "5. Di bawah ini, manakah contoh dalam pembuatan game yang menerapkan prinsip Pengenalan Pola?",
+        options: {
+            A: "Menghapus detail gambar latar belakang agar game lebih ringan",
+            B: "Membagi pekerjaan membuat game menjadi karakter, suara, dan skor",
+            C: "Menggunakan logika pergerakan yang sama untuk semua karakter musuh",
+            D: "Menuliskan urutan tombol Start dari awal sampai permainan mulai"
+        },
+        key: 'C',
+        keyText: 'C. Menggunakan logika pergerakan yang sama untuk semua karakter musuh',
+        explanation: 'Menggunakan logika pergerakan yang sama untuk semua musuh memanfaatkan pola yang berulang (Pattern Recognition).'
+    },
+    {
+        num: 6,
+        question: "6. When you say \"Play music\" to a voice assistant, what is the 'Process' phase?",
+        options: {
+            A: "The speaker plays the song",
+            B: "The microphone detects your voice",
+            C: "The screen displays the album cover",
+            D: "Converting sound to text and searching the song"
+        },
+        key: 'D',
+        keyText: 'D. Converting sound to text and searching the song',
+        explanation: 'Tahap Process pada voice assistant adalah memproses suara menjadi teks dan mencari lagu di database sebelum dikeluarkan lewat speaker (output).'
+    },
+    {
+        num: 7,
+        question: "7. Which scenario illustrates abstraction rather than pattern recognition?",
+        options: {
+            A: "Grouping files based on file extensions (.jpg, .mp3)",
+            B: "Drawing a subway map that shows only stations and connecting lines",
+            C: "Noting that every Monday has heavy traffic at 7:00 AM",
+            D: "Identifying recurring shapes in traditional batik patterns"
+        },
+        key: 'B',
+        keyText: 'B. Drawing a subway map that shows only stations and connecting lines',
+        explanation: 'Peta rute kereta/subway yang hanya menampilkan stasiun dan garis adalah contoh klasik Abstraksi (menyaring detail yang tidak esensial).'
+    },
+    {
+        num: 8,
+        question: "8. When designing an automated cleaning robot, which of the following is the first step when using decomposition?",
+        options: {
+            A: "Test how fast the robot moves across the room",
+            B: "Choose the color and decorative stickers for the robot",
+            C: "Program the robot to say \"Cleaned!\" after finishing",
+            D: "Divide the cleaning job into three separate sub-tasks: vacuuming, mopping, and obstacle avoidance"
+        },
+        key: 'D',
+        keyText: 'D. Divide the cleaning job into three separate sub-tasks: vacuuming, mopping, and obstacle avoidance',
+        explanation: 'Langkah pertama dekomposisi adalah memecah pekerjaan pembersihan menjadi sub-tugas terpisah (menyedot debu, mengepel, hindari rintangan).'
+    },
+    {
+        num: 9,
+        question: "9. An AI model is trained with thousands of cat photos labeled \"Cat\" to help it recognize cats. What type of machine learning is this?",
+        options: {
+            A: "Unsupervised Learning",
+            B: "Supervised Learning",
+            C: "Reinforcement Learning",
+            D: "Semi-supervised Learning"
+        },
+        key: 'B',
+        keyText: 'B. Supervised Learning',
+        explanation: 'Supervised Learning menggunakan data latih yang sudah memiliki label (seperti ribuan foto yang berlabel \"Cat\") agar AI belajar mengenali polanya.'
+    },
+    {
+        num: 10,
+        question: "10. When building a game where a character collects falling coins and avoids obstacles, which decomposition step should be done first?",
+        options: {
+            A: "Break the game into movement, scoring, and obstacles",
+            B: "Draw background decorations and sound effects",
+            C: "Publish the game to an online app store",
+            D: "Buy a faster computer for programming"
+        },
+        key: 'A',
+        keyText: 'A. Break the game into movement, scoring, and obstacles',
+        explanation: 'Dekomposisi awal membuat game adalah memecah struktur inti logika game menjadi: pergerakan pemain, penghitungan skor, dan rintangan.'
+    }
+];
+
+function startCountdownTimerK6() {
+    examTimeRemainingK6 = 60 * 60;
+    if (examTimerIntervalK6) clearInterval(examTimerIntervalK6);
+    updateCountdownUIK6();
+
+    examTimerIntervalK6 = setInterval(() => {
+        examTimeRemainingK6--;
+        updateCountdownUIK6();
+
+        if (examTimeRemainingK6 <= 0) {
+            clearInterval(examTimerIntervalK6);
+            showToast('⏰ Waktu pengerjaan 60 menit telah habis! Mengirimkan jawaban...');
+            playCuteSound('pop');
+            const examForm = document.getElementById('k6ExamForm');
+            if (examForm) {
+                examForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+            }
+        }
+    }, 1000);
+}
+
+function updateCountdownUIK6() {
+    const timerTag = document.getElementById('examCountdownTagK6');
+    const timerText = document.getElementById('timerTextK6');
+    if (!timerText) return;
+
+    const minutes = Math.floor(examTimeRemainingK6 / 60);
+    const seconds = examTimeRemainingK6 % 60;
+    const formatted = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    timerText.innerText = formatted;
+
+    if (timerTag) {
+        if (examTimeRemainingK6 <= 300) {
+            timerTag.classList.add('timer-warning');
+        } else {
+            timerTag.classList.remove('timer-warning');
+        }
+    }
+}
+
+function openRemedialKelas6() {
+    playCuteSound('pop');
+    const modal = document.getElementById('examModalK6');
+    if (!modal) return;
+    modal.classList.add('open');
+
+    showExamStepK6('identity');
+
+    const bubble = document.getElementById('mascotBubble');
+    if (bubble) {
+        bubble.innerHTML = `<span>Selamat datang di Remedial Kelas 6! Masukkan nama, nilai awal, dan pilih kelasmu (6A-6E). Waktu: 60 Menit ⏰</span>`;
+    }
+}
+
+function closeExamModalK6() {
+    playCuteSound('pop');
+    if (examTimerIntervalK6) clearInterval(examTimerIntervalK6);
+    const modal = document.getElementById('examModalK6');
+    if (modal) modal.classList.remove('open');
+}
+
+function showExamStepK6(stepName) {
+    const stepIdentity = document.getElementById('k6-step-identity');
+    const stepQuestions = document.getElementById('k6-step-questions');
+    const stepResult = document.getElementById('k6-step-result');
+
+    if (stepIdentity) stepIdentity.classList.remove('active');
+    if (stepQuestions) stepQuestions.classList.remove('active');
+    if (stepResult) stepResult.classList.remove('active');
+
+    const targetStep = document.getElementById(`k6-step-${stepName}`);
+    if (targetStep) targetStep.classList.add('active');
+
+    const modalBody = document.querySelector('#examModalK6 .exam-modal-body');
+    if (modalBody) modalBody.scrollTop = 0;
+}
+
+function startExamK6(event) {
+    event.preventDefault();
+    playCuteSound('pop');
+
+    const name = document.getElementById('k6Name').value.trim();
+    const classChecked = document.querySelector('input[name="k6ClassChoice"]:checked');
+    const nilaiAwal = document.getElementById('k6NilaiAwal').value;
+    const absen = document.getElementById('k6Absen').value || '-';
+
+    if (!classChecked) {
+        showToast('⚠️ Silakan pilih salah satu kelas (6A - 6E)!');
+        return;
+    }
+
+    currentStudentDataK6 = {
+        name: name,
+        kelas: classChecked.value,
+        nilaiAwal: parseInt(nilaiAwal) || 0,
+        absen: absen
+    };
+
+    document.getElementById('barStudentNameK6').innerText = currentStudentDataK6.name;
+    document.getElementById('barStudentClassK6').innerText = `Kelas ${currentStudentDataK6.kelas}`;
+    document.getElementById('barStudentInitialScoreK6').innerText = currentStudentDataK6.nilaiAwal;
+
+    startCountdownTimerK6();
+
+    showExamStepK6('questions');
+    showToast(`Selamat mengerjakan remedial Kelas 6, ${name}! Waktu: 60 Menit ⏰`);
+}
+
+function calculateAndShowScoreK6(event) {
+    event.preventDefault();
+    playCuteSound('fanfare');
+
+    let pgScore = 0;
+    const collectedPgAnswers = [];
+
+    // 1. Evaluate 10 Multiple Choice Questions (Bobot: 5 poin per soal = 50 poin max)
+    for (let i = 0; i < pgQuestionsK6Metadata.length; i++) {
+        const item = pgQuestionsK6Metadata[i];
+        const selected = document.querySelector(`input[name="pg_k6_${item.num}"]:checked`);
+        const userChoice = selected ? selected.value : '';
+        const userChoiceText = userChoice ? `${userChoice}. ${item.options[userChoice] || ''}` : '(Tidak dijawab)';
+        const isCorrect = (userChoice === item.key);
+        const pts = isCorrect ? 5 : 0;
+
+        if (isCorrect) {
+            pgScore += 5;
+        }
+
+        const keteranganText = getPgKeterangan(isCorrect, item.keyText, item.explanation);
+
+        collectedPgAnswers.push({
+            num: item.num,
+            question: item.question,
+            userChoice: userChoice || '-',
+            userChoiceText: userChoiceText,
+            key: item.key,
+            keyText: item.keyText,
+            explanation: item.explanation,
+            isCorrect: isCorrect,
+            points: pts,
+            keterangan: keteranganText
+        });
+    }
+
+    // 2. Evaluate 5 Uraian Questions (Bobot: 10 poin per soal = 50 poin max)
+    let uraianScore = 0;
+    const collectedUraianAnswers = [];
+
+    // Uraian 1 (No. 11): Codingan Menggerakkan Objek dengan Keyboard
+    const rawAns1 = (document.getElementById('uraian_k6_1') ? document.getElementById('uraian_k6_1').value.trim() : '');
+    const ans1 = rawAns1.toLowerCase();
+    const hasFlag = ans1.includes('flag') || ans1.includes('bendera') || ans1.includes('event');
+    const hasLoop = ans1.includes('forever') || ans1.includes('selamanya') || ans1.includes('loop') || ans1.includes('ulang');
+    const hasKey = ans1.includes('right') || ans1.includes('kanan') || ans1.includes('panah') || ans1.includes('arrow') || ans1.includes('key') || ans1.includes('tombol') || ans1.includes('pressed') || ans1.includes('tekan');
+    const hasMotion = ans1.includes('change x') || ans1.includes('move') || ans1.includes('gerak') || ans1.includes('langkah') || ans1.includes('10');
+    
+    let u1Pts = 0;
+    const matchesCount = [hasFlag, hasLoop, hasKey, hasMotion].filter(Boolean).length;
+    if (matchesCount >= 3) {
+        u1Pts = 10;
+    } else if (matchesCount === 2) {
+        u1Pts = 8;
+    } else if (matchesCount === 1) {
+        u1Pts = 5;
+    } else if (rawAns1.length > 5) {
+        u1Pts = 3;
+    }
+    uraianScore += u1Pts;
+    collectedUraianAnswers.push({
+        num: 1,
+        question: "11. Codingan Menggerakkan Objek dengan Keyboard (Scratch)",
+        userAnswer: rawAns1 || "(Tidak diisi)",
+        keyRef: "Susunan blok kode di Scratch yang menggunakan kejadian tombol ditekan (events): memasang blok When [Green Flag] clicked, diikuti blok forever, lalu kondisi if <key [right arrow] pressed?> then dengan perintah change x by 10, serta kondisi if <key [left arrow] pressed?> then dengan perintah change x by -10 (atau move 10 steps).",
+        points: u1Pts,
+        keterangan: u1Pts >= 10 ? "✔ Sangat Tepat: Blok Event, Loop Forever, Sensing Key Pressed, dan Motion Change X tersusun dengan benar." : getUraianKeterangan(u1Pts)
+    });
+
+    // Uraian 2 (No. 12): Nama Blok Kode Berdasarkan Perintah
+    const raw2a = (document.getElementById('uraian_k6_2_a') ? document.getElementById('uraian_k6_2_a').value.trim() : '');
+    const raw2b = (document.getElementById('uraian_k6_2_b') ? document.getElementById('uraian_k6_2_b').value.trim() : '');
+    const raw2c = (document.getElementById('uraian_k6_2_c') ? document.getElementById('uraian_k6_2_c').value.trim() : '');
+    const raw2d = (document.getElementById('uraian_k6_2_d') ? document.getElementById('uraian_k6_2_d').value.trim() : '');
+
+    const ans2a = raw2a.toLowerCase();
+    const ans2b = raw2b.toLowerCase();
+    const ans2c = raw2c.toLowerCase();
+    const ans2d = raw2d.toLowerCase();
+
+    let u2Pts = 0;
+    if (ans2a.includes('looks') || ans2a.includes('tampilan') || ans2a.includes('look') || ans2a.includes('kostum')) u2Pts += 2.5;
+    if (ans2b.includes('variable') || ans2b.includes('variabel') || ans2b.includes('data')) u2Pts += 2.5;
+    if (ans2c.includes('sensing') || ans2c.includes('sensor') || ans2c.includes('sentuh')) u2Pts += 2.5;
+    if (ans2d.includes('looks') || ans2d.includes('tampilan') || ans2d.includes('look')) u2Pts += 2.5;
+
+    u2Pts = Math.round(u2Pts);
+    uraianScore += u2Pts;
+    collectedUraianAnswers.push({
+        num: 2,
+        question: "12. Nama Blok Kode Berdasarkan Perintah (next costume, set lives to 0, touching Goblin?, show/hide)",
+        userAnswer: `A: ${raw2a || '-'} | B: ${raw2b || '-'} | C: ${raw2c || '-'} | D: ${raw2d || '-'}`,
+        keyRef: "A (next costume): Blok Looks (Tampilan) | B (set lives to 0): Blok Variables (Variabel) | C (touching Goblin?): Blok Sensing (Sensor) | D (show/hide): Blok Looks (Tampilan)",
+        points: u2Pts,
+        keterangan: u2Pts === 10 ? "✔ Sempurna: Keempat kategori kelompok blok (Looks, Variables, Sensing, Looks) dijawab dengan tepat." : `⚠ Memperoleh ${u2Pts}/10 poin. Kunci: Looks, Variables, Sensing, Looks.`
+    });
+
+    // Uraian 3 (No. 13): Nama dan Fungsi Gambar Ikon di Aplikasi Scratch
+    const raw3a = (document.getElementById('uraian_k6_3_a') ? document.getElementById('uraian_k6_3_a').value.trim() : '');
+    const raw3b = (document.getElementById('uraian_k6_3_b') ? document.getElementById('uraian_k6_3_b').value.trim() : '');
+    const ans3a = raw3a.toLowerCase();
+    const ans3b = raw3b.toLowerCase();
+
+    let u3Pts = 0;
+    if (ans3a.includes('sprite') || ans3a.includes('karakter') || ans3a.includes('kucing') || ans3a.includes('tokoh') || ans3a.includes('objek')) {
+        u3Pts += 5;
+    } else if (raw3a.length > 3) {
+        u3Pts += 2;
+    }
+
+    if (ans3b.includes('backdrop') || ans3b.includes('background') || ans3b.includes('latar') || ans3b.includes('panggung') || ans3b.includes('stage')) {
+        u3Pts += 5;
+    } else if (raw3b.length > 3) {
+        u3Pts += 2;
+    }
+
+    uraianScore += u3Pts;
+    collectedUraianAnswers.push({
+        num: 3,
+        question: "13. Nama dan Fungsi Gambar Ikon di Aplikasi Scratch (Ikon A & B)",
+        userAnswer: `Gambar A: ${raw3a || '-'} | Gambar B: ${raw3b || '-'}`,
+        keyRef: "Gambar A (Ikon Kucing +): Bernama Choose a Sprite (Pilih Sprite), berfungsi untuk menambahkan karakter atau objek baru ke dalam proyek. | Gambar B (Ikon Latar +): Bernama Choose a Backdrop (Pilih Latar Belakang), berfungsi untuk menambahkan gambar latar belakang pada panggung (stage) proyek.",
+        points: u3Pts,
+        keterangan: u3Pts === 10 ? "✔ Sangat Tepat: Nama tombol dan fungsi Choose a Sprite & Choose a Backdrop dijawab dengan benar." : getUraianKeterangan(u3Pts)
+    });
+
+    // Uraian 4 (No. 14): Contoh Perintah dalam Blok Motion dan Control
+    const raw4Motion = (document.getElementById('uraian_k6_4_motion') ? document.getElementById('uraian_k6_4_motion').value.trim() : '');
+    const raw4Control = (document.getElementById('uraian_k6_4_control') ? document.getElementById('uraian_k6_4_control').value.trim() : '');
+    const ans4Motion = raw4Motion.toLowerCase();
+    const ans4Control = raw4Control.toLowerCase();
+
+    let u4Pts = 0;
+    const isMotionGood = ans4Motion.includes('move') || ans4Motion.includes('turn') || ans4Motion.includes('go to') || ans4Motion.includes('glide') || ans4Motion.includes('point') || ans4Motion.includes('change x') || ans4Motion.includes('set x') || ans4Motion.includes('langkah') || ans4Motion.includes('gerak');
+    if (isMotionGood) u4Pts += 5; else if (raw4Motion.length > 3) u4Pts += 2;
+
+    const isControlGood = ans4Control.includes('wait') || ans4Control.includes('repeat') || ans4Control.includes('forever') || ans4Control.includes('if') || ans4Control.includes('then') || ans4Control.includes('stop') || ans4Control.includes('clone') || ans4Control.includes('ulang');
+    if (isControlGood) u4Pts += 5; else if (raw4Control.length > 3) u4Pts += 2;
+
+    uraianScore += u4Pts;
+    collectedUraianAnswers.push({
+        num: 4,
+        question: "14. Contoh Perintah dalam Blok Motion dan Control",
+        userAnswer: `Blok Motion: ${raw4Motion || '-'} | Blok Control: ${raw4Control || '-'}`,
+        keyRef: "Blok Motion: move 10 steps dan turn right 15 degrees (atau go to x: y:). | Blok Control: wait 1 secs dan repeat 10 (atau forever, if ... then).",
+        points: u4Pts,
+        keterangan: u4Pts === 10 ? "✔ Sangat Tepat: Contoh blok Motion dan Control dituliskan dengan benar." : getUraianKeterangan(u4Pts)
+    });
+
+    // Uraian 5 (No. 15): Empat Pilar Computational Thinking
+    const raw5Dek = (document.getElementById('uraian_k6_5_dekomposisi') ? document.getElementById('uraian_k6_5_dekomposisi').value.trim() : '');
+    const raw5Pola = (document.getElementById('uraian_k6_5_pola') ? document.getElementById('uraian_k6_5_pola').value.trim() : '');
+    const raw5Abs = (document.getElementById('uraian_k6_5_abstraksi') ? document.getElementById('uraian_k6_5_abstraksi').value.trim() : '');
+    const raw5Alg = (document.getElementById('uraian_k6_5_algoritma') ? document.getElementById('uraian_k6_5_algoritma').value.trim() : '');
+
+    const ans5Dek = raw5Dek.toLowerCase();
+    const ans5Pola = raw5Pola.toLowerCase();
+    const ans5Abs = raw5Abs.toLowerCase();
+    const ans5Alg = raw5Alg.toLowerCase();
+
+    let u5Pts = 0;
+    if (ans5Dek.includes('dekomposisi') || ans5Dek.includes('decomposition') || ans5Dek.includes('pecah') || ans5Dek.includes('bagi') || ans5Dek.includes('kecil')) u5Pts += 2.5; else if (raw5Dek.length > 2) u5Pts += 1;
+    if (ans5Pola.includes('pola') || ans5Pola.includes('pattern') || ans5Pola.includes('sama') || ans5Pola.includes('kemiripan') || ans5Pola.includes('recognition')) u5Pts += 2.5; else if (raw5Pola.length > 2) u5Pts += 1;
+    if (ans5Abs.includes('abstraksi') || ans5Abs.includes('abstraction') || ans5Abs.includes('penting') || ans5Abs.includes('abaikan') || ans5Abs.includes('detail')) u5Pts += 2.5; else if (raw5Abs.length > 2) u5Pts += 1;
+    if (ans5Alg.includes('algoritma') || ans5Alg.includes('algorithm') || ans5Alg.includes('langkah') || ans5Alg.includes('urutan') || ans5Alg.includes('runtut') || ans5Alg.includes('logis')) u5Pts += 2.5; else if (raw5Alg.length > 2) u5Pts += 1;
+
+    u5Pts = Math.round(u5Pts);
+    uraianScore += u5Pts;
+    collectedUraianAnswers.push({
+        num: 5,
+        question: "15. Empat Pilar Computational Thinking (Berpikir Komputasional)",
+        userAnswer: `1. Dekomposisi: ${raw5Dek || '-'} | 2. Pengenalan Pola: ${raw5Pola || '-'} | 3. Abstraksi: ${raw5Abs || '-'} | 4. Algoritma: ${raw5Alg || '-'}`,
+        keyRef: "1. Dekomposisi (Decomposition) | 2. Pengenalan Pola (Pattern Recognition) | 3. Abstraksi (Abstraction) | 4. Algoritma (Algorithm).",
+        points: u5Pts,
+        keterangan: u5Pts === 10 ? "✔ Sangat Lengkap: Keempat pilar Berpikir Komputasional (Dekomposisi, Pengenalan Pola, Abstraksi, Algoritma) dijelaskan dengan tepat." : getUraianKeterangan(u5Pts)
+    });
+
+    // Hentikan timer pengerjaan 60 menit & catat durasi
+    if (examTimerIntervalK6) clearInterval(examTimerIntervalK6);
+    const secondsSpent = Math.max(1, (60 * 60) - Math.max(0, examTimeRemainingK6));
+    const minSpent = Math.floor(secondsSpent / 60);
+    const secSpent = secondsSpent % 60;
+    examDurationTextK6 = `${minSpent} Menit ${secSpent} Detik`;
+
+    // Total Score (0 - 100)
+    const totalScore = pgScore + uraianScore;
+    const studentName = currentStudentDataK6.name || 'Sahabat Pintar Kelas 6';
+    const studentClass = currentStudentDataK6.kelas || '6A';
+
+    completedExamScoresK6 = {
+        initial: currentStudentDataK6.nilaiAwal,
+        pg: pgScore,
+        uraian: uraianScore,
+        final: totalScore,
+        status: totalScore >= 80 ? 'LULUS REMEDIAL' : 'TUNTAS REMEDIAL',
+        predicate: totalScore >= 90 ? 'SANGAT MEMUASKAN' : (totalScore >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK')
+    };
+
+    // Tampilkan Nama & Nilai Akhir dengan TULISAN BESAR
+    document.getElementById('scoreStudentSummaryK6').innerText = `${studentName} • Kelas ${studentClass} (Absen: ${currentStudentDataK6.absen})`;
+    document.getElementById('hugeFinalScoreK6').innerText = totalScore;
+
+    const mascotIcon = document.getElementById('scoreMascotIconK6');
+    const predicateBadge = document.getElementById('hugePredicateBadgeK6');
+    const motivationTitle = document.getElementById('motivationTitleK6');
+    const motivationMessage = document.getElementById('motivationMessageK6');
+
+    if (totalScore >= 90) {
+        mascotIcon.innerText = '🏆';
+        predicateBadge.innerText = '🌟 LULUS REMEDIAL DENGAN GEMILANG!';
+        predicateBadge.style.background = 'linear-gradient(135deg, #059669, #10b981)';
+        motivationTitle.innerHTML = `Luar Biasa, ${studentName}! Logika Kodingmu Sangat Hebat! 🚀`;
+        motivationMessage.innerHTML = `
+            Selamat atas keberhasilanmu! Usaha keras, ketelitian, dan kejujuranmu dalam memahami konsep Berpikir Komputasional, Machine Learning, dan pemrograman Scratch hari ini membuahkan hasil yang sangat membanggakan!
+            <br><br>
+            Kamu telah membuktikan bahwa tantangan koding tingkat lanjut dapat kamu selesaikan dengan gemilang. Teruslah berkarya, ciptakan proyek game dan AI yang bermanfaat, dan jadilah inspirasi bagi sesama! ✨🤖
+        `;
+    } else if (totalScore >= 80) {
+        mascotIcon.innerText = '🎉';
+        predicateBadge.innerText = '✨ DINYATAKAN LULUS REMEDIAL (KKM 80)!';
+        predicateBadge.style.background = 'linear-gradient(135deg, #7e22ce, #a855f7)';
+        motivationTitle.innerHTML = `Kerja Bagus, ${studentName}! Kamu Berhasil Memenuhi KKM 80! 💡`;
+        motivationMessage.innerHTML = `
+            Hebat sekali! Skor remedialmu berhasil melampaui batas KKM 80 dan membuktikan pemahaman logika yang kuat dan dedikasi yang tinggi.
+            <br><br>
+            Berpikir komputasional dan pemrograman Scratch melatih otak kita untuk selalu berpikir terstruktur dan kreatif. Teruslah bereksplorasi dengan berbagai blok kode baru di Scratch, jangan ragu mencoba algoritma yang lebih seru, dan tetaplah rajin berlatih! Ibu Guru Darningsih sangat bangga padamu! 🌱
+        `;
+    } else {
+        mascotIcon.innerText = '💪';
+        predicateBadge.innerText = '📖 PERLU PENGAYAAN & TETAP SEMANGAT!';
+        predicateBadge.style.background = 'linear-gradient(135deg, #f59e0b, #ea580c)';
+        motivationTitle.innerHTML = `Jangan Pernah Menyerah, ${studentName}! Kamu Pasti Bisa! 💖`;
+        motivationMessage.innerHTML = `
+            Terima kasih banyak sudah berusaha dan mengerjakan soal remedial ini secara mandiri dan jujur!
+            <br><br>
+            Meskipun nilaimu belum mencapai batas KKM 80, setiap kesalahan (*bug*) atau kesulitan adalah sahabat terbaik yang mengajarkan kita untuk menjadi lebih teliti dan bijaksana. Jangan berkecil hati ya! Pelajari kembali 4 pilar computational thinking dan blok-blok di Scratch. Selangkah demi selangkah bersama Ibu Guru, kamu pasti bisa menjadi programmer hebat! 🤖✨
+        `;
+    }
+
+    // Simpan ke Panel Guru
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+    const dateFormatted = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    const newStudentRecord = {
+        id: 'st_k6_' + Date.now(),
+        name: studentName,
+        kelas: studentClass,
+        absen: currentStudentDataK6.absen,
+        nilaiAwal: currentStudentDataK6.nilaiAwal,
+        nilaiAkhir: totalScore,
+        pgScore: pgScore,
+        uraianScore: uraianScore,
+        status: totalScore >= 80 ? 'Lulus' : 'Tuntas',
+        predicate: completedExamScoresK6.predicate,
+        duration: examDurationTextK6,
+        timestamp: timeString,
+        date: dateFormatted,
+        answers: {
+            pg: collectedPgAnswers,
+            uraian: collectedUraianAnswers
+        }
+    };
+
+    saveStudentToRecap(newStudentRecord);
+
+    if (window.confetti) {
+        confetti({
+            particleCount: 130,
+            spread: 95,
+            origin: { y: 0.4 }
+        });
+    }
+
+    showExamStepK6('result');
+    showToast(`Nilai Akhir Remedial Kelas 6: ${totalScore}! 🌟 (Waktu: ${examDurationTextK6})`);
+}
+
+function generateAndDownloadPDFK6() {
+    playCuteSound('pop');
+    showToast('📄 Sedang menyusun dokumen PDF Kelas 6...');
+
+    const today = new Date();
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    const formattedDate = today.toLocaleDateString('id-ID', options);
+
+    document.getElementById('pdfReportNameK6').innerText = currentStudentDataK6.name || 'Siswa Kelas 6';
+    document.getElementById('pdfReportClassK6').innerText = `Kelas ${currentStudentDataK6.kelas || '6A'}`;
+    document.getElementById('pdfReportAbsenK6').innerText = currentStudentDataK6.absen || '-';
+    document.getElementById('pdfReportDurationK6').innerText = `${examDurationTextK6} (Batas: 60 Menit)`;
+    document.getElementById('pdfReportDateK6').innerText = formattedDate;
+
+    document.getElementById('pdfReportInitialScoreK6').innerText = completedExamScoresK6.initial;
+    document.getElementById('pdfReportPgScoreK6').innerText = `${completedExamScoresK6.pg} / 50 Poin`;
+    document.getElementById('pdfReportUraianScoreK6').innerText = `${completedExamScoresK6.uraian} / 50 Poin`;
+    document.getElementById('pdfReportFinalScoreK6').innerText = completedExamScoresK6.final;
+
+    document.getElementById('pdfReportStatusK6').innerText = completedExamScoresK6.status;
+    document.getElementById('pdfReportPredicateK6').innerText = completedExamScoresK6.predicate;
+    document.getElementById('pdfReportLocationDateK6').innerText = `Jakarta, ${formattedDate}`;
+
+    const element = document.getElementById('pdfDocumentElementK6');
+    const safeStudentName = (currentStudentDataK6.name || 'Siswa_K6').replace(/[^a-zA-Z0-9]/g, '_');
+    const filename = `Laporan_Remedial_${safeStudentName}_Kelas_${currentStudentDataK6.kelas}.pdf`;
+
+    if (typeof html2pdf !== 'undefined') {
+        const opt = {
+            margin: [8, 8, 8, 8],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            playCuteSound('fanfare');
+            showToast('✅ Berhasil mengunduh Laporan Remedial Kelas 6 (PDF)!');
+        }).catch(err => {
+            console.error('Error generating PDF:', err);
+            window.print();
+        });
+    } else {
+        window.print();
+    }
+}
+
+function returnToMainMenuK6() {
+    playCuteSound('pop');
+    closeExamModalK6();
+    showToast('✨ Kembali ke Menu Utama. Terus berkarya di Koding & AI!');
+}
+
+function toggleScreenExpandK6() {
+    const icon = document.getElementById('fullscreenIconK6');
+    const text = document.getElementById('fullscreenTextK6');
+
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().then(() => {
+            if (icon) icon.className = 'fa-solid fa-compress';
+            if (text) text.innerText = 'Keluar Layar Penuh';
+            showToast('🖥️ Mode Layar Penuh Diaktifkan');
+        }).catch(() => {
+            showToast('Layar penuh aktif');
+        });
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen().then(() => {
+                if (icon) icon.className = 'fa-solid fa-expand';
+                if (text) text.innerText = 'Layar Penuh';
             });
         }
     }
@@ -911,6 +2162,150 @@ const DEFAULT_STUDENTS_SEED = [
                 { num: 5, question: "Penulisan Rumus pada Tabel Hewan", userAnswer: "E9: =SUM(E2:E7), E10: =AVERAGE(E2:E7)", points: 0 }
             ]
         }
+    },
+    {
+        id: 'seed_k5_1',
+        name: 'Jason Alexander',
+        kelas: '5D',
+        absen: '09',
+        nilaiAwal: 62,
+        nilaiAkhir: 96,
+        pgScore: 50,
+        uraianScore: 46,
+        status: 'Lulus',
+        predicate: 'SANGAT MEMUASKAN',
+        duration: '39 Menit 10 Detik',
+        timestamp: '08:45 WIB',
+        date: '30 September 2026',
+        answers: {
+            pg: [
+                { num: 1, question: "1. Langkah pertama menyimpan dokumen presentasi...", userChoice: 'B', userChoiceText: 'B. File', key: 'B', keyText: 'B. File', isCorrect: true, points: 5 },
+                { num: 2, question: "2. Bagian utama jendela PowerPoint sebagai lembar kerja...", userChoice: 'C', userChoiceText: 'C. Halaman Slide', key: 'C', keyText: 'C. Halaman Slide', isCorrect: true, points: 5 },
+                { num: 3, question: "3. Fungsi utama perangkat lunak Microsoft PowerPoint...", userChoice: 'C', userChoiceText: 'C. Menampilkan dokumen dalam bentuk slide presentasi', key: 'C', keyText: 'C. Menampilkan dokumen dalam bentuk slide presentasi', isCorrect: true, points: 5 },
+                { num: 4, question: "4. Fitur efek perpindahan menarik dari slide ke slide...", userChoice: 'B', userChoiceText: 'B. Transition', key: 'B', keyText: 'B. Transition', isCorrect: true, points: 5 },
+                { num: 5, question: "5. Contoh efek Transisi (Transitions)...", userChoice: 'C', userChoiceText: 'C. Push', key: 'C', keyText: 'C. Push', isCorrect: true, points: 5 },
+                { num: 6, question: "6. Primary function of Microsoft PowerPoint...", userChoice: 'C', userChoiceText: 'C. To create visual presentations', key: 'C', keyText: 'C. To create visual presentations', isCorrect: true, points: 5 },
+                { num: 7, question: "7. Keyboard shortcut starts slide show from first slide...", userChoice: 'A', userChoiceText: 'A. F5', key: 'A', keyText: 'A. F5', isCorrect: true, points: 5 },
+                { num: 8, question: "8. Menu for saving files in Microsoft PowerPoint...", userChoice: 'A', userChoiceText: 'A. File', key: 'A', keyText: 'A. File', isCorrect: true, points: 5 },
+                { num: 9, question: "9. Single page within a PowerPoint presentation...", userChoice: 'B', userChoiceText: 'B. Slide', key: 'B', keyText: 'B. Slide', isCorrect: true, points: 5 },
+                { num: 10, question: "10. Button adds new slide to presentation...", userChoice: 'C', userChoiceText: 'C. New Slide', key: 'C', keyText: 'C. New Slide', isCorrect: true, points: 5 }
+            ],
+            uraian: [
+                { num: 1, question: "11. Langkah-langkah cara membuat presentasi dengan bantuan aplikasi AI", userAnswer: "1. Buka platform AI pembuat presentasi (seperti Gamma.app atau Tome). 2. Pilih opsi Create new. 3. Masukkan prompt teks topik dan struktur slide. 4. Pilih tema atau gaya visual AI. 5. Klik Generate dan tunggu hingga selesai. 6. Review dan edit teks/gambar jika perlu disesuaikan.", points: 10 },
+                { num: 2, question: "12. Nama slide tampilan layout (A, B, C)", userAnswer: "A: Title and Content (Judul dan Konten), B: Title, Content with Picture atau Picture with Caption, C: Two Content (Dua Konten)", points: 10 },
+                { num: 3, question: "13. Contoh prompt untuk Bu Santi", userAnswer: "Buatkan materi presentasi untuk murid kelas 5 SD bertemakan 'Pengenalan Microsoft PowerPoint' yang terdiri dari 3 slide: Slide 1 Pengenalan PowerPoint, Slide 2 Mengenal Tampilan, dan Slide 3 Membuat Slide Baru. Gunakan bahasa yang sederhana dan mudah dipahami anak-anak.", points: 10 },
+                { num: 4, question: "14. Langkah-langkah cara menyimpan presentasi ke Local Disk D", userAnswer: "1. Klik menu File -> Save As. 2. Klik Browse. 3. Pilih Local Disk (D:) -> folder kelas 5 -> folder 5D. 4. Ketik nama file: 5D-Namakamu-Latihan. 5. Klik Save.", points: 10 },
+                { num: 5, question: "15. Lima aplikasi AI yang membantu dalam pembuatan presentasi", userAnswer: "1. Gamma App (Gamma.app), 2. Tome (Tome.app), 3. Canva (Magic Design), 4. Microsoft Copilot, 5. Beautiful.ai", points: 10 }
+            ]
+        }
+    },
+    {
+        id: 'seed_k5_2',
+        name: 'Nadine Aurelia',
+        kelas: '5D',
+        absen: '16',
+        nilaiAwal: 65,
+        nilaiAkhir: 90,
+        pgScore: 45,
+        uraianScore: 45,
+        status: 'Lulus',
+        predicate: 'SANGAT MEMUASKAN',
+        duration: '44 Menit 05 Detik',
+        timestamp: '09:00 WIB',
+        date: '30 September 2026',
+        answers: {
+            pg: [
+                { num: 1, question: "1. Langkah pertama menyimpan dokumen presentasi...", userChoice: 'B', userChoiceText: 'B. File', key: 'B', keyText: 'B. File', isCorrect: true, points: 5 },
+                { num: 2, question: "2. Bagian utama jendela PowerPoint sebagai lembar kerja...", userChoice: 'C', userChoiceText: 'C. Halaman Slide', key: 'C', keyText: 'C. Halaman Slide', isCorrect: true, points: 5 },
+                { num: 3, question: "3. Fungsi utama perangkat lunak Microsoft PowerPoint...", userChoice: 'C', userChoiceText: 'C. Menampilkan dokumen dalam bentuk slide presentasi', key: 'C', keyText: 'C. Menampilkan dokumen dalam bentuk slide presentasi', isCorrect: true, points: 5 },
+                { num: 4, question: "4. Fitur efek perpindahan menarik dari slide ke slide...", userChoice: 'C', userChoiceText: 'C. Animations', key: 'B', keyText: 'B. Transition', isCorrect: false, points: 0 },
+                { num: 5, question: "5. Contoh efek Transisi (Transitions)...", userChoice: 'C', userChoiceText: 'C. Push', key: 'C', keyText: 'C. Push', isCorrect: true, points: 5 },
+                { num: 6, question: "6. Primary function of Microsoft PowerPoint...", userChoice: 'C', userChoiceText: 'C. To create visual presentations', key: 'C', keyText: 'C. To create visual presentations', isCorrect: true, points: 5 },
+                { num: 7, question: "7. Keyboard shortcut starts slide show from first slide...", userChoice: 'A', userChoiceText: 'A. F5', key: 'A', keyText: 'A. F5', isCorrect: true, points: 5 },
+                { num: 8, question: "8. Menu for saving files in Microsoft PowerPoint...", userChoice: 'A', userChoiceText: 'A. File', key: 'A', keyText: 'A. File', isCorrect: true, points: 5 },
+                { num: 9, question: "9. Single page within a PowerPoint presentation...", userChoice: 'B', userChoiceText: 'B. Slide', key: 'B', keyText: 'B. Slide', isCorrect: true, points: 5 },
+                { num: 10, question: "10. Button adds new slide to presentation...", userChoice: 'C', userChoiceText: 'C. New Slide', key: 'C', keyText: 'C. New Slide', isCorrect: true, points: 5 }
+            ],
+            uraian: [
+                { num: 1, question: "11. Langkah-langkah cara membuat presentasi dengan bantuan aplikasi AI", userAnswer: "Buka platform Gamma.app, pilih Create new, ketik prompt presentasi, pilih tema visual, klik Generate, lalu review dan simpan.", points: 9 },
+                { num: 2, question: "12. Nama slide tampilan layout (A, B, C)", userAnswer: "A: Title and Content, B: Picture with Caption, C: Two Content", points: 10 },
+                { num: 3, question: "13. Contoh prompt untuk Bu Santi", userAnswer: "Buatkan materi presentasi murid kelas 5 SD tema Pengenalan Microsoft PowerPoint dengan 3 slide: Slide 1 Pengenalan, Slide 2 Tampilan, Slide 3 Membuat slide baru, bahasa sederhana ramah anak.", points: 9 },
+                { num: 4, question: "14. Langkah-langkah cara menyimpan presentasi ke Local Disk D", userAnswer: "Klik menu File -> Save As -> Browse -> Local Disk (D:) -> folder kelas 5 -> 5D -> nama 5D-Nadine-Latihan -> Save.", points: 10 },
+                { num: 5, question: "15. Lima aplikasi AI yang membantu dalam pembuatan presentasi", userAnswer: "Gamma App, Tome, Canva Magic Design, Microsoft Copilot, Beautiful.ai", points: 10 }
+            ]
+        }
+    },
+    {
+        id: 'seed_k6_1',
+        name: 'Kimberly Tan',
+        kelas: '6A',
+        absen: '07',
+        nilaiAwal: 65,
+        nilaiAkhir: 95,
+        pgScore: 50,
+        uraianScore: 45,
+        status: 'Lulus',
+        predicate: 'SANGAT MEMUASKAN',
+        duration: '35 Menit 20 Detik',
+        timestamp: '09:10 WIB',
+        date: '30 September 2026',
+        answers: {
+            pg: [
+                { num: 1, question: "1. Deva persiapan pesta ulang tahun...", userChoice: 'C', userChoiceText: 'C. Dekomposisi', key: 'C', keyText: 'C. Dekomposisi', isCorrect: true, points: 5 },
+                { num: 2, question: "2. Inaya merapikan rak buku perpustakaan...", userChoice: 'A', userChoiceText: 'A. Pengenalan pola', key: 'A', keyText: 'A. Pengenalan pola', isCorrect: true, points: 5 },
+                { num: 3, question: "3. William membuat peta rute perjalanan...", userChoice: 'D', userChoiceText: 'D. Abstraksi', key: 'D', keyText: 'D. Abstraksi', isCorrect: true, points: 5 },
+                { num: 4, question: "4. Shevi langkah resep origami pesawat runtut...", userChoice: 'B', userChoiceText: 'B. Algoritma', key: 'B', keyText: 'B. Algoritma', isCorrect: true, points: 5 },
+                { num: 5, question: "5. Pembuatan game menerapkan Pengenalan Pola...", userChoice: 'C', userChoiceText: 'C. Menggunakan logika pergerakan yang sama untuk semua karakter musuh', key: 'C', keyText: 'C. Menggunakan logika pergerakan yang sama untuk semua karakter musuh', isCorrect: true, points: 5 },
+                { num: 6, question: "6. Voice assistant 'Play music' tahap 'Process'...", userChoice: 'D', userChoiceText: 'D. Converting sound to text and searching the song', key: 'D', keyText: 'D. Converting sound to text and searching the song', isCorrect: true, points: 5 },
+                { num: 7, question: "7. Skenario Abstraction vs Pattern Recognition...", userChoice: 'B', userChoiceText: 'B. Drawing a subway map that shows only stations and connecting lines', key: 'B', keyText: 'B. Drawing a subway map that shows only stations and connecting lines', isCorrect: true, points: 5 },
+                { num: 8, question: "8. Automated cleaning robot decomposition first step...", userChoice: 'D', userChoiceText: 'D. Divide the cleaning job into three separate sub-tasks: vacuuming, mopping, and obstacle avoidance', key: 'D', keyText: 'D. Divide the cleaning job into three separate sub-tasks: vacuuming, mopping, and obstacle avoidance', isCorrect: true, points: 5 },
+                { num: 9, question: "9. AI model trained with labeled cat photos...", userChoice: 'B', userChoiceText: 'B. Supervised Learning', key: 'B', keyText: 'B. Supervised Learning', isCorrect: true, points: 5 },
+                { num: 10, question: "10. Game coin & obstacles decomposition first step...", userChoice: 'A', userChoiceText: 'A. Break the game into movement, scoring, and obstacles', key: 'A', keyText: 'A. Break the game into movement, scoring, and obstacles', isCorrect: true, points: 5 }
+            ],
+            uraian: [
+                { num: 1, question: "11. Codingan Menggerakkan Objek dengan Keyboard", userAnswer: "When [Green Flag] clicked -> forever -> if <key [right arrow] pressed?> then -> change x by 10 (serta if key left arrow pressed then change x by -10)", points: 10 },
+                { num: 2, question: "12. Nama Blok Kode Berdasarkan Perintah", userAnswer: "A: Looks (Tampilan), B: Variables (Variabel), C: Sensing (Sensor), D: Looks (Tampilan)", points: 10 },
+                { num: 3, question: "13. Nama dan Fungsi Gambar Ikon di Aplikasi Scratch", userAnswer: "Gambar A: Choose a Sprite (menambahkan karakter baru), Gambar B: Choose a Backdrop (menambahkan gambar latar panggung)", points: 10 },
+                { num: 4, question: "14. Contoh Perintah dalam Blok Motion dan Control", userAnswer: "Motion: move 10 steps, turn right 15 degrees | Control: wait 1 secs, repeat 10", points: 10 },
+                { num: 5, question: "15. Empat Pilar Computational Thinking", userAnswer: "1. Dekomposisi (Decomposition), 2. Pengenalan Pola (Pattern Recognition), 3. Abstraksi (Abstraction), 4. Algoritma (Algorithm)", points: 10 }
+            ]
+        }
+    },
+    {
+        id: 'seed_k6_2',
+        name: 'Kevin Jonathan',
+        kelas: '6B',
+        absen: '14',
+        nilaiAwal: 60,
+        nilaiAkhir: 90,
+        pgScore: 45,
+        uraianScore: 45,
+        status: 'Lulus',
+        predicate: 'SANGAT MEMUASKAN',
+        duration: '41 Menit 15 Detik',
+        timestamp: '09:25 WIB',
+        date: '30 September 2026',
+        answers: {
+            pg: [
+                { num: 1, question: "1. Deva persiapan pesta ulang tahun...", userChoice: 'C', userChoiceText: 'C. Dekomposisi', key: 'C', keyText: 'C. Dekomposisi', isCorrect: true, points: 5 },
+                { num: 2, question: "2. Inaya merapikan rak buku perpustakaan...", userChoice: 'A', userChoiceText: 'A. Pengenalan pola', key: 'A', keyText: 'A. Pengenalan pola', isCorrect: true, points: 5 },
+                { num: 3, question: "3. William membuat peta rute perjalanan...", userChoice: 'D', userChoiceText: 'D. Abstraksi', key: 'D', keyText: 'D. Abstraksi', isCorrect: true, points: 5 },
+                { num: 4, question: "4. Shevi langkah resep origami pesawat runtut...", userChoice: 'B', userChoiceText: 'B. Algoritma', key: 'B', keyText: 'B. Algoritma', isCorrect: true, points: 5 },
+                { num: 5, question: "5. Pembuatan game menerapkan Pengenalan Pola...", userChoice: 'C', userChoiceText: 'C. Menggunakan logika pergerakan yang sama untuk semua karakter musuh', key: 'C', keyText: 'C. Menggunakan logika pergerakan yang sama untuk semua karakter musuh', isCorrect: true, points: 5 },
+                { num: 6, question: "6. Voice assistant 'Play music' tahap 'Process'...", userChoice: 'D', userChoiceText: 'D. Converting sound to text and searching the song', key: 'D', keyText: 'D. Converting sound to text and searching the song', isCorrect: true, points: 5 },
+                { num: 7, question: "7. Skenario Abstraction vs Pattern Recognition...", userChoice: 'A', userChoiceText: 'A. Grouping files based on file extensions', key: 'B', keyText: 'B. Drawing a subway map that shows only stations and connecting lines', isCorrect: false, points: 0 },
+                { num: 8, question: "8. Automated cleaning robot decomposition first step...", userChoice: 'D', userChoiceText: 'D. Divide the cleaning job into three separate sub-tasks: vacuuming, mopping, and obstacle avoidance', key: 'D', keyText: 'D. Divide the cleaning job into three separate sub-tasks: vacuuming, mopping, and obstacle avoidance', isCorrect: true, points: 5 },
+                { num: 9, question: "9. AI model trained with labeled cat photos...", userChoice: 'B', userChoiceText: 'B. Supervised Learning', key: 'B', keyText: 'B. Supervised Learning', isCorrect: true, points: 5 },
+                { num: 10, question: "10. Game coin & obstacles decomposition first step...", userChoice: 'A', userChoiceText: 'A. Break the game into movement, scoring, and obstacles', key: 'A', keyText: 'A. Break the game into movement, scoring, and obstacles', isCorrect: true, points: 5 }
+            ],
+            uraian: [
+                { num: 1, question: "11. Codingan Menggerakkan Objek dengan Keyboard", userAnswer: "When [Green Flag] clicked, forever, if key right arrow pressed then change x by 10 (atau move 10 steps).", points: 10 },
+                { num: 2, question: "12. Nama Blok Kode Berdasarkan Perintah", userAnswer: "A: Looks, B: Variables, C: Sensing, D: Looks", points: 10 },
+                { num: 3, question: "13. Nama dan Fungsi Gambar Ikon di Aplikasi Scratch", userAnswer: "Gambar A: Choose a Sprite (Pilih Sprite), Gambar B: Choose a Backdrop (Pilih Latar Belakang).", points: 10 },
+                { num: 4, question: "14. Contoh Perintah dalam Blok Motion dan Control", userAnswer: "Motion: move 10 steps, turn right 15 degrees. Control: wait 1 secs, repeat 10.", points: 10 },
+                { num: 5, question: "15. Empat Pilar Computational Thinking", userAnswer: "1. Dekomposisi, 2. Pengenalan Pola, 3. Abstraksi, 4. Algoritma.", points: 8 }
+            ]
+        }
     }
 ];
 
@@ -920,10 +2315,42 @@ let currentPreviewStudentId = null;
 
 function getRecapList() {
     try {
-        const stored = localStorage.getItem('remedial_tzuchi_k4');
+        const stored = localStorage.getItem('remedial_tzuchi_records') || localStorage.getItem('remedial_tzuchi_k4');
         if (stored) {
-            const parsed = JSON.parse(stored);
+            let parsed = JSON.parse(stored);
             if (Array.isArray(parsed) && parsed.length > 0) {
+                let modified = false;
+                // Periksa apakah sudah ada data Kelas 5; jika belum, gabungkan seed Kelas 5
+                const hasK5 = parsed.some(p => (p.kelas || '').startsWith('5'));
+                if (!hasK5) {
+                    const k5Seeds = DEFAULT_STUDENTS_SEED.filter(s => (s.kelas || '').startsWith('5'));
+                    parsed = [...parsed, ...k5Seeds];
+                    modified = true;
+                }
+                // Pastikan seluruh data siswa kelas 5 menggunakan kelas 5D dan menyinkronkan kunci jawaban resmi
+                parsed.forEach(p => {
+                    if ((p.kelas || '').startsWith('5') && p.kelas !== '5D') {
+                        p.kelas = '5D';
+                        modified = true;
+                    }
+                    if (p.id === 'seed_k5_1' || p.id === 'seed_k5_2') {
+                        const seedMatch = DEFAULT_STUDENTS_SEED.find(s => s.id === p.id);
+                        if (seedMatch && seedMatch.answers && seedMatch.answers.uraian) {
+                            p.answers.uraian = seedMatch.answers.uraian;
+                            modified = true;
+                        }
+                    }
+                });
+                // Periksa apakah sudah ada data Kelas 6; jika belum, gabungkan seed Kelas 6
+                const hasK6 = parsed.some(p => (p.kelas || '').startsWith('6'));
+                if (!hasK6) {
+                    const k6Seeds = DEFAULT_STUDENTS_SEED.filter(s => (s.kelas || '').startsWith('6'));
+                    parsed = [...parsed, ...k6Seeds];
+                    modified = true;
+                }
+                if (modified) {
+                    localStorage.setItem('remedial_tzuchi_records', JSON.stringify(parsed));
+                }
                 return parsed;
             }
         }
@@ -931,17 +2358,194 @@ function getRecapList() {
         console.log(e);
     }
     // Jika belum ada data, simpan seed default
+    localStorage.setItem('remedial_tzuchi_records', JSON.stringify(DEFAULT_STUDENTS_SEED));
     localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(DEFAULT_STUDENTS_SEED));
     return DEFAULT_STUDENTS_SEED;
+}
+
+/* ==============================================================
+   GOOGLE SHEETS CLOUD INTEGRATION (UJIAN SERENTAK)
+   ============================================================== */
+let GOOGLE_SHEETS_WEBAPP_URL = localStorage.getItem('tzuchi_sheets_url') || '';
+
+function updateCloudStatusUI() {
+    const dot = document.getElementById('cloudStatusDot');
+    const text = document.getElementById('cloudStatusText');
+    if (!dot || !text) return;
+
+    if (GOOGLE_SHEETS_WEBAPP_URL && GOOGLE_SHEETS_WEBAPP_URL.trim().startsWith('http')) {
+        dot.className = 'cloud-status-dot';
+        text.innerHTML = `<strong>Cloud Aktif:</strong> Terhubung ke Google Sheets (<span style="color:#0284c7; font-weight:600;">${GOOGLE_SHEETS_WEBAPP_URL.substring(0, 40)}...</span>)`;
+    } else {
+        dot.className = 'cloud-status-dot offline';
+        text.innerHTML = `Mode Offline / Penyimpanan Lokal (Belum terhubung ke Google Sheets)`;
+    }
+}
+
+function openCloudConfigModal() {
+    playCuteSound('pop');
+    const modal = document.getElementById('cloudConfigModal');
+    const input = document.getElementById('inputSheetsWebappUrl');
+    if (input) input.value = GOOGLE_SHEETS_WEBAPP_URL;
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeCloudConfigModal() {
+    playCuteSound('pop');
+    const modal = document.getElementById('cloudConfigModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function saveCloudConfig() {
+    playCuteSound('pop');
+    const input = document.getElementById('inputSheetsWebappUrl');
+    const val = input ? input.value.trim() : '';
+    if (val && !val.startsWith('http')) {
+        alert('Harap masukkan URL yang valid (dimulai dengan https://script.google.com/...)');
+        return;
+    }
+    GOOGLE_SHEETS_WEBAPP_URL = val;
+    localStorage.setItem('tzuchi_sheets_url', val);
+    updateCloudStatusUI();
+    closeCloudConfigModal();
+    if (val) {
+        showToast('☁️ URL Google Sheets tersimpan! Sistem siap untuk ujian serentak.');
+    } else {
+        showToast('ℹ️ Konfigurasi Cloud dinonaktifkan. Beralih ke penyimpanan lokal.');
+    }
+}
+
+function copyGasCodeToClipboard() {
+    const codeElem = document.getElementById('gasScriptCodeSnippet');
+    if (!codeElem) return;
+    const text = codeElem.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        playCuteSound('fanfare');
+        showToast('📋 Kode Google Apps Script berhasil disalin!');
+    }).catch(err => {
+        showToast('Gagal menyalin kode ke clipboard.');
+    });
+}
+
+function testCloudConnection() {
+    const input = document.getElementById('inputSheetsWebappUrl');
+    const testUrl = input ? input.value.trim() : GOOGLE_SHEETS_WEBAPP_URL;
+    if (!testUrl || !testUrl.startsWith('http')) {
+        alert('Silakan tempelkan Web App URL Google Sheets terlebih dahulu!');
+        return;
+    }
+    showToast('🔄 Menguji koneksi ke Google Sheets...');
+    fetch(testUrl)
+        .then(res => res.json())
+        .then(data => {
+            playCuteSound('fanfare');
+            alert('🎉 Koneksi Berhasil! Google Sheets terhubung dan siap menerima data ujian siswa.');
+        })
+        .catch(err => {
+            console.warn('Test Cloud connection note:', err);
+            alert('ℹ️ Permintaan dikirim ke Google Apps Script! Pastikan setting Who has access sudah "Anyone" (Siapa saja).');
+        });
+}
+
+async function syncDataFromCloud() {
+    if (!GOOGLE_SHEETS_WEBAPP_URL) {
+        alert('URL Google Sheets belum diatur. Silakan klik tombol "Setup Cloud" terlebih dahulu.');
+        openCloudConfigModal();
+        return;
+    }
+    const btn = document.getElementById('btnCloudSync');
+    if (btn) btn.classList.add('syncing');
+    showToast('☁️ Sedang menyinkronkan data dari Google Sheets...');
+
+    try {
+        const response = await fetch(GOOGLE_SHEETS_WEBAPP_URL);
+        const cloudData = await response.json();
+
+        if (Array.isArray(cloudData) && cloudData.length > 0) {
+            const localList = getRecapList();
+            let addedCount = 0;
+
+            cloudData.forEach(c => {
+                // Periksa apakah data sudah ada secara lokal
+                const exists = localList.some(l => 
+                    (c.studentId && l.id === c.studentId) || 
+                    (l.name.toLowerCase() === (c.studentName || '').toLowerCase() && l.kelas === c.grade)
+                );
+                if (!exists) {
+                    localList.unshift({
+                        id: c.studentId || ('st_cloud_' + Date.now() + Math.random().toString(36).substr(2, 5)),
+                        name: c.studentName || 'Siswa',
+                        kelas: c.grade || '4A',
+                        absen: c.absen || '-',
+                        nilaiAwal: c.nilaiAwal || 0,
+                        nilaiAkhir: Number(c.score) || 0,
+                        pgScore: c.pgScore || 0,
+                        uraianScore: c.uraianScore || 0,
+                        status: c.status || ((c.score || 0) >= 80 ? 'Lulus' : 'Tuntas'),
+                        predicate: c.predicate || 'SANGAT MEMUASKAN',
+                        duration: c.duration || '-',
+                        timestamp: c.timestamp || '-',
+                        date: c.date || new Date().toLocaleDateString('id-ID'),
+                        answers: {
+                            pg: c.pgAnswers || [],
+                            uraian: c.essayAnswers || []
+                        }
+                    });
+                    addedCount++;
+                }
+            });
+
+            localStorage.setItem('remedial_tzuchi_records', JSON.stringify(localList));
+            localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(localList));
+            renderTeacherTable();
+            playCuteSound('fanfare');
+            showToast(`✅ Sinkronisasi berhasil! Menambahkan ${addedCount} data siswa baru dari Cloud.`);
+        } else {
+            showToast('ℹ️ Data Google Sheets masih kosong atau sudah tersinkron seluruhnya.');
+        }
+    } catch (err) {
+        console.error('Error syncing cloud data:', err);
+        showToast('⚠️ Gagal mengambil data Cloud. Periksa koneksi internet atau Web App URL.');
+    } finally {
+        if (btn) btn.classList.remove('syncing');
+    }
 }
 
 function saveStudentToRecap(newStudent) {
     const list = getRecapList();
     list.unshift(newStudent);
     try {
+        localStorage.setItem('remedial_tzuchi_records', JSON.stringify(list));
         localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(list));
     } catch (e) {
         console.log(e);
+    }
+
+    // Pengiriman real-time ke Google Sheets (jika URL terhubung)
+    if (GOOGLE_SHEETS_WEBAPP_URL && GOOGLE_SHEETS_WEBAPP_URL.trim().startsWith('http')) {
+        const payload = {
+            studentId: newStudent.id,
+            studentName: newStudent.name,
+            grade: newStudent.kelas,
+            absen: newStudent.absen,
+            score: newStudent.nilaiAkhir,
+            predicate: newStudent.predicate,
+            status: newStudent.status,
+            pgAnswers: newStudent.answers ? newStudent.answers.pg : [],
+            essayAnswers: newStudent.answers ? newStudent.answers.uraian : []
+        };
+        fetch(GOOGLE_SHEETS_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        }).then(() => {
+            console.log('✅ Student result synced to Google Sheets cloud:', newStudent.name);
+        }).catch(err => {
+            console.warn('Cloud sync error (saved locally):', err);
+        });
     }
 }
 
@@ -953,6 +2557,7 @@ function openTeacherPortal() {
     const modal = document.getElementById('teacherPortalModal');
     if (!modal) return;
     modal.classList.add('open');
+    updateCloudStatusUI();
     renderTeacherTable();
     showToast('🔒 Membuka Panel Khusus Guru...');
 }
@@ -963,12 +2568,13 @@ function closeTeacherPortal() {
     if (modal) modal.classList.remove('open');
 }
 
-function filterTeacherTable(className) {
+function filterTeacherTable(filterKey) {
     playCuteSound('pop');
-    teacherActiveFilter = className;
+    teacherActiveFilter = filterKey;
 
     document.querySelectorAll('.t-filter-tab').forEach(tab => {
-        tab.classList.toggle('active', tab.innerText.includes(className) || (className === 'SEMUA' && tab.innerText.includes('Semua')));
+        const onclickAttr = tab.getAttribute('onclick') || '';
+        tab.classList.toggle('active', onclickAttr.includes(`'${filterKey}'`));
     });
 
     renderTeacherTable();
@@ -980,6 +2586,58 @@ function searchTeacherTable() {
     renderTeacherTable();
 }
 
+/* ==============================================================
+   NAVIGASI PANAH ATAS & BAWAH TABEL DATA SISWA
+   ============================================================== */
+function scrollTeacherTable(direction) {
+    playCuteSound('pop');
+    const tableContainer = document.getElementById('teacherTableScrollContainer') || document.querySelector('.teacher-table-responsive');
+    const modalBody = document.querySelector('.teacher-modal-body');
+    const scrollAmount = 220; // Setara dengan tinggi ~3-4 baris data siswa
+
+    if (tableContainer) {
+        tableContainer.scrollBy({
+            top: direction === 'up' ? -scrollAmount : scrollAmount,
+            behavior: 'smooth'
+        });
+    }
+    // Jika container tabel telah mencapai batas, dukung scroll pada modal body
+    if (modalBody && (!tableContainer || tableContainer.scrollHeight <= tableContainer.clientHeight)) {
+        modalBody.scrollBy({
+            top: direction === 'up' ? -scrollAmount : scrollAmount,
+            behavior: 'smooth'
+        });
+    }
+}
+
+let teacherSortCol = 'default';
+let teacherSortAsc = true;
+
+function sortTeacherTableBy(col) {
+    playCuteSound('pop');
+    if (teacherSortCol === col) {
+        teacherSortAsc = !teacherSortAsc;
+    } else {
+        teacherSortCol = col;
+        teacherSortAsc = true;
+    }
+    updateSortIcons();
+    renderTeacherTable();
+}
+
+function updateSortIcons() {
+    const cols = ['no', 'name', 'kelas', 'absen', 'nilaiAwal', 'nilaiAkhir'];
+    cols.forEach(c => {
+        const iconElem = document.getElementById(`sortIcon-${c}`);
+        if (!iconElem) return;
+        if (teacherSortCol === c) {
+            iconElem.innerHTML = teacherSortAsc ? '<i class="fa-solid fa-arrow-up" style="color:#0d9488;"></i>' : '<i class="fa-solid fa-arrow-down" style="color:#0d9488;"></i>';
+        } else {
+            iconElem.innerHTML = '<i class="fa-solid fa-sort"></i>';
+        }
+    });
+}
+
 function renderTeacherTable() {
     const list = getRecapList();
     const tbody = document.getElementById('teacherTableBody');
@@ -988,12 +2646,51 @@ function renderTeacherTable() {
     if (!tbody) return;
 
     // Filter by Class and Search Query
-    const filtered = list.filter(item => {
-        const matchesClass = (teacherActiveFilter === 'SEMUA') || (item.kelas === teacherActiveFilter);
+    let filtered = list.filter(item => {
+        let matchesClass = false;
+        if (teacherActiveFilter === 'SEMUA') {
+            matchesClass = true;
+        } else if (teacherActiveFilter === 'KELAS_4') {
+            matchesClass = (item.kelas || '').startsWith('4');
+        } else if (teacherActiveFilter === 'KELAS_5') {
+            matchesClass = (item.kelas || '').startsWith('5');
+        } else if (teacherActiveFilter === 'KELAS_6') {
+            matchesClass = (item.kelas || '').startsWith('6');
+        } else {
+            matchesClass = (item.kelas === teacherActiveFilter);
+        }
+
         const nameMatches = (item.name || '').toLowerCase().includes(teacherSearchQuery);
         const absenMatches = (item.absen || '').toLowerCase().includes(teacherSearchQuery);
         return matchesClass && (nameMatches || absenMatches);
     });
+
+    // Urutkan data jika kolom sort aktif
+    if (teacherSortCol !== 'default') {
+        filtered.sort((a, b) => {
+            let res = 0;
+            if (teacherSortCol === 'name') {
+                res = (a.name || '').localeCompare(b.name || '');
+            } else if (teacherSortCol === 'kelas') {
+                res = (a.kelas || '').localeCompare(b.kelas || '');
+            } else if (teacherSortCol === 'absen') {
+                res = (parseInt(a.absen, 10) || 0) - (parseInt(b.absen, 10) || 0);
+            } else if (teacherSortCol === 'nilaiAwal') {
+                res = Number(a.nilaiAwal || 0) - Number(b.nilaiAwal || 0);
+            } else if (teacherSortCol === 'nilaiAkhir') {
+                res = Number(a.nilaiAkhir || 0) - Number(b.nilaiAkhir || 0);
+            } else if (teacherSortCol === 'no') {
+                res = (a.id || '').localeCompare(b.id || '');
+            }
+            return teacherSortAsc ? res : -res;
+        });
+    }
+
+    // Perbarui counter badge jumlah siswa
+    const badgeCounter = document.getElementById('tableStudentsCountBadge');
+    if (badgeCounter) {
+        badgeCounter.innerHTML = `<i class="fa-solid fa-users"></i> Menampilkan <strong>${filtered.length}</strong> Data Siswa`;
+    }
 
     // Update Teacher Quick Metrics
     const totalStudentsElem = document.getElementById('teacherTotalStudents');
@@ -1005,7 +2702,7 @@ function renderTeacherTable() {
     if (list.length > 0) {
         const totalSum = list.reduce((acc, curr) => acc + Number(curr.nilaiAkhir || 0), 0);
         const maxScore = Math.max(...list.map(curr => Number(curr.nilaiAkhir || 0)));
-        const passedCount = list.filter(curr => Number(curr.nilaiAkhir || 0) >= 70).length;
+        const passedCount = list.filter(curr => Number(curr.nilaiAkhir || 0) >= 80).length;
         const passRate = Math.round((passedCount / list.length) * 100);
 
         if (avgScoreElem) avgScoreElem.innerText = Math.round(totalSum / list.length);
@@ -1038,8 +2735,8 @@ function renderTeacherTable() {
                 <small style="font-size: 0.76rem; color: #94a3b8;">${st.duration || '60 Menit'}</small>
             </td>
             <td>
-                <span class="status-badge-cell ${st.nilaiAkhir >= 70 ? 'status-lulus' : 'status-tuntas'}">
-                    <i class="fa-solid fa-circle-check"></i> ${st.status || 'Lulus'}
+                <span class="status-badge-cell ${st.nilaiAkhir >= 80 ? 'status-lulus' : 'status-tuntas'}">
+                    <i class="fa-solid fa-circle-check"></i> ${st.status || (st.nilaiAkhir >= 80 ? 'Lulus' : 'Tuntas')}
                 </span>
             </td>
             <td class="text-center">
@@ -1075,6 +2772,16 @@ function downloadStudentFullAnswersPDF(studentId) {
     // 1. Isi Data Identitas Dokumen
     document.getElementById('pdfAnsDocName').innerText = student.name;
     document.getElementById('pdfAnsDocClass').innerText = `Kelas ${student.kelas}`;
+    const gradeLabel = document.getElementById('pdfAnsDocGradeLabel');
+    if (gradeLabel) {
+        if (student.kelas && String(student.kelas).startsWith('5')) {
+            gradeLabel.innerText = 'Kelas 5 SD';
+        } else if (student.kelas && String(student.kelas).startsWith('6')) {
+            gradeLabel.innerText = 'Kelas 6 SD';
+        } else {
+            gradeLabel.innerText = 'Kelas 4 SD';
+        }
+    }
     document.getElementById('pdfAnsDocAbsen').innerText = student.absen || '-';
     document.getElementById('pdfAnsDocDuration').innerText = student.duration || `${student.timestamp || ''}`;
     document.getElementById('pdfAnsDocDate').innerText = todayDate;
@@ -1088,8 +2795,8 @@ function downloadStudentFullAnswersPDF(studentId) {
     document.getElementById('pdfAnsDocUraianScore').innerText = `${uraianPts} Poin`;
     document.getElementById('pdfAnsDocFinalScore').innerText = student.nilaiAkhir;
 
-    document.getElementById('pdfAnsDocStatus').innerText = student.nilaiAkhir >= 70 ? 'LULUS REMEDIAL' : 'TUNTAS REMEDIAL';
-    document.getElementById('pdfAnsDocPredicate').innerText = student.predicate || (student.nilaiAkhir >= 85 ? 'SANGAT MEMUASKAN' : 'BAIK');
+    document.getElementById('pdfAnsDocStatus').innerText = student.nilaiAkhir >= 80 ? 'LULUS REMEDIAL' : 'TUNTAS REMEDIAL';
+    document.getElementById('pdfAnsDocPredicate').innerText = student.predicate || (student.nilaiAkhir >= 90 ? 'SANGAT MEMUASKAN' : (student.nilaiAkhir >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK'));
     document.getElementById('pdfAnsDocSignDate').innerText = `Jakarta, ${todayDate}`;
 
     // 3. Render Lembar Jawaban PG (10 Soal)
@@ -1266,37 +2973,230 @@ function downloadCurrentPreviewPDF() {
 }
 
 /* ==============================================================
-   EXPORT REKAPITULASI KE EXCEL (CSV)
+   EXPORT REKAPITULASI KESELURUHAN SISWA KE FORMAT EXCEL (.XLS)
+   Tampilan tabel rapi, bersih, dan berstandar resmi
    ============================================================== */
-function exportRecapToCSV() {
+function exportRecapToExcel() {
     playCuteSound('pop');
     const list = getRecapList();
     if (!list || list.length === 0) {
-        showToast('⚠️ Belum ada data untuk diekspor!');
+        showToast('⚠️ Belum ada data siswa untuk diekspor!');
         return;
     }
 
-    let csvContent = "\uFEFF"; // UTF-8 BOM agar rapi di Microsoft Excel
-    csvContent += "No,Nama Siswa,Kelas,No Absen,Nilai Awal,Nilai PG (50),Nilai Uraian (50),Nilai Akhir Remedial (100),Status Kelulusan,Predikat,Durasi Pengerjaan,Waktu Selesai\n";
+    const today = new Date();
+    const downloadDate = today.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    const downloadTime = today.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
 
-    list.forEach((st, idx) => {
-        const cleanName = (st.name || '').replace(/"/g, '""');
+    // Statistik Rekapitulasi
+    const totalCount = list.length;
+    const totalAwal = list.reduce((a, b) => a + Number(b.nilaiAwal || 0), 0);
+    const totalPg = list.reduce((a, b) => a + Number(b.pgScore !== undefined ? b.pgScore : 50), 0);
+    const totalUraian = list.reduce((a, b) => {
+        const pg = b.pgScore !== undefined ? b.pgScore : 50;
+        return a + Number(b.uraianScore !== undefined ? b.uraianScore : Math.max(0, b.nilaiAkhir - pg));
+    }, 0);
+    const totalAkhir = list.reduce((a, b) => a + Number(b.nilaiAkhir || 0), 0);
+
+    const avgAwal = Math.round(totalAwal / totalCount);
+    const avgPg = Math.round((totalPg / totalCount) * 10) / 10;
+    const avgUraian = Math.round((totalUraian / totalCount) * 10) / 10;
+    const avgAkhir = Math.round(totalAkhir / totalCount);
+
+    const passedCount = list.filter(s => Number(s.nilaiAkhir || 0) >= 80).length;
+    const failedCount = totalCount - passedCount;
+    const passRate = Math.round((passedCount / totalCount) * 100);
+
+    // Bangun baris-baris data siswa
+    const rowsHtml = list.map((st, idx) => {
         const pgPts = st.pgScore !== undefined ? st.pgScore : 50;
         const uraianPts = st.uraianScore !== undefined ? st.uraianScore : (st.nilaiAkhir - pgPts);
-        csvContent += `"${idx + 1}","${cleanName}","${st.kelas}","${st.absen || '-'}","${st.nilaiAwal}","${pgPts}","${uraianPts}","${st.nilaiAkhir}","${st.status || 'Lulus'}","${st.predicate || 'Sangat Memuaskan'}","${st.duration || '-'}","${st.timestamp || '-'}"\n`;
-    });
+        const isPassed = Number(st.nilaiAkhir || 0) >= 80;
+        const statusText = isPassed ? 'LULUS REMEDIAL' : 'PERLU PENGAYAAN';
+        const statusBg = isPassed ? '#dcfce7' : '#fee2e2';
+        const statusColor = isPassed ? '#15803d' : '#b91c1c';
+        const finalBg = isPassed ? '#ecfdf5' : '#fff7ed';
+        const rowBg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
+        const dateStr = st.date || downloadDate;
+        const timeStr = st.timestamp || downloadTime;
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        return `
+            <tr style="background-color: ${rowBg}; height: 26px;">
+                <td style="text-align: center; border: 1px solid #cbd5e1; font-weight: bold; color: #475569;">${idx + 1}</td>
+                <td style="text-align: left; border: 1px solid #cbd5e1; font-weight: 600; padding: 4px 8px; color: #0f172a;">${st.name || '-'}</td>
+                <td style="text-align: center; border: 1px solid #cbd5e1; font-weight: 600; color: #1e40af;">Kelas ${st.kelas || '-'}</td>
+                <td style="text-align: center; border: 1px solid #cbd5e1; mso-number-format: '\\@';">${st.absen || '-'}</td>
+                <td style="text-align: center; border: 1px solid #cbd5e1; color: #64748b;">${st.nilaiAwal || 0}</td>
+                <td style="text-align: center; border: 1px solid #cbd5e1; color: #0369a1; font-weight: 600;">${pgPts}</td>
+                <td style="text-align: center; border: 1px solid #cbd5e1; color: #7c3aed; font-weight: 600;">${uraianPts}</td>
+                <td style="text-align: center; border: 1px solid #cbd5e1; font-weight: bold; font-size: 11pt; background-color: ${finalBg}; color: ${isPassed ? '#15803d' : '#ea580c'};">${st.nilaiAkhir || 0}</td>
+                <td style="text-align: center; border: 1px solid #cbd5e1; background-color: ${statusBg}; color: ${statusColor}; font-weight: bold;">${statusText}</td>
+                <td style="text-align: center; border: 1px solid #cbd5e1; font-size: 9.5pt; color: #334155;">${st.predicate || (isPassed ? 'Sangat Memuaskan' : 'Perlu Bimbingan')}</td>
+                <td style="text-align: center; border: 1px solid #cbd5e1; font-size: 9pt; color: #475569;">${st.duration || '60 Menit'}</td>
+                <td style="text-align: center; border: 1px solid #cbd5e1; font-size: 9pt; color: #475569;">${dateStr} (${timeStr})</td>
+            </tr>
+        `;
+    }).join('');
+
+    // Dokumen Template Lengkap Microsoft Excel
+    const excelTemplate = `
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!--[if gte mso 9]>
+    <xml>
+        <x:ExcelWorkbook>
+            <x:ExcelWorksheets>
+                <x:ExcelWorksheet>
+                    <x:Name>Rekap Nilai Remedial</x:Name>
+                    <x:WorksheetOptions>
+                        <x:DisplayGridlines/>
+                        <x:Print>
+                            <x:ValidPrinterInfo/>
+                            <x:PaperSizeIndex>9</x:PaperSizeIndex>
+                            <x:HorizontalResolution>600</x:HorizontalResolution>
+                            <x:VerticalResolution>600</x:VerticalResolution>
+                        </x:Print>
+                    </x:WorksheetOptions>
+                </x:ExcelWorksheet>
+            </x:ExcelWorksheets>
+        </x:ExcelWorkbook>
+    </xml>
+    <![endif]-->
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10pt; color: #1e293b; }
+        table { border-collapse: collapse; width: 100%; }
+        th { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10pt; font-weight: bold; }
+        td { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10pt; vertical-align: middle; }
+    </style>
+</head>
+<body>
+    <table>
+        <!-- KOP SEKOLAH RESMI -->
+        <tr>
+            <td colspan="12" style="text-align: center; font-size: 14pt; font-weight: bold; color: #14532d; padding: 6px 0;">
+                YAYASAN BUDDHA TZU CHI INDONESIA
+            </td>
+        </tr>
+        <tr>
+            <td colspan="12" style="text-align: center; font-size: 16pt; font-weight: bold; color: #15803d;">
+                SDS CINTA KASIH TZU CHI
+            </td>
+        </tr>
+        <tr>
+            <td colspan="12" style="text-align: center; font-size: 12pt; font-weight: bold; color: #0f172a; padding: 4px 0;">
+                LEMBAR REKAPITULASI EVALUASI & NILAI HASIL REMEDIAL SISWA
+            </td>
+        </tr>
+        <tr>
+            <td colspan="12" style="text-align: center; font-size: 10.5pt; color: #475569; padding-bottom: 12px;">
+                Mata Pelajaran: Koding dan Kecerdasan Artifisial • TP 2026/2027 • KKM Sekolah: 80
+            </td>
+        </tr>
+        <tr><td colspan="12" style="height: 10px;"></td></tr>
+
+        <!-- TABEL INFORMASI METADATA & STATISTIK -->
+        <tr>
+            <td colspan="2" style="border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold; padding: 5px;">Guru Pengampu</td>
+            <td colspan="4" style="border: 1px solid #cbd5e1; background-color: #ffffff; padding: 5px; font-weight: 600;">: Darningsih, S.T.</td>
+            <td colspan="2" style="border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold; padding: 5px;">Total Peserta Remedial</td>
+            <td colspan="4" style="border: 1px solid #cbd5e1; background-color: #ffffff; padding: 5px; font-weight: bold;">: ${totalCount} Siswa</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold; padding: 5px;">Materi Evaluasi</td>
+            <td colspan="4" style="border: 1px solid #cbd5e1; background-color: #ffffff; padding: 5px;">: Excel, PPT AI & Computational Thinking Scratch</td>
+            <td colspan="2" style="border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold; padding: 5px;">Rata-Rata Nilai Akhir</td>
+            <td colspan="4" style="border: 1px solid #cbd5e1; background-color: #ffffff; padding: 5px; font-weight: bold; color: #0284c7;">: ${avgAkhir} / 100</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold; padding: 5px;">Tanggal Unduh</td>
+            <td colspan="4" style="border: 1px solid #cbd5e1; background-color: #ffffff; padding: 5px;">: ${downloadDate} • ${downloadTime}</td>
+            <td colspan="2" style="border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold; padding: 5px;">Tingkat Kelulusan KKM</td>
+            <td colspan="4" style="border: 1px solid #cbd5e1; background-color: #ffffff; padding: 5px; font-weight: bold; color: #15803d;">: ${passRate}% (${passedCount} Lulus • ${failedCount} Bimbingan)</td>
+        </tr>
+        <tr><td colspan="12" style="height: 14px;"></td></tr>
+
+        <!-- HEADER TABEL DATA SISWA -->
+        <tr style="background-color: #15803d; color: #ffffff; font-weight: bold; height: 34px;">
+            <th style="border: 1px solid #14532d; text-align: center; width: 45px;">No</th>
+            <th style="border: 1px solid #14532d; text-align: left; padding-left: 8px; width: 220px;">Nama Lengkap Siswa</th>
+            <th style="border: 1px solid #14532d; text-align: center; width: 80px;">Kelas</th>
+            <th style="border: 1px solid #14532d; text-align: center; width: 70px;">No. Absen</th>
+            <th style="border: 1px solid #14532d; text-align: center; width: 85px;">Nilai Awal</th>
+            <th style="border: 1px solid #14532d; text-align: center; width: 100px;">Nilai PG (50)</th>
+            <th style="border: 1px solid #14532d; text-align: center; width: 110px;">Nilai Uraian (50)</th>
+            <th style="border: 1px solid #14532d; text-align: center; width: 120px;">Nilai Akhir (100)</th>
+            <th style="border: 1px solid #14532d; text-align: center; width: 130px;">Status Hasil</th>
+            <th style="border: 1px solid #14532d; text-align: center; width: 150px;">Predikat Capaian</th>
+            <th style="border: 1px solid #14532d; text-align: center; width: 110px;">Durasi Pengerjaan</th>
+            <th style="border: 1px solid #14532d; text-align: center; width: 140px;">Waktu Penyelesaian</th>
+        </tr>
+
+        <!-- ISI BARIS DATA SISWA -->
+        ${rowsHtml}
+
+        <!-- BARIS RATA-RATA KELAS -->
+        <tr style="background-color: #f1f5f9; font-weight: bold; height: 30px;">
+            <td colspan="4" style="text-align: right; border: 1px solid #cbd5e1; padding-right: 12px; font-weight: bold;">RATA-RATA KESELURUHAN:</td>
+            <td style="text-align: center; border: 1px solid #cbd5e1; color: #475569;">${avgAwal}</td>
+            <td style="text-align: center; border: 1px solid #cbd5e1; color: #0369a1;">${avgPg}</td>
+            <td style="text-align: center; border: 1px solid #cbd5e1; color: #7c3aed;">${avgUraian}</td>
+            <td style="text-align: center; border: 1px solid #cbd5e1; color: #15803d; font-size: 11pt; font-weight: bold; background-color: #ecfdf5;">${avgAkhir}</td>
+            <td colspan="4" style="border: 1px solid #cbd5e1; text-align: center; color: #475569; font-size: 9.5pt;">Kriteria Ketuntasan Minimal (KKM) = 80</td>
+        </tr>
+
+        <!-- FOOTER & KATA PERENUNGAN -->
+        <tr><td colspan="12" style="height: 18px;"></td></tr>
+        <tr>
+            <td colspan="12" style="text-align: center; font-style: italic; color: #334155; padding: 6px 0; font-size: 9.5pt;">
+                “Keindahan sifat manusia terletak pada ketulusan hatinya. Kemuliaan sifat manusia terletak pada kejujuran.” — Kata Perenungan Master Cheng Yen
+            </td>
+        </tr>
+        <tr><td colspan="12" style="height: 25px;"></td></tr>
+
+        <!-- TANDA TANGAN PENGESAHAN -->
+        <tr>
+            <td colspan="2"></td>
+            <td colspan="3" style="text-align: center; font-size: 10pt;">
+                Mengetahui,<br>Kepala SDS Cinta Kasih Tzu Chi<br><br><br><br><br>
+                ( .................................................. )
+            </td>
+            <td colspan="2"></td>
+            <td colspan="4" style="text-align: center; font-size: 10pt;">
+                Jakarta, ${downloadDate}<br>Guru Pengampu Koding & AI<br><br><br><br><br>
+                <strong>( Darningsih, S.T. )</strong>
+            </td>
+            <td colspan="1"></td>
+        </tr>
+        <tr>
+            <td colspan="12" style="text-align: right; font-size: 8pt; color: #94a3b8; padding-top: 15px;">
+                * Dokumen rekapitulasi nilai resmi ini diterbitkan secara otomatis melalui Portal EduCode AI SDS Cinta Kasih Tzu Chi.
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+    `;
+
+    // Buat Blob Excel dengan UTF-8 BOM
+    const blob = new Blob(["\uFEFF" + excelTemplate], {
+        type: 'application/vnd.ms-excel;charset=utf-8'
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
+    const safeDate = today.toISOString().slice(0, 10);
     link.setAttribute("href", url);
-    link.setAttribute("download", `Rekap_Remedial_Koding_AI_Kelas4_TzuChi_${(new Date()).toISOString().slice(0,10)}.csv`);
+    link.setAttribute("download", `Rekap_Remedial_Koding_AI_TzuChi_${safeDate}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-    showToast('📊 Berhasil mengunduh Rekap Excel (CSV)!');
+    showToast('📊 Berhasil mengunduh Rekap Nilai Siswa (File Excel)!');
 }
+
+// Backward compatibility alias
+const exportRecapToCSV = exportRecapToExcel;
 
 
 /* ==============================================================
@@ -1411,7 +3311,15 @@ function openClassModal(classKey) {
     document.getElementById('modalHeaderBg').style.background = data.themeGradient;
     document.getElementById('studentClass').value = data.title;
 
-    renderMateri(data.materi);
+    // Update tab thumbnail icon based on classKey
+    const tabThumb = document.getElementById('modalMateriTabThumb');
+    if (tabThumb) {
+        if (classKey === 'kelas4') tabThumb.src = 'student_k4.png';
+        else if (classKey === 'kelas5') tabThumb.src = 'student_k5.png';
+        else if (classKey === 'kelas6') tabThumb.src = 'student_k6.png';
+    }
+
+    renderMateri(data.materi, classKey);
     renderQuiz(data.quiz);
 
     document.getElementById('submissionForm').reset();
@@ -1439,17 +3347,31 @@ function switchTab(tabName) {
     document.getElementById(`tab-${tabName}`).classList.add('active');
 }
 
-function renderMateri(materiList) {
+function renderMateri(materiList, classKey) {
     const container = document.getElementById('materiContent');
-    container.innerHTML = materiList.map(item => `
+    const studentIcons = {
+        kelas4: 'student_k4.png',
+        kelas5: 'student_k5.png',
+        kelas6: 'student_k6.png'
+    };
+    const defaultIcon = studentIcons[classKey] || 'student_k4.png';
+    const fallbackList = ['student_k4.png', 'student_k5.png', 'student_k6.png'];
+
+    container.innerHTML = materiList.map((item, idx) => {
+        const studentImg = classKey ? (studentIcons[classKey] || defaultIcon) : fallbackList[idx % fallbackList.length];
+        return `
         <div class="materi-card">
             <div class="materi-header">
-                <span class="materi-icon">${item.icon}</span>
+                <div class="materi-icon-wrap">
+                    <img src="${studentImg}" alt="Icon Siswa Materi" class="materi-student-icon">
+                    <span class="materi-mini-badge">${item.icon}</span>
+                </div>
                 <h4>${item.title}</h4>
             </div>
             <p class="materi-desc">${item.desc}</p>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function renderQuiz(quizList) {
@@ -1505,9 +3427,17 @@ function submitRemedial(event) {
 
 // Global modal background click handler
 window.addEventListener('click', (e) => {
-    const examModal = document.getElementById('examModalK4');
-    if (e.target === examModal) {
+    const examModalK4 = document.getElementById('examModalK4');
+    if (e.target === examModalK4) {
         closeExamModalK4();
+    }
+    const examModalK5 = document.getElementById('examModalK5');
+    if (e.target === examModalK5) {
+        closeExamModalK5();
+    }
+    const examModalK6 = document.getElementById('examModalK6');
+    if (e.target === examModalK6) {
+        closeExamModalK6();
     }
     const generalModal = document.getElementById('remedialModal');
     if (e.target === generalModal) {
@@ -1520,6 +3450,10 @@ window.addEventListener('click', (e) => {
     const previewModal = document.getElementById('answersPreviewModal');
     if (e.target === previewModal) {
         closeAnswersPreview();
+    }
+    const cloudModal = document.getElementById('cloudConfigModal');
+    if (e.target === cloudModal) {
+        closeCloudConfigModal();
     }
 });
 
@@ -1541,5 +3475,6 @@ function showToast(message) {
 // Inisialisasi data rekap awal saat halaman dimuat
 window.addEventListener('DOMContentLoaded', () => {
     getRecapList();
+    updateCloudStatusUI();
 });
 

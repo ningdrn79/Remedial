@@ -36,7 +36,9 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="logo" onclick="window.scrollTo({top:0, behavior:'smooth'})">
-                <div class="logo-icon">🌱</div>
+                <div class="logo-img-wrap">
+                    <img src="logo_tzuchi.png" alt="Logo SDS Cinta Kasih Tzu Chi" class="nav-logo-img">
+                </div>
                 <div class="logo-text">
                     <span class="brand-title">EduCode<span class="highlight">AI</span></span>
                     <span class="brand-sub">SDS Cinta Kasih Tzu Chi</span>
@@ -87,13 +89,9 @@
 
                 <!-- Main Greeting Text -->
                 <div class="welcome-box">
-                    <span class="badge-sparkle">✨ Portal Koding & Kecerdasan Artifisial ✨</span>
                     <h1 class="main-title">
                         Welcome to <span class="gradient-text">Coding</span> and <span class="gradient-text-alt">AI</span>
                     </h1>
-                    <p class="subtitle">
-                        Silakan pilih kelas remedial di bawah ini. Untuk <strong>Kelas 4</strong>, masukkan nama, nilai awal, dan pilih kelasmu (<strong>4A - 4E</strong>) untuk mulai menjawab 10 soal pilihan ganda & 5 soal uraian!
-                    </p>
                 </div>
             </div>
         </section>
@@ -111,13 +109,20 @@
             <div class="card-class card-k4" onclick="openRemedialKelas4()">
                 <div class="card-ribbon special">Soal Lengkap</div>
                 <div class="card-icon-bubble">
-                    <span class="card-emoji">📊</span>
+                    <img src="student_k4.png" alt="Siswa Kelas 4" class="card-student-avatar">
                     <div class="icon-tag">Excel & AI Detektif</div>
                 </div>
                 <div class="card-body">
                     <span class="class-badge k4-badge">SD Kelas 4 (4A - 4E)</span>
                     <h3 class="card-title">Remedial Kelas 4</h3>
-                    <p class="card-subtitle">Soal Mid Semester 1: Microsoft Excel, Rumus, dan Detektif Data AI.</p>
+                    
+                    <div class="card-materi-info">
+                        <img src="student_k4.png" alt="Icon Materi Siswa" class="materi-badge-icon">
+                        <div class="materi-text-wrap">
+                            <span class="materi-label-tag"><i class="fa-solid fa-book-open"></i> Materi Remedial:</span>
+                            <p class="card-subtitle">Microsoft Excel (Row, Column, Rumus SUM, AVERAGE, COUNT) & Detektif Data AI.</p>
+                        </div>
+                    </div>
                     
                     <ul class="feature-list">
                         <li><i class="fa-solid fa-check-circle"></i> Input Nama, Nilai & Pilih Kelas (4A, 4B, 4C, 4D, 4E)</li>
@@ -132,51 +137,65 @@
                 </div>
             </div>
 
-            <!-- Menu 2: Remedial Kelas 5 -->
-            <div class="card-class card-k5" onclick="openClassModal('k5')">
-                <div class="card-ribbon popular">Paling Seru</div>
+            <!-- Menu 2: Remedial Kelas 5 (Dedicated Interactive Exam) -->
+            <div class="card-class card-k5" onclick="openRemedialKelas5()">
+                <div class="card-ribbon special">Soal Lengkap</div>
                 <div class="card-icon-bubble">
-                    <span class="card-emoji">🚀</span>
-                    <div class="icon-tag">Loop & Sensors</div>
+                    <img src="student_k5.png" alt="Siswa Kelas 5" class="card-student-avatar">
+                    <div class="icon-tag">PowerPoint & AI Slide</div>
                 </div>
                 <div class="card-body">
-                    <span class="class-badge k5-badge">SD Kelas V</span>
+                    <span class="class-badge k5-badge">SD Kelas 5D</span>
                     <h3 class="card-title">Remedial Kelas 5</h3>
-                    <p class="card-subtitle">Penjelajah Logika Percabangan, Pengulangan, dan Machine Learning.</p>
+                    
+                    <div class="card-materi-info">
+                        <img src="student_k5.png" alt="Icon Materi Siswa" class="materi-badge-icon">
+                        <div class="materi-text-wrap">
+                            <span class="materi-label-tag"><i class="fa-solid fa-book-open"></i> Materi Remedial:</span>
+                            <p class="card-subtitle">Microsoft PowerPoint, Halaman Slide, Fitur Transisi, dan Desain Presentasi AI.</p>
+                        </div>
+                    </div>
                     
                     <ul class="feature-list">
-                        <li><i class="fa-solid fa-check-circle"></i> Logika Percabangan (If - Then - Else)</li>
-                        <li><i class="fa-solid fa-check-circle"></i> Perulangan / Loop Tanpa Henti</li>
-                        <li><i class="fa-solid fa-check-circle"></i> Pengenalan Penglihatan AI (Computer Vision)</li>
+                        <li><i class="fa-solid fa-check-circle"></i> Khusus Siswa Kelas 5D</li>
+                        <li><i class="fa-solid fa-check-circle"></i> 10 Soal Pilihan Ganda (A, B, C, D)</li>
+                        <li><i class="fa-solid fa-check-circle"></i> 5 Soal Uraian Mandiri & Perhitungan Skor Otomatis</li>
                     </ul>
 
                     <button class="btn-enter btn-k5">
-                        <span>Buka Remedial Kelas 5</span>
+                        <span>Buka Soal Remedial Kelas 5D</span>
                         <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Menu 3: Remedial Kelas 6 -->
-            <div class="card-class card-k6" onclick="openClassModal('k6')">
-                <div class="card-ribbon">Tingkat Lanjut</div>
+            <!-- Menu 3: Remedial Kelas 6 (Dedicated Interactive Exam) -->
+            <div class="card-class card-k6" onclick="openRemedialKelas6()">
+                <div class="card-ribbon special">Soal Lengkap</div>
                 <div class="card-icon-bubble">
-                    <span class="card-emoji">💡</span>
-                    <div class="icon-tag">Web & Chatbot</div>
+                    <img src="student_k6.png" alt="Siswa Kelas 6" class="card-student-avatar">
+                    <div class="icon-tag">Computational Thinking & Scratch</div>
                 </div>
                 <div class="card-body">
-                    <span class="class-badge k6-badge">SD Kelas VI</span>
+                    <span class="class-badge k6-badge">SD Kelas 6 (6A - 6E)</span>
                     <h3 class="card-title">Remedial Kelas 6</h3>
-                    <p class="card-subtitle">Pemrograman Web Sederhana, Chatbot Pintar & Proyek AI Masa Depan.</p>
+                    
+                    <div class="card-materi-info">
+                        <img src="student_k6.png" alt="Icon Materi Siswa" class="materi-badge-icon">
+                        <div class="materi-text-wrap">
+                            <span class="materi-label-tag"><i class="fa-solid fa-book-open"></i> Materi Remedial:</span>
+                            <p class="card-subtitle">4 Pilar Computational Thinking, Kecerdasan Artifisial & Pemrograman Scratch.</p>
+                        </div>
+                    </div>
                     
                     <ul class="feature-list">
-                        <li><i class="fa-solid fa-check-circle"></i> Struktur Dasar Halaman Web (HTML)</li>
-                        <li><i class="fa-solid fa-check-circle"></i> Membuat Chatbot Pintar Bersama AI</li>
-                        <li><i class="fa-solid fa-check-circle"></i> Etika & Pemanfaatan Positif AI</li>
+                        <li><i class="fa-solid fa-check-circle"></i> Input Nama, Nilai & Pilih Kelas (6A, 6B, 6C, 6D, 6E)</li>
+                        <li><i class="fa-solid fa-check-circle"></i> 10 Soal Pilihan Ganda (A, B, C, D)</li>
+                        <li><i class="fa-solid fa-check-circle"></i> 5 Soal Uraian Mandiri & Perhitungan Skor Otomatis</li>
                     </ul>
 
                     <button class="btn-enter btn-k6">
-                        <span>Buka Remedial Kelas 6</span>
+                        <span>Buka Soal Remedial Kelas 6</span>
                         <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>
@@ -214,11 +233,13 @@
             <!-- Exam Header -->
             <div class="exam-header-banner">
                 <div class="exam-school-brand">
-                    <span class="school-logo-badge">🌱</span>
+                    <span class="school-logo-badge">
+                        <img src="logo_tzuchi.png" alt="Logo Tzu Chi" class="exam-logo-img">
+                    </span>
                     <div>
                         <h3 class="school-title">SDS CINTA KASIH TZU CHI</h3>
                         <p class="school-subtitle">MID SEMESTER 1 • TAHUN PELAJARAN 2026/2027</p>
-                        <p class="school-tagline">Mata Pelajaran: KODING DAN KECERDASAN ARTIFISIAL</p>
+                        <p class="school-tagline"><img src="student_k4.png" alt="Siswa K4" class="tagline-student-icon"> Mata Pelajaran: KODING DAN KECERDASAN ARTIFISIAL</p>
                     </div>
                 </div>
                 <div class="exam-header-actions">
@@ -533,7 +554,7 @@
                             <div class="exam-question-card uraian-card" id="q-uraian-4">
                                 <div class="question-header">
                                     <span class="q-badge badge-uraian">Uraian 4</span>
-                                    <p class="q-text">4. Apa fungsi penunjuk mouse berbentuk tanda tambah hitam tipis (Autofill)?</p>
+                                    <p class="q-text">4. Apa fungsi penunjuk mouse berbentuk tanda tambah hitam tipis?</p>
                                 </div>
                                 
                                 <!-- Pointer Illustration Box (Tanpa Petunjuk Jawaban) -->
@@ -737,12 +758,8 @@
                             </div>
                         </div>
 
-                        <!-- Tombol Aksi: Unduh PDF & Kembali ke Menu Utama -->
+                        <!-- Tombol Aksi: Kembali ke Menu Utama -->
                         <div class="result-actions-group">
-                            <button class="btn-download-pdf" onclick="generateAndDownloadPDF()">
-                                <i class="fa-solid fa-file-pdf"></i>
-                                <span>Unduh Laporan Remedial (PDF)</span>
-                            </button>
                             <button class="btn-return-home" onclick="returnToMainMenu()">
                                 <i class="fa-solid fa-house"></i>
                                 <span>Kembali ke Menu Utama</span>
@@ -881,6 +898,1164 @@
         </div>
     </div>
 
+    <!-- ============================================================== -->
+    <!-- DEDICATED FULLSCREEN EXAM MODAL FOR REMEDIAL KELAS 5 -->
+    <!-- ============================================================== -->
+    <div class="modal-overlay modal-fullscreen-overlay" id="examModalK5">
+        <div class="modal-card modal-exam-fullscreen">
+            
+            <!-- Exam Header -->
+            <div class="exam-header-banner">
+                <div class="exam-school-brand">
+                    <span class="school-logo-badge">
+                        <img src="logo_tzuchi.png" alt="Logo Tzu Chi" class="exam-logo-img">
+                    </span>
+                    <div>
+                        <h3 class="school-title">SDS CINTA KASIH TZU CHI</h3>
+                        <p class="school-subtitle">MID SEMESTER 1 • TAHUN PELAJARAN 2026/2027</p>
+                        <p class="school-tagline"><img src="student_k5.png" alt="Siswa K5" class="tagline-student-icon"> Mata Pelajaran: KODING DAN KECERDASAN ARTIFISIAL (KELAS 5)</p>
+                    </div>
+                </div>
+                <div class="exam-header-actions">
+                    <button class="btn-toggle-fullscreen" onclick="toggleScreenExpandK5()" title="Mode Layar Penuh">
+                        <i class="fa-solid fa-expand" id="fullscreenIconK5"></i>
+                        <span id="fullscreenTextK5">Layar Penuh</span>
+                    </button>
+                    <button class="modal-close-btn" onclick="closeExamModalK5()" title="Tutup / Kembali">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-body exam-modal-body">
+
+                <!-- STEP 1: FORM IDENTITAS SISWA KELAS 5 (NAMA, KELAS 5A-5E, NILAI AWAL) -->
+                <div id="k5-step-identity" class="exam-step-view active">
+                    <div class="identity-card">
+                        <div class="identity-header">
+                            <span class="step-icon">📊</span>
+                            <div>
+                                <h3 class="step-title">Pengisian Identitas Siswa - Kelas 5D</h3>
+                                <p class="step-subtitle">Silakan isi nama lengkap, nomor absen, dan nilai awalmu sebelum mengerjakan remedial Kelas 5D.</p>
+                            </div>
+                        </div>
+
+                        <form id="k5IdentityForm" onsubmit="startExamK5(event)">
+                            <div class="form-group">
+                                <label for="k5Name"><i class="fa-solid fa-user"></i> Nama Lengkap Siswa *</label>
+                                <input type="text" id="k5Name" required placeholder="Contoh: Jason Alexander">
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-school"></i> Kelas Siswa *</label>
+                                <div class="class-picker-grid" style="grid-template-columns: 1fr; max-width: 200px;">
+                                    <label class="class-radio-item">
+                                        <input type="radio" name="k5ClassChoice" value="5D" checked required>
+                                        <span class="radio-box" style="border-color: #0284c7; background: #f0f9ff; color: #0369a1; font-weight: 800; font-size: 1.05rem;">
+                                            <i class="fa-solid fa-check-circle" style="color: #0284c7; margin-right: 6px;"></i> Kelas 5D
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="k5NilaiAwal"><i class="fa-solid fa-chart-line"></i> Input Nilai (Nilai Mid Sebelumnya / Awal) *</label>
+                                    <input type="number" id="k5NilaiAwal" min="0" max="100" required placeholder="Contoh: 65">
+                                </div>
+                                <div class="form-group">
+                                    <label for="k5Absen"><i class="fa-solid fa-hashtag"></i> Nomor Absen</label>
+                                    <input type="number" id="k5Absen" min="1" max="50" placeholder="Contoh: 18">
+                                </div>
+                            </div>
+
+                            <!-- Petunjuk Umum & Kata Perenungan Master Cheng Yen -->
+                            <div class="guidelines-card">
+                                <h4><i class="fa-solid fa-circle-info"></i> Petunjuk Umum:</h4>
+                                <ol>
+                                    <li>Berdoa sebelum mengerjakan!</li>
+                                    <li>Bacalah setiap soal pilihan ganda dan uraian dengan teliti!</li>
+                                    <li>Soal dikerjakan secara mandiri dan jujur tanpa bantuan orang lain!</li>
+                                    <li>Periksalah kembali jawabanmu sebelum tombol kirim ditekan!</li>
+                                </ol>
+                                <div class="tzu-chi-quote">
+                                    <em>“Keindahan sifat manusia terletak pada ketulusan hatinya. Kemuliaan sifat manusia terletak pada kejujuran”.</em>
+                                    <span class="quote-author">— Kata perenungan Master Cheng Yen</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-start-exam" style="background: linear-gradient(135deg, #0284c7, #0d9488);">
+                                <span>Mulai Kerjakan Soal Remedial Kelas 5</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- STEP 2: LEMBAR SOAL REMEDIAL KELAS 5 (PILGAND & URAIAN) -->
+                <div id="k5-step-questions" class="exam-step-view">
+                    
+                    <!-- Student Info Sticky Bar -->
+                    <div class="exam-student-bar">
+                        <div class="student-bar-item">
+                            <span class="bar-label">Nama Siswa:</span>
+                            <strong id="barStudentNameK5">-</strong>
+                        </div>
+                        <div class="student-bar-item">
+                            <span class="bar-label">Kelas:</span>
+                            <span class="student-class-badge" id="barStudentClassK5" style="background: #e0f2fe; color: #0369a1;">5A</span>
+                        </div>
+                        <div class="student-bar-item">
+                            <span class="bar-label">Nilai Awal:</span>
+                            <strong id="barStudentInitialScoreK5">0</strong>
+                        </div>
+                        <div class="student-bar-item timer-student-item">
+                            <span class="bar-label">Sisa Waktu:</span>
+                            <span class="exam-timer-tag live-timer" id="examCountdownTagK5">
+                                <i class="fa-solid fa-stopwatch"></i> <span id="timerTextK5">60:00</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <form id="k5ExamForm" onsubmit="calculateAndShowScoreK5(event)">
+                        
+                        <!-- ================= BAGIAN I: PILIHAN GANDA (10 SOAL) ================= -->
+                        <div class="exam-section-block">
+                            <div class="section-banner-title" style="background: linear-gradient(135deg, #0284c7, #0ea5e9);">
+                                <span class="section-number">BAGIAN I</span>
+                                <h4>BERILAH TANDA SILANG (X) PADA HURUF A, B, C ATAU D UNTUK JAWABAN YANG BENAR!</h4>
+                                <span class="section-points">10 Soal (Bobot: 50 Poin)</span>
+                            </div>
+
+                            <!-- Soal 1 -->
+                            <div class="exam-question-card" id="q-k5-card-1">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #0284c7;">Soal 1</span>
+                                    <p class="q-text">1. Langkah pertama yang harus kamu lakukan untuk menyimpan dokumen presentasi adalah memilih menu...</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k5_1" value="A" required><span><strong>A.</strong> Home</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_1" value="B"><span><strong>B.</strong> File</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_1" value="C"><span><strong>C.</strong> Insert</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_1" value="D"><span><strong>D.</strong> Design</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Soal 2 -->
+                            <div class="exam-question-card" id="q-k5-card-2">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #0284c7;">Soal 2</span>
+                                    <p class="q-text">2. Bagian utama dari jendela Microsoft PowerPoint yang digunakan sebagai lembar kerja untuk membuat dan mendesain isi presentasimu adalah...</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k5_2" value="A" required><span><strong>A.</strong> Area Catatan</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_2" value="B"><span><strong>B.</strong> Panel Slide</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_2" value="C"><span><strong>C.</strong> Halaman Slide</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_2" value="D"><span><strong>D.</strong> Bar Status</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Soal 3 -->
+                            <div class="exam-question-card" id="q-k5-card-3">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #0284c7;">Soal 3</span>
+                                    <p class="q-text">3. Apa fungsi utama dari perangkat lunak Microsoft PowerPoint?....</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k5_3" value="A" required><span><strong>A.</strong> Mengirim pesan kepada singkat dan surat elektronik antar pengguna</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_3" value="B"><span><strong>B.</strong> Mengolah angka dan melakukan perhitungan rumus matematika</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_3" value="C"><span><strong>C.</strong> Menampilkan atau dokumen dalam bentuk slide presentasi</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_3" value="D"><span><strong>D.</strong> Mengedit file video dan merekam lagu berdurasi panjang</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Soal 4 -->
+                            <div class="exam-question-card" id="q-k5-card-4">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #0284c7;">Soal 4</span>
+                                    <p class="q-text">4. Fitur yang digunakan untuk memberikan efek perpindahan menarik dari satu halaman slide ke slide berikutnya adalah...</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k5_4" value="A" required><span><strong>A.</strong> Quick Access Toolbar</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_4" value="B"><span><strong>B.</strong> Transition</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_4" value="C"><span><strong>C.</strong> Animations</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_4" value="D"><span><strong>D.</strong> Hyperlink</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Soal 5 -->
+                            <div class="exam-question-card" id="q-k5-card-5">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #0284c7;">Soal 5</span>
+                                    <p class="q-text">5. Manakah di bawah ini yang merupakan salah satu contoh efek Transisi (Transitions)?</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k5_5" value="A" required><span><strong>A.</strong> Fly In</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_5" value="B"><span><strong>B.</strong> Spin</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_5" value="C"><span><strong>C.</strong> Push</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_5" value="D"><span><strong>D.</strong> Float In</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Soal 6 -->
+                            <div class="exam-question-card" id="q-k5-card-6">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #0284c7;">Soal 6</span>
+                                    <p class="q-text">6. What is the primary function of Microsoft PowerPoint....</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k5_6" value="A" required><span><strong>A.</strong> To manage large database</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_6" value="B"><span><strong>B.</strong> To edit long text documents</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_6" value="C"><span><strong>C.</strong> To create visual presentations</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_6" value="D"><span><strong>D.</strong> To perform complex math calculations</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Soal 7 -->
+                            <div class="exam-question-card" id="q-k5-card-7">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #0284c7;">Soal 7</span>
+                                    <p class="q-text">7. Which keyboard shortcut starts a slide show from the very first slide ....</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k5_7" value="A" required><span><strong>A.</strong> F5</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_7" value="B"><span><strong>B.</strong> CTRL + S</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_7" value="C"><span><strong>C.</strong> ESC</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_7" value="D"><span><strong>D.</strong> CTRL + C</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Soal 8 -->
+                            <div class="exam-question-card" id="q-k5-card-8">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #0284c7;">Soal 8</span>
+                                    <p class="q-text">8. The menu for saving files in Microsoft PowerPoint....</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k5_8" value="A" required><span><strong>A.</strong> File</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_8" value="B"><span><strong>B.</strong> Home</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_8" value="C"><span><strong>C.</strong> Insert</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_8" value="D"><span><strong>D.</strong> Design</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Soal 9 -->
+                            <div class="exam-question-card" id="q-k5-card-9">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #0284c7;">Soal 9</span>
+                                    <p class="q-text">9. What is a single page within a PowerPoint presentation called?</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k5_9" value="A" required><span><strong>A.</strong> Sheet</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_9" value="B"><span><strong>B.</strong> Slide</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_9" value="C"><span><strong>C.</strong> Document</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_9" value="D"><span><strong>D.</strong> Canvas</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Soal 10 -->
+                            <div class="exam-question-card" id="q-k5-card-10">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #0284c7;">Soal 10</span>
+                                    <p class="q-text">10. Which button in the Home tab adds a new blank or pre-formatted slide to your presentation?</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k5_10" value="A" required><span><strong>A.</strong> Open File</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_10" value="B"><span><strong>B.</strong> Save As</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_10" value="C"><span><strong>C.</strong> New Slide</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k5_10" value="D"><span><strong>D.</strong> Duplicate Window.</span></label>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- ================= BAGIAN II: SOAL URAIAN (5 SOAL) ================= -->
+                        <div class="exam-section-block">
+                            <div class="section-banner-title" style="background: linear-gradient(135deg, #0284c7, #2563eb);">
+                                <span class="section-number">BAGIAN II</span>
+                                <h4>SOAL URAIAN MANDIRI • TULISKAN SOAL DAN JAWABAN DI BAWAH INI DENGAN TULISAN RAPI!</h4>
+                                <span class="section-points">5 Soal (Bobot: 50 Poin)</span>
+                            </div>
+
+                            <!-- Uraian 1 (No. 11) -->
+                            <div class="exam-question-card uraian-card" id="q-k5-uraian-1">
+                                <div class="question-header">
+                                    <span class="q-badge badge-uraian" style="background: #0284c7;">Uraian 1</span>
+                                    <p class="q-text">1. Ceritakan langkah-langkah cara membuat presentasi dengan bantuan aplikasi AI!</p>
+                                </div>
+                                <div class="uraian-input-wrap">
+                                    <textarea id="uraian_k5_1" rows="4" required placeholder="Tuliskan langkah-langkah membuat presentasi dengan bantuan aplikasi AI secara runtut di sini..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Uraian 2 (No. 12) -->
+                            <div class="exam-question-card uraian-card" id="q-k5-uraian-2">
+                                <div class="question-header">
+                                    <span class="q-badge badge-uraian" style="background: #0284c7;">Uraian 2</span>
+                                    <p class="q-text">2. Tuliskan nama slide tampilan layout di bawah ini!</p>
+                                </div>
+                                
+                                <!-- Visual Slide Layouts Miniature -->
+                                <div class="slide-layouts-grid">
+                                    <div class="slide-layout-card">
+                                        <div class="slide-miniature">
+                                            <div class="slide-box-dashed" style="height: 24px; font-size: 0.65rem; color: #475569; font-weight: 700; background: #f8fafc;">Click to add title</div>
+                                            <div class="slide-box-dashed slide-body-box" style="height: 48px;">
+                                                <span>📝</span> <span style="font-size: 0.62rem; color: #64748b;">Click to add text / content</span>
+                                            </div>
+                                        </div>
+                                        <h4 style="color: #0369a1; margin: 0.2rem 0;">Tampilan A</h4>
+                                        <input type="text" id="uraian_k5_2_a" required placeholder="Tuliskan nama layout tampilan A..." style="width: 100%; padding: 0.65rem; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700;">
+                                    </div>
+
+                                    <div class="slide-layout-card">
+                                        <div class="slide-miniature">
+                                            <div class="slide-box-dashed" style="height: 24px; font-size: 0.65rem; color: #475569; font-weight: 700; background: #f8fafc;">Click to add title</div>
+                                            <div class="slide-box-dashed slide-body-box" style="height: 48px; flex-direction: column; gap: 2px;">
+                                                <span>🖼️</span>
+                                                <span style="font-size: 0.6rem; color: #64748b;">[Area Gambar / Picture with Caption]</span>
+                                            </div>
+                                        </div>
+                                        <h4 style="color: #0369a1; margin: 0.2rem 0;">Tampilan B</h4>
+                                        <input type="text" id="uraian_k5_2_b" required placeholder="Tuliskan nama layout tampilan B..." style="width: 100%; padding: 0.65rem; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700;">
+                                    </div>
+
+                                    <div class="slide-layout-card">
+                                        <div class="slide-miniature">
+                                            <div class="slide-box-dashed" style="height: 22px; font-size: 0.65rem; color: #475569; font-weight: 700; background: #f8fafc;">Click to add title</div>
+                                            <div style="display: flex; gap: 4px; height: 50px;">
+                                                <div class="slide-box-dashed" style="flex: 1; font-size: 0.58rem; color: #94a3b8; display: flex; align-items: center; justify-content: center; background: #f8fafc;">Content 1</div>
+                                                <div class="slide-box-dashed" style="flex: 1; font-size: 0.58rem; color: #94a3b8; display: flex; align-items: center; justify-content: center; background: #f8fafc;">Content 2</div>
+                                            </div>
+                                        </div>
+                                        <h4 style="color: #0369a1; margin: 0.2rem 0;">Tampilan C</h4>
+                                        <input type="text" id="uraian_k5_2_c" required placeholder="Tuliskan nama layout tampilan C..." style="width: 100%; padding: 0.65rem; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Uraian 3 (No. 13) -->
+                            <div class="exam-question-card uraian-card" id="q-k5-uraian-3">
+                                <div class="question-header">
+                                    <span class="q-badge badge-uraian" style="background: #0284c7;">Uraian 3</span>
+                                    <p class="q-text">3. Buatkan sebuah prompt dimana: <br>Bu Santi adalah seorang guru, ingin membuat kepada murid-muridnya kelas 5 SD, sebuah presentasi bertemakan <strong>Pengenalan Microsoft Powerpoint</strong>, dimana setiap slide berisi: <br>• Slide 1: Pengenalan powerpoint <br>• Slide 2: Mengenal tampilan <br>• Slide 3: Membuat Slide Baru</p>
+                                </div>
+                                <div class="uraian-input-wrap">
+                                    <textarea id="uraian_k5_3" rows="4" required placeholder="Tuliskan contoh prompt teks perintah AI yang kamu buat di sini..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Uraian 4 (No. 14) -->
+                            <div class="exam-question-card uraian-card" id="q-k5-uraian-4">
+                                <div class="question-header">
+                                    <span class="q-badge badge-uraian" style="background: #0284c7;">Uraian 4</span>
+                                    <p class="q-text">4. Tuliskan langkah-langkah cara menyimpan presentasi yang belum pernah kita simpan ke dalam <strong>localdisk D:</strong>, lalu ke <strong>kelas 5</strong>, lalu ke <strong>5D</strong> dengan nama file <strong>5D-Namakamu-Latihan</strong>!</p>
+                                </div>
+                                <div class="uraian-input-wrap">
+                                    <textarea id="uraian_k5_4" rows="4" required placeholder="Tuliskan langkah-langkah cara menyimpan file presentasi secara lengkap di sini..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Uraian 5 (No. 15) -->
+                            <div class="exam-question-card uraian-card" id="q-k5-uraian-5">
+                                <div class="question-header">
+                                    <span class="q-badge badge-uraian" style="background: #0284c7;">Uraian 5</span>
+                                    <p class="q-text">5. Tuliskan 5 aplikasi AI yang membantu kamu dalam pembuatan presentasi!</p>
+                                </div>
+                                <div class="scratch-blocks-subgrid">
+                                    <div class="sub-input">
+                                        <label for="uraian_k5_5_1"><strong>Aplikasi AI 1:</strong></label>
+                                        <input type="text" id="uraian_k5_5_1" required placeholder="Tuliskan nama aplikasi AI ke-1...">
+                                    </div>
+                                    <div class="sub-input">
+                                        <label for="uraian_k5_5_2"><strong>Aplikasi AI 2:</strong></label>
+                                        <input type="text" id="uraian_k5_5_2" required placeholder="Tuliskan nama aplikasi AI ke-2...">
+                                    </div>
+                                    <div class="sub-input">
+                                        <label for="uraian_k5_5_3"><strong>Aplikasi AI 3:</strong></label>
+                                        <input type="text" id="uraian_k5_5_3" required placeholder="Tuliskan nama aplikasi AI ke-3...">
+                                    </div>
+                                    <div class="sub-input">
+                                        <label for="uraian_k5_5_4"><strong>Aplikasi AI 4:</strong></label>
+                                        <input type="text" id="uraian_k5_5_4" required placeholder="Tuliskan nama aplikasi AI ke-4...">
+                                    </div>
+                                    <div class="sub-input">
+                                        <label for="uraian_k5_5_5"><strong>Aplikasi AI 5:</strong></label>
+                                        <input type="text" id="uraian_k5_5_5" required placeholder="Tuliskan nama aplikasi AI ke-5...">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="exam-submit-bar">
+                            <button type="submit" class="btn-calculate-score" style="background: linear-gradient(135deg, #0284c7, #2563eb);">
+                                <i class="fa-solid fa-calculator"></i>
+                                <span>Kirim Jawaban & Dapatkan Score Remedial Kelas 5</span>
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+
+                <!-- STEP 3: SCORE & KATA MOTIVASI KELAS 5 -->
+                <div id="k5-step-result" class="exam-step-view">
+                    <div class="huge-score-container">
+                        <div class="score-mascot-badge" id="scoreMascotIconK5">🏆</div>
+                        <h2 class="score-student-name" id="scoreStudentSummaryK5">Nama Siswa • Kelas 5D</h2>
+                        
+                        <div class="huge-score-showcase">
+                            <span class="huge-score-tag">NILAI AKHIR REMEDIAL KELAS 5</span>
+                            <div class="huge-score-value" id="hugeFinalScoreK5">100</div>
+                            <span class="huge-predicate-badge" id="hugePredicateBadgeK5">🌟 LULUS REMEDIAL</span>
+                        </div>
+
+                        <!-- Kotak Kata Motivasi -->
+                        <div class="huge-motivation-box">
+                            <div class="motivation-icon-ring">💡</div>
+                            <h3 class="motivation-title" id="motivationTitleK5">Kata Motivasi Untukmu:</h3>
+                            <p class="motivation-desc" id="motivationMessageK5">
+                                <!-- Populated dynamically by script.js -->
+                            </p>
+                            <div class="motivation-tzuchi-note">
+                                <span>🌱</span>
+                                <em>“Keindahan sifat manusia terletak pada ketulusan hatinya. Kemuliaan sifat manusia terletak pada kejujuran.”</em>
+                                <strong>— Kata Perenungan Master Cheng Yen</strong>
+                            </div>
+                        </div>
+
+                        <!-- Tombol Aksi: Kembali ke Menu Utama -->
+                        <div class="result-actions-group">
+                            <button class="btn-return-home" onclick="returnToMainMenuK5()">
+                                <i class="fa-solid fa-house"></i>
+                                <span>Kembali ke Menu Utama</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= TEMPLATE RESMI LAPORAN CETAK PDF KELAS 5 ================= -->
+                <div id="pdfReportWrapperK5" class="pdf-report-offscreen">
+                    <div class="pdf-document-card" id="pdfDocumentElementK5">
+                        <!-- Kop Surat Resmi -->
+                        <div class="pdf-header-letterhead">
+                            <div class="pdf-logo-symbol">🌱</div>
+                            <div class="pdf-header-texts">
+                                <h3>YAYASAN BUDDHA TZU CHI INDONESIA</h3>
+                                <h2>SDS CINTA KASIH TZU CHI</h2>
+                                <p>Kompleks Cinta Kasih Tzu Chi, Jl. Kamal Raya No. 20, Cengkareng, Jakarta Barat</p>
+                                <p class="pdf-contact-info">Telp: (021) 54397462 • Email: info@cks.tzuchi.sch.id</p>
+                            </div>
+                        </div>
+                        <div class="pdf-double-border"></div>
+
+                        <!-- Judul Surat Keterangan -->
+                        <div class="pdf-title-block">
+                            <h4>SURAT KETERANGAN HASIL EVALUASI REMEDIAL</h4>
+                            <h5>MID SEMESTER 1 • TAHUN PELAJARAN 2026/2027</h5>
+                            <span class="pdf-subject-badge">MATA PELAJARAN: KODING DAN KECERDASAN ARTIFISIAL (KELAS 5)</span>
+                        </div>
+
+                        <!-- Data Siswa -->
+                        <table class="pdf-student-table">
+                            <tr>
+                                <td class="col-lbl">Nama Siswa</td>
+                                <td class="col-sep">:</td>
+                                <td class="col-val"><strong id="pdfReportNameK5">-</strong></td>
+                                <td class="col-lbl">Alokasi Waktu</td>
+                                <td class="col-sep">:</td>
+                                <td class="col-val">60 Menit</td>
+                            </tr>
+                            <tr>
+                                <td class="col-lbl">Kelas</td>
+                                <td class="col-sep">:</td>
+                                <td class="col-val"><strong id="pdfReportClassK5">-</strong></td>
+                                <td class="col-lbl">Waktu Digunakan</td>
+                                <td class="col-sep">:</td>
+                                <td class="col-val" id="pdfReportDurationK5">-</td>
+                            </tr>
+                            <tr>
+                                <td class="col-lbl">Nomor Absen</td>
+                                <td class="col-sep">:</td>
+                                <td class="col-val" id="pdfReportAbsenK5">-</td>
+                                <td class="col-lbl">Tanggal Pelaksanaan</td>
+                                <td class="col-sep">:</td>
+                                <td class="col-val" id="pdfReportDateK5">-</td>
+                            </tr>
+                        </table>
+
+                        <!-- Rincian Capaian Nilai -->
+                        <table class="pdf-grades-table">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Komponen Penilaian</th>
+                                    <th>Bobot Poin</th>
+                                    <th>Nilai Siswa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-center">1</td>
+                                    <td>Nilai Awal (Sebelum Remedial)</td>
+                                    <td class="text-center">100</td>
+                                    <td class="text-center" id="pdfReportInitialScoreK5">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center">2</td>
+                                    <td>Soal Pilihan Ganda (10 Nomor)</td>
+                                    <td class="text-center">50 Poin</td>
+                                    <td class="text-center" id="pdfReportPgScoreK5">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center">3</td>
+                                    <td>Soal Uraian Mandiri (5 Nomor)</td>
+                                    <td class="text-center">50 Poin</td>
+                                    <td class="text-center" id="pdfReportUraianScoreK5">-</td>
+                                </tr>
+                                <tr class="pdf-grade-total-row">
+                                    <td colspan="3" class="text-right"><strong>NILAI AKHIR EVALUASI REMEDIAL</strong></td>
+                                    <td class="text-center pdf-huge-grade" id="pdfReportFinalScoreK5">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Status Kelulusan & Predikat -->
+                        <div class="pdf-result-status-bar">
+                            <div class="pdf-status-item">
+                                <span class="label">STATUS HASIL:</span>
+                                <strong class="badge-status-green" id="pdfReportStatusK5">LULUS REMEDIAL</strong>
+                            </div>
+                            <div class="pdf-status-item">
+                                <span class="label">PREDIKAT:</span>
+                                <strong id="pdfReportPredicateK5">SANGAT MEMUASKAN</strong>
+                            </div>
+                        </div>
+
+                        <!-- Catatan Mutiara Master Cheng Yen -->
+                        <div class="pdf-tzuchi-quote-box">
+                            <p><em>“Keindahan sifat manusia terletak pada ketulusan hatinya. Kemuliaan sifat manusia terletak pada kejujuran.”</em></p>
+                            <span>— Kata Perenungan Master Cheng Yen</span>
+                        </div>
+
+                        <!-- Tanda Tangan -->
+                        <div class="pdf-signatures-container">
+                            <div class="pdf-sig-box">
+                                <p>Mengetahui,</p>
+                                <p>Orang Tua / Wali Siswa</p>
+                                <div class="pdf-sig-space"></div>
+                                <p class="pdf-sig-line">( ........................................ )</p>
+                            </div>
+                            <div class="pdf-sig-box">
+                                <p id="pdfReportLocationDateK5">Jakarta, 30 September 2026</p>
+                                <p>Guru Koding & AI</p>
+                                <div class="pdf-sig-space"></div>
+                                <p class="pdf-sig-line"><strong>( Darningsih, S.T. )</strong></p>
+                            </div>
+                        </div>
+
+                        <div class="pdf-official-note">
+                            <small>* Dokumen laporan hasil remedial resmi diterbitkan melalui Portal EduCode AI SDS Cinta Kasih Tzu Chi.</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- DEDICATED FULLSCREEN EXAM MODAL FOR REMEDIAL KELAS 6 -->
+    <!-- ============================================================== -->
+    <div class="modal-overlay modal-fullscreen-overlay" id="examModalK6">
+        <div class="modal-card modal-exam-fullscreen">
+            
+            <!-- Exam Header -->
+            <div class="exam-header-banner">
+                <div class="exam-school-brand">
+                    <span class="school-logo-badge">
+                        <img src="logo_tzuchi.png" alt="Logo Tzu Chi" class="exam-logo-img">
+                    </span>
+                    <div>
+                        <h3 class="school-title">SDS CINTA KASIH TZU CHI</h3>
+                        <p class="school-subtitle">MID SEMESTER 1 • TAHUN PELAJARAN 2026/2027</p>
+                        <p class="school-tagline"><img src="student_k6.png" alt="Siswa K6" class="tagline-student-icon"> Mata Pelajaran: KODING DAN KECERDASAN ARTIFISIAL (KELAS 6)</p>
+                    </div>
+                </div>
+                <div class="exam-header-actions">
+                    <button class="btn-toggle-fullscreen" onclick="toggleScreenExpandK6()" title="Mode Layar Penuh">
+                        <i class="fa-solid fa-expand" id="fullscreenIconK6"></i>
+                        <span id="fullscreenTextK6">Layar Penuh</span>
+                    </button>
+                    <button class="modal-close-btn" onclick="closeExamModalK6()" title="Tutup / Kembali">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-body exam-modal-body">
+
+                <!-- STEP 1: FORM IDENTITAS SISWA KELAS 6 (NAMA, KELAS 6A-6E, NILAI AWAL) -->
+                <div id="k6-step-identity" class="exam-step-view active">
+                    <div class="identity-card">
+                        <div class="identity-header">
+                            <span class="step-icon">🤖</span>
+                            <div>
+                                <h3 class="step-title">Pengisian Identitas Siswa - Kelas 6</h3>
+                                <p class="step-subtitle">Silakan isi nama lengkap, pilih kelasmu (6A-6E), dan masukkan nilai awalmu sebelum mengerjakan soal.</p>
+                            </div>
+                        </div>
+
+                        <form id="k6IdentityForm" onsubmit="startExamK6(event)">
+                            <div class="form-group">
+                                <label for="k6Name"><i class="fa-solid fa-user"></i> Nama Lengkap Siswa *</label>
+                                <input type="text" id="k6Name" required placeholder="Contoh: Kimberly Tan">
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-school"></i> Pilih Kelas (Pilihan Kelas 6A - 6E) *</label>
+                                <div class="class-picker-grid">
+                                    <label class="class-radio-item">
+                                        <input type="radio" name="k6ClassChoice" value="6A" required>
+                                        <span class="radio-box">Kelas 6A</span>
+                                    </label>
+                                    <label class="class-radio-item">
+                                        <input type="radio" name="k6ClassChoice" value="6B">
+                                        <span class="radio-box">Kelas 6B</span>
+                                    </label>
+                                    <label class="class-radio-item">
+                                        <input type="radio" name="k6ClassChoice" value="6C">
+                                        <span class="radio-box">Kelas 6C</span>
+                                    </label>
+                                    <label class="class-radio-item">
+                                        <input type="radio" name="k6ClassChoice" value="6D">
+                                        <span class="radio-box">Kelas 6D</span>
+                                    </label>
+                                    <label class="class-radio-item">
+                                        <input type="radio" name="k6ClassChoice" value="6E">
+                                        <span class="radio-box">Kelas 6E</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="k6NilaiAwal"><i class="fa-solid fa-chart-line"></i> Input Nilai (Nilai Mid Sebelumnya / Awal) *</label>
+                                    <input type="number" id="k6NilaiAwal" min="0" max="100" required placeholder="Contoh: 65">
+                                </div>
+                                <div class="form-group">
+                                    <label for="k6Absen"><i class="fa-solid fa-hashtag"></i> Nomor Absen</label>
+                                    <input type="number" id="k6Absen" min="1" max="50" placeholder="Contoh: 15">
+                                </div>
+                            </div>
+
+                            <!-- Petunjuk Umum & Kata Perenungan Master Cheng Yen -->
+                            <div class="guidelines-card">
+                                <h4><i class="fa-solid fa-circle-info"></i> Petunjuk Umum:</h4>
+                                <ol>
+                                    <li>Berdoa sebelum mengerjakan!</li>
+                                    <li>Bacalah setiap soal pilihan ganda dan uraian dengan teliti!</li>
+                                    <li>Soal dikerjakan secara mandiri dan jujur tanpa bantuan orang lain!</li>
+                                    <li>Periksalah kembali jawabanmu sebelum tombol kirim ditekan!</li>
+                                </ol>
+                                <div class="tzu-chi-quote">
+                                    <em>“Keindahan sifat manusia terletak pada ketulusan hatinya. Kemuliaan sifat manusia terletak pada kejujuran”.</em>
+                                    <span class="quote-author">— Kata perenungan Master Cheng Yen</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-start-exam">
+                                <span>Mulai Kerjakan Soal Remedial Kelas 6</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- STEP 2: LEMBAR SOAL REMEDIAL KELAS 6 (PILGAND & URAIAN) -->
+                <div id="k6-step-questions" class="exam-step-view">
+                    
+                    <!-- Student Info Sticky Bar -->
+                    <div class="exam-student-bar">
+                        <div class="student-bar-item">
+                            <span class="bar-label">Nama Siswa:</span>
+                            <strong id="barStudentNameK6">-</strong>
+                        </div>
+                        <div class="student-bar-item">
+                            <span class="bar-label">Kelas:</span>
+                            <span class="student-class-badge" id="barStudentClassK6" style="background: #f3e8ff; color: #7e22ce;">6A</span>
+                        </div>
+                        <div class="student-bar-item">
+                            <span class="bar-label">Nilai Awal:</span>
+                            <strong id="barStudentInitialScoreK6">0</strong>
+                        </div>
+                        <div class="student-bar-item timer-student-item">
+                            <span class="bar-label">Sisa Waktu:</span>
+                            <span class="exam-timer-tag live-timer" id="examCountdownTagK6">
+                                <i class="fa-solid fa-stopwatch"></i> <span id="timerTextK6">60:00</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <form id="k6ExamForm" onsubmit="calculateAndShowScoreK6(event)">
+                        
+                        <!-- ================= BAGIAN I: PILIHAN GANDA (10 SOAL) ================= -->
+                        <div class="exam-section-block">
+                            <div class="section-banner-title">
+                                <span class="section-number">BAGIAN I</span>
+                                <h4>PILIHAN GANDA • PILIHLAH SALAH SATU JAWABAN YANG PALING TEPAT!</h4>
+                                <span class="section-points">10 Soal (Bobot: 50 Poin)</span>
+                            </div>
+
+                            <!-- Soal 1 -->
+                            <div class="exam-question-card" id="q-k6-card-1">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #9333ea;">Soal 1</span>
+                                    <p class="q-text">Deva ingin merayakan pesta ulang tahunnya di rumah. Ia membuat daftar persiapan: <br>1. Menyiapkan daftar undangan teman-teman <br>2. Menyiapkan kue dan makanan kecil <br>3. Menghias ruang pesta <br>Pola berpikir komputasional yang dilakukan Deva adalah...</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k6_1" value="A" required><span><strong>A.</strong> Abstraksi</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_1" value="B"><span><strong>B.</strong> Pengenalan pola</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_1" value="C"><span><strong>C.</strong> Dekomposisi</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_1" value="D"><span><strong>D.</strong> Algoritma</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Soal 2 -->
+                            <div class="exam-question-card" id="q-k6-card-2">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #9333ea;">Soal 2</span>
+                                    <p class="q-text">Inaya sedang merapikan buku di perpustakaan sekolah. Ia mengelompokkan buku cerita bergambar di rak A, buku pelajaran sains di rak B, dan buku komik petualangan di rak C berdasarkan kesamaan ciri-ciri jenis bukunya. Pola berpikir komputasional yang dilakukan Inaya adalah...</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k6_2" value="A" required><span><strong>A.</strong> Pengenalan pola</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_2" value="B"><span><strong>B.</strong> Algoritma</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_2" value="C"><span><strong>C.</strong> Dekomposisi</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_2" value="D"><span><strong>D.</strong> Abstraksi</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Soal 3 -->
+                            <div class="exam-question-card" id="q-k6-card-3">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #9333ea;">Soal 3</span>
+                                    <p class="q-text">William ingin membuat rute perjalanan dari rumah ke sekolah untuk temannya. Ia hanya menggambar garis jalan utama, belokan penting, dan nama jalan, tanpa menggambar pohon, tiang listrik, atau rumah di sekitarnya. Pola berpikir komputasional yang diterapkan William adalah...</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k6_3" value="A" required><span><strong>A.</strong> Algoritma</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_3" value="B"><span><strong>B.</strong> Dekomposisi</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_3" value="C"><span><strong>C.</strong> Pengenalan pola</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_3" value="D"><span><strong>D.</strong> Abstraksi</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Soal 4 -->
+                            <div class="exam-question-card" id="q-k6-card-4">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #9333ea;">Soal 4</span>
+                                    <p class="q-text">Shevi ingin membuat origami berbentuk pesawat terbang. Ia mengikuti langkah-langkah yang ada di buku petunjuk secara berurutan mulai dari melipat sisi kanan, kiri, hingga membentuk sayap. Pola berpikir komputasional yang dilakukan Shevi adalah...</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k6_4" value="A" required><span><strong>A.</strong> Dekomposisi</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_4" value="B"><span><strong>B.</strong> Algoritma</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_4" value="C"><span><strong>C.</strong> Abstraksi</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_4" value="D"><span><strong>D.</strong> Pengenalan pola</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Soal 5 -->
+                            <div class="exam-question-card" id="q-k6-card-5">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #9333ea;">Soal 5</span>
+                                    <p class="q-text">Di bawah ini, manakah contoh dalam pembuatan game yang menerapkan prinsip <strong>Pengenalan Pola</strong>?</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k6_5" value="A" required><span><strong>A.</strong> Menghapus detail gambar latar belakang agar game lebih ringan</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_5" value="B"><span><strong>B.</strong> Membagi pekerjaan membuat game menjadi karakter, suara, dan skor</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_5" value="C"><span><strong>C.</strong> Menggunakan logika pergerakan yang sama untuk semua karakter musuh</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_5" value="D"><span><strong>D.</strong> Menuliskan urutan tombol Start dari awal sampai permainan mulai</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Soal 6 -->
+                            <div class="exam-question-card" id="q-k6-card-6">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #9333ea;">Soal 6</span>
+                                    <p class="q-text">When you say "Play music" to a voice assistant, what is the 'Process' phase?</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k6_6" value="A" required><span><strong>A.</strong> The speaker plays the song</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_6" value="B"><span><strong>B.</strong> The microphone detects your voice</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_6" value="C"><span><strong>C.</strong> The screen displays the album cover</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_6" value="D"><span><strong>D.</strong> Converting sound to text and searching the song</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Soal 7 -->
+                            <div class="exam-question-card" id="q-k6-card-7">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #9333ea;">Soal 7</span>
+                                    <p class="q-text">Which scenario illustrates <strong>abstraction</strong> rather than pattern recognition?</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k6_7" value="A" required><span><strong>A.</strong> Grouping files based on file extensions (.jpg, .mp3)</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_7" value="B"><span><strong>B.</strong> Drawing a subway map that shows only stations and connecting lines</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_7" value="C"><span><strong>C.</strong> Noting that every Monday has heavy traffic at 7:00 AM</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_7" value="D"><span><strong>D.</strong> Identifying recurring shapes in traditional batik patterns</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Soal 8 -->
+                            <div class="exam-question-card" id="q-k6-card-8">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #9333ea;">Soal 8</span>
+                                    <p class="q-text">When designing an automated cleaning robot, which of the following is the first step when using <strong>decomposition</strong>?</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k6_8" value="A" required><span><strong>A.</strong> Test how fast the robot moves across the room</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_8" value="B"><span><strong>B.</strong> Choose the color and decorative stickers for the robot</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_8" value="C"><span><strong>C.</strong> Program the robot to say "Cleaned!" after finishing</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_8" value="D"><span><strong>D.</strong> Divide the cleaning job into three separate sub-tasks: vacuuming, mopping, and obstacle avoidance</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Soal 9 -->
+                            <div class="exam-question-card" id="q-k6-card-9">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #9333ea;">Soal 9</span>
+                                    <p class="q-text">An AI model is trained with thousands of cat photos labeled "Cat" to help it recognize cats. What type of machine learning is this?</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k6_9" value="A" required><span><strong>A.</strong> Unsupervised Learning</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_9" value="B"><span><strong>B.</strong> Supervised Learning</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_9" value="C"><span><strong>C.</strong> Reinforcement Learning</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_9" value="D"><span><strong>D.</strong> Semi-supervised Learning</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Soal 10 -->
+                            <div class="exam-question-card" id="q-k6-card-10">
+                                <div class="question-header">
+                                    <span class="q-badge" style="background: #9333ea;">Soal 10</span>
+                                    <p class="q-text">When building a game where a character collects falling coins and avoids obstacles, which decomposition step should be done first?</p>
+                                </div>
+                                <div class="q-choices-grid">
+                                    <label class="choice-item"><input type="radio" name="pg_k6_10" value="A" required><span><strong>A.</strong> Break the game into movement, scoring, and obstacles</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_10" value="B"><span><strong>B.</strong> Draw background decorations and sound effects</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_10" value="C"><span><strong>C.</strong> Publish the game to an online app store</span></label>
+                                    <label class="choice-item"><input type="radio" name="pg_k6_10" value="D"><span><strong>D.</strong> Buy a faster computer for programming</span></label>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- ================= BAGIAN II: SOAL URAIAN (5 SOAL) ================= -->
+                        <div class="exam-section-block">
+                            <div class="section-banner-title" style="background: linear-gradient(135deg, #7e22ce, #a855f7);">
+                                <span class="section-number">BAGIAN II</span>
+                                <h4>SOAL URAIAN MANDIRI • JAWABLAH DENGAN TEPAT DAN JELAS!</h4>
+                                <span class="section-points">5 Soal (Bobot: 50 Poin)</span>
+                            </div>
+
+                            <!-- Uraian 1 (No. 11) -->
+                            <div class="exam-question-card uraian-card" id="q-k6-uraian-1">
+                                <div class="question-header">
+                                    <span class="q-badge badge-uraian" style="background: #9333ea;">Uraian 1</span>
+                                    <p class="q-text">1. Tuliskan rangkaian blok kode pemrograman di Scratch untuk menggerakkan suatu karakter/sprite menggunakan tombol keyboard panah ke kanan saat Bendera Hijau (Green Flag) diklik!</p>
+                                </div>
+                                <div class="uraian-input-wrap">
+                                    <textarea id="uraian_k6_1" rows="4" required placeholder="Tuliskan susunan blok kode Scratch jawabanmu di sini..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Uraian 2 (No. 12) -->
+                            <div class="exam-question-card uraian-card" id="q-k6-uraian-2">
+                                <div class="question-header">
+                                    <span class="q-badge badge-uraian" style="background: #9333ea;">Uraian 2</span>
+                                    <p class="q-text">2. Sebutkan nama kelompok / kategori blok kode di Scratch berdasarkan perintah di bawah ini:</p>
+                                </div>
+                                <div class="scratch-blocks-subgrid">
+                                    <div class="scratch-block-quiz-card">
+                                        <span class="scratch-block-label">A. Perintah Mengganti Kostum Karakter:</span>
+                                        <div><span class="scratch-badge badge-looks"><i class="fa-solid fa-shirt"></i> next costume</span></div>
+                                        <input type="text" id="uraian_k6_2_a" required placeholder="Tuliskan nama kategori blok A...">
+                                    </div>
+                                    <div class="scratch-block-quiz-card">
+                                        <span class="scratch-block-label">B. Perintah Mengatur Variabel Nilai/Nyawa:</span>
+                                        <div><span class="scratch-badge badge-variables"><i class="fa-solid fa-calculator"></i> set lives to 0</span></div>
+                                        <input type="text" id="uraian_k6_2_b" required placeholder="Tuliskan nama kategori blok B...">
+                                    </div>
+                                    <div class="scratch-block-quiz-card">
+                                        <span class="scratch-block-label">C. Perintah Sensor Menyentuh Objek:</span>
+                                        <div><span class="scratch-badge badge-sensing"><i class="fa-solid fa-hand-pointer"></i> touching Goblin ?</span></div>
+                                        <input type="text" id="uraian_k6_2_c" required placeholder="Tuliskan nama kategori blok C...">
+                                    </div>
+                                    <div class="scratch-block-quiz-card">
+                                        <span class="scratch-block-label">D. Perintah Menampilkan & Menyembunyikan:</span>
+                                        <div><span class="scratch-badge badge-looks"><i class="fa-solid fa-eye"></i> show</span> <span class="scratch-badge badge-looks"><i class="fa-solid fa-eye-slash"></i> hide</span></div>
+                                        <input type="text" id="uraian_k6_2_d" required placeholder="Tuliskan nama kategori blok D...">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Uraian 3 (No. 13) -->
+                            <div class="exam-question-card uraian-card" id="q-k6-uraian-3">
+                                <div class="question-header">
+                                    <span class="q-badge badge-uraian" style="background: #9333ea;">Uraian 3</span>
+                                    <p class="q-text">3. Perhatikan dua ikon tombol ungu pada aplikasi Scratch di bawah ini! Sebutkan <strong>nama tombol</strong> dan <strong>fungsinya</strong> masing-masing:</p>
+                                </div>
+                                <div class="scratch-ui-icons-grid">
+                                    <div class="scratch-ui-card">
+                                        <div class="scratch-circle-btn">
+                                            <i class="fa-solid fa-cat"></i>
+                                            <span class="plus-badge">+</span>
+                                        </div>
+                                        <h4 style="color: #6b21a8; margin-bottom: 0.5rem;">Ikon Tombol A (Kucing)</h4>
+                                        <input type="text" id="uraian_k6_3_a" required placeholder="Tuliskan nama & fungsi tombol A di sini..." style="width: 100%; padding: 0.7rem; border-radius: 10px; border: 2px solid #cbd5e1; font-weight: 600;">
+                                    </div>
+                                    <div class="scratch-ui-card">
+                                        <div class="scratch-circle-btn">
+                                            <i class="fa-solid fa-image"></i>
+                                            <span class="plus-badge">+</span>
+                                        </div>
+                                        <h4 style="color: #6b21a8; margin-bottom: 0.5rem;">Ikon Tombol B (Pemandangan)</h4>
+                                        <input type="text" id="uraian_k6_3_b" required placeholder="Tuliskan nama & fungsi tombol B di sini..." style="width: 100%; padding: 0.7rem; border-radius: 10px; border: 2px solid #cbd5e1; font-weight: 600;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Uraian 4 (No. 14) -->
+                            <div class="exam-question-card uraian-card" id="q-k6-uraian-4">
+                                <div class="question-header">
+                                    <span class="q-badge badge-uraian" style="background: #9333ea;">Uraian 4</span>
+                                    <p class="q-text">4. Sebutkan 2 contoh perintah pada blok <strong>"Motion"</strong> (Gerakan) dan 2 contoh perintah pada blok <strong>"Control"</strong> (Kontrol) di Scratch!</p>
+                                </div>
+                                <div class="uraian-subgrid" style="grid-template-columns: 1fr 1fr;">
+                                    <div class="sub-input">
+                                        <label for="uraian_k6_4_motion"><strong><i class="fa-solid fa-person-walking"></i> 2 Contoh Perintah Blok Motion (Gerakan):</strong></label>
+                                        <input type="text" id="uraian_k6_4_motion" required placeholder="Tuliskan 2 contoh perintah blok Motion di sini...">
+                                    </div>
+                                    <div class="sub-input">
+                                        <label for="uraian_k6_4_control"><strong><i class="fa-solid fa-sliders"></i> 2 Contoh Perintah Blok Control (Kontrol):</strong></label>
+                                        <input type="text" id="uraian_k6_4_control" required placeholder="Tuliskan 2 contoh perintah blok Control di sini...">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Uraian 5 (No. 15) -->
+                            <div class="exam-question-card uraian-card" id="q-k6-uraian-5">
+                                <div class="question-header">
+                                    <span class="q-badge badge-uraian" style="background: #9333ea;">Uraian 5</span>
+                                    <p class="q-text">5. Sebutkan dan jelaskan secara singkat <strong>4 Pilar Berpikir Komputasional (Computational Thinking)</strong> yang telah kamu pelajari!</p>
+                                </div>
+                                <div class="scratch-ct-pillars-grid">
+                                    <div class="scratch-pillar-box">
+                                        <div class="scratch-pillar-header">
+                                            <span>🧩 1. Pilar Dekomposisi:</span>
+                                        </div>
+                                        <input type="text" id="uraian_k6_5_dekomposisi" required placeholder="Tuliskan penjelasan pilar Dekomposisi di sini..." style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
+                                    </div>
+                                    <div class="scratch-pillar-box">
+                                        <div class="scratch-pillar-header">
+                                            <span>🔍 2. Pilar Pengenalan Pola:</span>
+                                        </div>
+                                        <input type="text" id="uraian_k6_5_pola" required placeholder="Tuliskan penjelasan pilar Pengenalan Pola di sini..." style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
+                                    </div>
+                                    <div class="scratch-pillar-box">
+                                        <div class="scratch-pillar-header">
+                                            <span>🎯 3. Pilar Abstraksi:</span>
+                                        </div>
+                                        <input type="text" id="uraian_k6_5_abstraksi" required placeholder="Tuliskan penjelasan pilar Abstraksi di sini..." style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
+                                    </div>
+                                    <div class="scratch-pillar-box">
+                                        <div class="scratch-pillar-header">
+                                            <span>📋 4. Pilar Algoritma:</span>
+                                        </div>
+                                        <input type="text" id="uraian_k6_5_algoritma" required placeholder="Tuliskan penjelasan pilar Algoritma di sini..." style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="exam-submit-bar">
+                            <button type="submit" class="btn-calculate-score" style="background: linear-gradient(135deg, #7e22ce, #2563eb);">
+                                <i class="fa-solid fa-calculator"></i>
+                                <span>Kirim Jawaban & Dapatkan Score Remedial Kelas 6</span>
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+
+                <!-- STEP 3: SCORE & KATA MOTIVASI (HANYA NILAI AKHIR BESAR & KATA MOTIVASI KELAS 6) -->
+                <div id="k6-step-result" class="exam-step-view">
+                    <div class="huge-score-container">
+                        <div class="score-mascot-badge" id="scoreMascotIconK6">🏆</div>
+                        <h2 class="score-student-name" id="scoreStudentSummaryK6">Nama Siswa • Kelas 6A</h2>
+                        
+                        <div class="huge-score-showcase">
+                            <span class="huge-score-tag">NILAI AKHIR REMEDIAL KELAS 6</span>
+                            <div class="huge-score-value" id="hugeFinalScoreK6">100</div>
+                            <span class="huge-predicate-badge" id="hugePredicateBadgeK6">🌟 LULUS REMEDIAL</span>
+                        </div>
+
+                        <!-- Kotak Kata Motivasi -->
+                        <div class="huge-motivation-box">
+                            <div class="motivation-icon-ring">💡</div>
+                            <h3 class="motivation-title" id="motivationTitleK6">Kata Motivasi Untukmu:</h3>
+                            <p class="motivation-desc" id="motivationMessageK6">
+                                <!-- Populated dynamically by script.js -->
+                            </p>
+                            <div class="motivation-tzuchi-note">
+                                <span>🌱</span>
+                                <em>“Keindahan sifat manusia terletak pada ketulusan hatinya. Kemuliaan sifat manusia terletak pada kejujuran.”</em>
+                                <strong>— Kata Perenungan Master Cheng Yen</strong>
+                            </div>
+                        </div>
+
+                        <!-- Tombol Aksi: Kembali ke Menu Utama -->
+                        <div class="result-actions-group">
+                            <button class="btn-return-home" onclick="returnToMainMenuK6()">
+                                <i class="fa-solid fa-house"></i>
+                                <span>Kembali ke Menu Utama</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= TEMPLATE RESMI LAPORAN CETAK PDF KELAS 6 ================= -->
+                <div id="pdfReportWrapperK6" class="pdf-report-offscreen">
+                    <div class="pdf-document-card" id="pdfDocumentElementK6">
+                        <!-- Kop Surat Resmi -->
+                        <div class="pdf-header-letterhead">
+                            <div class="pdf-logo-symbol">🌱</div>
+                            <div class="pdf-header-texts">
+                                <h3>YAYASAN BUDDHA TZU CHI INDONESIA</h3>
+                                <h2>SDS CINTA KASIH TZU CHI</h2>
+                                <p>Kompleks Cinta Kasih Tzu Chi, Jl. Kamal Raya No. 20, Cengkareng, Jakarta Barat</p>
+                                <p class="pdf-contact-info">Telp: (021) 54397462 • Email: info@cks.tzuchi.sch.id</p>
+                            </div>
+                        </div>
+                        <div class="pdf-double-border"></div>
+
+                        <!-- Judul Surat Keterangan -->
+                        <div class="pdf-title-block">
+                            <h4>SURAT KETERANGAN HASIL EVALUASI REMEDIAL</h4>
+                            <h5>MID SEMESTER 1 • TAHUN PELAJARAN 2026/2027</h5>
+                            <span class="pdf-subject-badge">MATA PELAJARAN: KODING DAN KECERDASAN ARTIFISIAL (KELAS 6)</span>
+                        </div>
+
+                        <!-- Data Siswa -->
+                        <table class="pdf-student-table">
+                            <tr>
+                                <td class="col-lbl">Nama Siswa</td>
+                                <td class="col-sep">:</td>
+                                <td class="col-val"><strong id="pdfReportNameK6">-</strong></td>
+                                <td class="col-lbl">Alokasi Waktu</td>
+                                <td class="col-sep">:</td>
+                                <td class="col-val">60 Menit</td>
+                            </tr>
+                            <tr>
+                                <td class="col-lbl">Kelas</td>
+                                <td class="col-sep">:</td>
+                                <td class="col-val"><strong id="pdfReportClassK6">-</strong></td>
+                                <td class="col-lbl">Waktu Digunakan</td>
+                                <td class="col-sep">:</td>
+                                <td class="col-val" id="pdfReportDurationK6">-</td>
+                            </tr>
+                            <tr>
+                                <td class="col-lbl">Nomor Absen</td>
+                                <td class="col-sep">:</td>
+                                <td class="col-val" id="pdfReportAbsenK6">-</td>
+                                <td class="col-lbl">Tanggal Pelaksanaan</td>
+                                <td class="col-sep">:</td>
+                                <td class="col-val" id="pdfReportDateK6">-</td>
+                            </tr>
+                        </table>
+
+                        <!-- Rincian Capaian Nilai -->
+                        <table class="pdf-grades-table">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Komponen Penilaian</th>
+                                    <th>Bobot Poin</th>
+                                    <th>Nilai Siswa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-center">1</td>
+                                    <td>Nilai Awal (Sebelum Remedial)</td>
+                                    <td class="text-center">100</td>
+                                    <td class="text-center" id="pdfReportInitialScoreK6">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center">2</td>
+                                    <td>Soal Pilihan Ganda (10 Nomor)</td>
+                                    <td class="text-center">50 Poin</td>
+                                    <td class="text-center" id="pdfReportPgScoreK6">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center">3</td>
+                                    <td>Soal Uraian Mandiri (5 Nomor)</td>
+                                    <td class="text-center">50 Poin</td>
+                                    <td class="text-center" id="pdfReportUraianScoreK6">-</td>
+                                </tr>
+                                <tr class="pdf-grade-total-row">
+                                    <td colspan="3" class="text-right"><strong>NILAI AKHIR EVALUASI REMEDIAL</strong></td>
+                                    <td class="text-center pdf-huge-grade" id="pdfReportFinalScoreK6">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Status Kelulusan & Predikat -->
+                        <div class="pdf-result-status-bar">
+                            <div class="pdf-status-item">
+                                <span class="label">STATUS HASIL:</span>
+                                <strong class="badge-status-green" id="pdfReportStatusK6">LULUS REMEDIAL</strong>
+                            </div>
+                            <div class="pdf-status-item">
+                                <span class="label">PREDIKAT:</span>
+                                <strong id="pdfReportPredicateK6">SANGAT MEMUASKAN</strong>
+                            </div>
+                        </div>
+
+                        <!-- Catatan Mutiara Master Cheng Yen -->
+                        <div class="pdf-tzuchi-quote-box">
+                            <p><em>“Keindahan sifat manusia terletak pada ketulusan hatinya. Kemuliaan sifat manusia terletak pada kejujuran.”</em></p>
+                            <span>— Kata Perenungan Master Cheng Yen</span>
+                        </div>
+
+                        <!-- Tanda Tangan -->
+                        <div class="pdf-signatures-container">
+                            <div class="pdf-sig-box">
+                                <p>Mengetahui,</p>
+                                <p>Orang Tua / Wali Siswa</p>
+                                <div class="pdf-sig-space"></div>
+                                <p class="pdf-sig-line">( ........................................ )</p>
+                            </div>
+                            <div class="pdf-sig-box">
+                                <p id="pdfReportLocationDateK6">Jakarta, 30 September 2026</p>
+                                <p>Guru Koding & AI</p>
+                                <div class="pdf-sig-space"></div>
+                                <p class="pdf-sig-line"><strong>( Darningsih, S.T. )</strong></p>
+                            </div>
+                        </div>
+
+                        <div class="pdf-official-note">
+                            <small>* Dokumen laporan hasil remedial resmi diterbitkan melalui Portal EduCode AI SDS Cinta Kasih Tzu Chi.</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <!-- GENERAL MODAL POPUP FOR KELAS 5 & KELAS 6 -->
     <div class="modal-overlay" id="remedialModal">
         <div class="modal-card">
@@ -898,7 +2073,8 @@
             <!-- Modal Tab Navigation -->
             <div class="modal-tabs">
                 <button class="tab-btn active" onclick="switchTab('materi')">
-                    <i class="fa-solid fa-book-open"></i> Rangkuman Materi
+                    <img src="student_k4.png" alt="Icon Siswa Materi" class="tab-materi-thumb" id="modalMateriTabThumb">
+                    <span>Rangkuman Materi</span>
                 </button>
                 <button class="tab-btn" onclick="switchTab('kuis')">
                     <i class="fa-solid fa-puzzle-piece"></i> Kuis Interaktif
@@ -971,12 +2147,18 @@
                     <div>
                         <div class="teacher-tag"><i class="fa-solid fa-shield-halved"></i> AKSES KHUSUS GURU / ADMINISTRATOR</div>
                         <h2 class="teacher-title">Rekapitulasi Nilai & Lembar Jawaban Siswa</h2>
-                        <p class="teacher-subtitle">SDS Cinta Kasih Tzu Chi • Koding & AI Kelas 4 (Mid Semester 1 TP 2026/2027)</p>
+                        <p class="teacher-subtitle">SDS Cinta Kasih Tzu Chi • Koding & AI (Kelas 4, Kelas 5 & Kelas 6 • Mid Semester 1 TP 2026/2027)</p>
                     </div>
                 </div>
                 <div class="teacher-header-actions">
-                    <button class="btn-export-csv" onclick="exportRecapToCSV()" title="Unduh data seluruh siswa dalam format Excel/CSV">
-                        <i class="fa-solid fa-file-excel"></i> Unduh Rekap Excel (CSV)
+                    <button class="btn-cloud-sync" id="btnCloudSync" onclick="syncDataFromCloud()" title="Tarik dan gabungkan semua data siswa dari Google Sheets">
+                        <i class="fa-solid fa-arrows-rotate"></i> Sinkron Cloud
+                    </button>
+                    <button class="btn-cloud-config" onclick="openCloudConfigModal()" title="Pengaturan Koneksi Google Sheets">
+                        <i class="fa-solid fa-cloud"></i> Setup Cloud
+                    </button>
+                    <button class="btn-export-csv" onclick="exportRecapToExcel()" title="Unduh Rekap Seluruh Siswa Remedial dalam Format File Excel">
+                        <i class="fa-solid fa-file-excel"></i> Unduh Rekap Excel
                     </button>
                     <button class="modal-close-btn" onclick="closeTeacherPortal()" title="Tutup Panel Guru">
                         <i class="fa-solid fa-xmark"></i>
@@ -987,6 +2169,17 @@
             <!-- Teacher Panel Body -->
             <div class="teacher-modal-body">
                 
+                <!-- Cloud Status Banner -->
+                <div class="cloud-status-banner" id="cloudStatusBanner">
+                    <div class="cloud-status-indicator">
+                        <span class="cloud-status-dot offline" id="cloudStatusDot"></span>
+                        <span id="cloudStatusText">Mode Offline / Penyimpanan Lokal (Belum terhubung ke Google Sheets)</span>
+                    </div>
+                    <button class="btn-cloud-action-pill" onclick="openCloudConfigModal()">
+                        <i class="fa-solid fa-gear"></i> Konfigurasi Cloud Spreadsheet
+                    </button>
+                </div>
+
                 <!-- Quick Metric Cards -->
                 <div class="teacher-stats-grid">
                     <div class="teacher-stat-card">
@@ -1022,7 +2215,7 @@
                         </div>
                         <div class="stat-info">
                             <span class="stat-num" id="teacherPassedCount">0</span>
-                            <span class="stat-label">Tingkat Ketuntasan (KKM 70)</span>
+                            <span class="stat-label">Tingkat Ketuntasan (KKM 80)</span>
                         </div>
                     </div>
                 </div>
@@ -1033,11 +2226,19 @@
                         <span class="toolbar-label"><i class="fa-solid fa-filter"></i> Filter Kelas:</span>
                         <div class="teacher-class-tabs" id="teacherClassTabs">
                             <button class="t-filter-tab active" onclick="filterTeacherTable('SEMUA')">Semua Kelas</button>
-                            <button class="t-filter-tab" onclick="filterTeacherTable('4A')">Kelas 4A</button>
-                            <button class="t-filter-tab" onclick="filterTeacherTable('4B')">Kelas 4B</button>
-                            <button class="t-filter-tab" onclick="filterTeacherTable('4C')">Kelas 4C</button>
-                            <button class="t-filter-tab" onclick="filterTeacherTable('4D')">Kelas 4D</button>
-                            <button class="t-filter-tab" onclick="filterTeacherTable('4E')">Kelas 4E</button>
+                            <button class="t-filter-tab" onclick="filterTeacherTable('KELAS_4')">Semua Kls 4</button>
+                            <button class="t-filter-tab" onclick="filterTeacherTable('4A')">4A</button>
+                            <button class="t-filter-tab" onclick="filterTeacherTable('4B')">4B</button>
+                            <button class="t-filter-tab" onclick="filterTeacherTable('4C')">4C</button>
+                            <button class="t-filter-tab" onclick="filterTeacherTable('4D')">4D</button>
+                            <button class="t-filter-tab" onclick="filterTeacherTable('4E')">4E</button>
+                            <button class="t-filter-tab" onclick="filterTeacherTable('5D')">5D</button>
+                            <button class="t-filter-tab" onclick="filterTeacherTable('KELAS_6')">Semua Kls 6</button>
+                            <button class="t-filter-tab" onclick="filterTeacherTable('6A')">6A</button>
+                            <button class="t-filter-tab" onclick="filterTeacherTable('6B')">6B</button>
+                            <button class="t-filter-tab" onclick="filterTeacherTable('6C')">6C</button>
+                            <button class="t-filter-tab" onclick="filterTeacherTable('6D')">6D</button>
+                            <button class="t-filter-tab" onclick="filterTeacherTable('6E')">6E</button>
                         </div>
                     </div>
 
@@ -1047,26 +2248,71 @@
                     </div>
                 </div>
 
-                <!-- Teacher Data Table -->
-                <div class="teacher-table-responsive">
-                    <table class="teacher-data-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 48px;">No</th>
-                                <th>Nama Lengkap Siswa</th>
-                                <th style="width: 90px;">Kelas</th>
-                                <th style="width: 80px;">No. Absen</th>
-                                <th style="width: 95px;">Nilai Awal</th>
-                                <th style="width: 130px;">Nilai Akhir Remedial</th>
-                                <th style="width: 140px;">Waktu & Durasi</th>
-                                <th style="width: 110px;">Status</th>
-                                <th style="width: 230px;" class="text-center">Unduhan & Lembar Jawaban</th>
-                            </tr>
-                        </thead>
-                        <tbody id="teacherTableBody">
-                            <!-- Populated dynamically by JavaScript -->
-                        </tbody>
-                    </table>
+                <!-- Toolbar Navigasi Panah Atas & Bawah -->
+                <div class="table-header-toolbar">
+                    <div class="table-info-counter">
+                        <span class="badge-total-students" id="tableStudentsCountBadge">
+                            <i class="fa-solid fa-users"></i> Menampilkan Data Siswa
+                        </span>
+                    </div>
+                    <div class="table-arrow-navigation">
+                        <span class="nav-arrow-label"><i class="fa-solid fa-arrows-up-down"></i> Gulir Data:</span>
+                        <button class="btn-arrow-control btn-arrow-up" onclick="scrollTeacherTable('up')" title="Lihat Data Siswa di Atas (Panah Atas)">
+                            <i class="fa-solid fa-arrow-up"></i>
+                            <span>Panah Atas</span>
+                        </button>
+                        <button class="btn-arrow-control btn-arrow-down" onclick="scrollTeacherTable('down')" title="Lihat Data Siswa di Bawah (Panah Bawah)">
+                            <i class="fa-solid fa-arrow-down"></i>
+                            <span>Panah Bawah</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Teacher Data Table dengan Container Scroll & Tombol Panah Melayang -->
+                <div class="teacher-table-wrapper-relative">
+                    <div class="teacher-table-responsive" id="teacherTableScrollContainer">
+                        <table class="teacher-data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 58px; cursor: pointer;" onclick="sortTeacherTableBy('no')" title="Klik untuk mengurutkan nomor">
+                                        No <span class="th-sort-icon" id="sortIcon-no"><i class="fa-solid fa-sort"></i></span>
+                                    </th>
+                                    <th style="cursor: pointer;" onclick="sortTeacherTableBy('name')" title="Klik untuk mengurutkan nama siswa">
+                                        Nama Lengkap Siswa <span class="th-sort-icon" id="sortIcon-name"><i class="fa-solid fa-sort"></i></span>
+                                    </th>
+                                    <th style="width: 90px; cursor: pointer;" onclick="sortTeacherTableBy('kelas')" title="Klik untuk mengurutkan kelas">
+                                        Kelas <span class="th-sort-icon" id="sortIcon-kelas"><i class="fa-solid fa-sort"></i></span>
+                                    </th>
+                                    <th style="width: 85px; cursor: pointer;" onclick="sortTeacherTableBy('absen')" title="Klik untuk mengurutkan nomor absen">
+                                        No. Absen <span class="th-sort-icon" id="sortIcon-absen"><i class="fa-solid fa-sort"></i></span>
+                                    </th>
+                                    <th style="width: 95px; cursor: pointer;" onclick="sortTeacherTableBy('nilaiAwal')" title="Klik untuk mengurutkan nilai awal">
+                                        Nilai Awal <span class="th-sort-icon" id="sortIcon-nilaiAwal"><i class="fa-solid fa-sort"></i></span>
+                                    </th>
+                                    <th style="width: 135px; cursor: pointer;" onclick="sortTeacherTableBy('nilaiAkhir')" title="Klik untuk mengurutkan nilai remedial">
+                                        Nilai Akhir Remedial <span class="th-sort-icon" id="sortIcon-nilaiAkhir"><i class="fa-solid fa-sort"></i></span>
+                                    </th>
+                                    <th style="width: 140px;">Waktu & Durasi</th>
+                                    <th style="width: 110px;">Status</th>
+                                    <th style="width: 230px;" class="text-center">Unduhan & Lembar Jawaban</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teacherTableBody">
+                                <!-- Populated dynamically by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Tombol Panah Melayang Atas & Bawah untuk melihat data secara cepat -->
+                    <div class="table-floating-nav" id="tableFloatingNav" title="Panah Gulir Cepat">
+                        <button class="table-nav-pill-btn" onclick="scrollTeacherTable('up')" title="Panah Atas (Lihat Data Siswa Sebelumnya)">
+                            <i class="fa-solid fa-chevron-up"></i>
+                        </button>
+                        <div class="table-nav-pill-divider"></div>
+                        <button class="table-nav-pill-btn" onclick="scrollTeacherTable('down')" title="Panah Bawah (Lihat Data Siswa Berikutnya)">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Empty State -->
@@ -1121,8 +2367,7 @@
             <!-- Kop Surat Resmi SDS Cinta Kasih Tzu Chi -->
             <div class="pdf-kop-wrapper">
                 <div class="pdf-kop-logo">
-                    <!-- Tzu Chi Lotus Bud Icon -->
-                    <span style="font-size: 38px;">🌱</span>
+                    <img src="logo_tzuchi.png" alt="Logo Yayasan Buddha Tzu Chi" style="width: 72px; height: auto; object-fit: contain;">
                 </div>
                 <div class="pdf-kop-text">
                     <h2 class="pdf-kop-title">SDS CINTA KASIH TZU CHI</h2>
@@ -1137,7 +2382,7 @@
             <div class="pdf-doc-title-box">
                 <h3 class="pdf-doc-title">LEMBAR HASIL EVALUASI & JAWABAN SISWA</h3>
                 <p class="pdf-doc-meta">REMEDIAL MID SEMESTER 1 • TAHUN PELAJARAN 2026/2027</p>
-                <p class="pdf-doc-subject">Mata Pelajaran: <strong>Koding dan Kecerdasan Artifisial</strong> (Kelas 4 SD)</p>
+                <p class="pdf-doc-subject">Mata Pelajaran: <strong>Koding dan Kecerdasan Artifisial</strong> (<span id="pdfAnsDocGradeLabel">Kelas 4 SD</span>)</p>
             </div>
 
             <!-- Identitas Siswa -->
@@ -1263,6 +2508,99 @@
                 <small>* Dokumen laporan lembar jawaban resmi diterbitkan melalui Portal EduCode AI SDS Cinta Kasih Tzu Chi.</small>
             </div>
 
+        </div>
+    </div>
+
+    <!-- Cloud Configuration Modal -->
+    <div class="modal-overlay" id="cloudConfigModal" style="display:none; z-index: 10000;">
+        <div class="modal-cloud-config-card">
+            <div class="cloud-modal-header">
+                <h3><i class="fa-solid fa-cloud-arrow-up"></i> Konfigurasi Google Sheets (Sinkronisasi Serentak)</h3>
+                <button class="modal-close-btn" onclick="closeCloudConfigModal()" style="color:white; background:none; border:none; font-size:1.2rem; cursor:pointer;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="cloud-modal-body">
+                <p>Fitur ini memungkinkan puluhan/ratusan siswa mengerjakan remedial bersamaan di perangkat laptop/HP masing-masing, dan hasilnya otomatis terpusat masuk ke satu file Google Sheets Anda!</p>
+                
+                <h4 style="margin: 14px 0 6px 0; color: #0f172a;"><span class="cloud-step-badge">1</span> Buka Google Spreadsheet & Apps Script</h4>
+                <p style="margin:0 0 8px 0;">Buka Google Sheets baru &gt; Menu <b>Extensions (Ekstensi)</b> &gt; <b>Apps Script</b>.</p>
+
+                <h4 style="margin: 12px 0 6px 0; color: #0f172a;"><span class="cloud-step-badge">2</span> Salin & Tempel Kode Script Ini</h4>
+                <div class="code-copy-box">
+                    <button class="btn-copy-script" onclick="copyGasCodeToClipboard()">
+                        <i class="fa-regular fa-copy"></i> Salin Kode Script
+                    </button>
+                    <pre id="gasScriptCodeSnippet" style="margin:0; white-space:pre-wrap;">// Google Apps Script untuk Remedial Serentak SDS Cinta Kasih Tzu Chi
+function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(["Timestamp", "ID Siswa", "Nama Lengkap", "Kelas", "Nilai", "Predikat", "Status", "Jawaban PG", "Jawaban Essay"]);
+    }
+    var data = JSON.parse(e.postData.contents);
+    sheet.appendRow([
+      new Date(),
+      data.studentId || "",
+      data.studentName || "",
+      data.grade || "",
+      data.score || 0,
+      data.predicate || "",
+      data.status || "",
+      JSON.stringify(data.pgAnswers || {}),
+      JSON.stringify(data.essayAnswers || {})
+    ]);
+    return ContentService.createTextOutput(JSON.stringify({status: "success"}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({status: "error", message: err.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var rows = sheet.getDataRange().getValues();
+  if (rows.length &lt;= 1) {
+    return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
+  }
+  var records = [];
+  for (var i = 1; i &lt; rows.length; i++) {
+    var r = rows[i];
+    records.push({
+      date: r[0],
+      studentId: r[1],
+      studentName: r[2],
+      grade: r[3],
+      score: r[4],
+      predicate: r[5],
+      status: r[6],
+      pgAnswers: r[7] ? JSON.parse(r[7]) : {},
+      essayAnswers: r[8] ? JSON.parse(r[8]) : {}
+    });
+  }
+  return ContentService.createTextOutput(JSON.stringify(records))
+    .setMimeType(ContentService.MimeType.JSON);
+}</pre>
+                </div>
+
+                <h4 style="margin: 12px 0 6px 0; color: #0f172a;"><span class="cloud-step-badge">3</span> Deploy sebagai Web App</h4>
+                <p style="margin:0 0 8px 0;">Klik <b>Deploy &gt; New deployment</b> &gt; Pilih tipe <b>Web app</b> &gt; Set <i>Who has access</i>: <b>Anyone (Siapa saja)</b> &gt; Klik <b>Deploy</b> &gt; Salin Web app URL.</p>
+
+                <div class="cloud-input-group">
+                    <label for="inputSheetsWebappUrl"><i class="fa-solid fa-link"></i> Tempelkan Web App URL Google Sheets Anda:</label>
+                    <input type="url" id="inputSheetsWebappUrl" class="cloud-input-field" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
+                    <small style="color: #64748b; display:block; margin-top:4px;">URL ini akan disimpan di browser untuk menyinkronkan data siswa secara otomatis.</small>
+                </div>
+            </div>
+            <div class="cloud-modal-footer">
+                <button type="button" class="btn-test-cloud-connection" onclick="testCloudConnection()">
+                    <i class="fa-solid fa-plug-circle-check"></i> Tes Koneksi
+                </button>
+                <button type="button" class="btn-save-cloud-config" onclick="saveCloudConfig()">
+                    <i class="fa-solid fa-floppy-disk"></i> Simpan Konfigurasi
+                </button>
+            </div>
         </div>
     </div>
 
