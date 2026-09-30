@@ -2313,54 +2313,56 @@ let teacherActiveFilter = 'SEMUA';
 let teacherSearchQuery = '';
 let currentPreviewStudentId = null;
 
+// Hapus semua data siswa sebelumnya secara otomatis sesuai permintaan guru
+if (localStorage.getItem('tzuchi_data_cleared_by_user_req') !== 'true') {
+    localStorage.setItem('remedial_tzuchi_records', JSON.stringify([]));
+    localStorage.setItem('remedial_tzuchi_k4', JSON.stringify([]));
+    localStorage.setItem('tzuchi_data_cleared_by_user_req', 'true');
+}
+
 function getRecapList() {
     try {
-        const stored = localStorage.getItem('remedial_tzuchi_records') || localStorage.getItem('remedial_tzuchi_k4');
-        if (stored) {
+        const stored = localStorage.getItem('remedial_tzuchi_records');
+        if (stored !== null) {
             let parsed = JSON.parse(stored);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                let modified = false;
-                // Periksa apakah sudah ada data Kelas 5; jika belum, gabungkan seed Kelas 5
-                const hasK5 = parsed.some(p => (p.kelas || '').startsWith('5'));
-                if (!hasK5) {
-                    const k5Seeds = DEFAULT_STUDENTS_SEED.filter(s => (s.kelas || '').startsWith('5'));
-                    parsed = [...parsed, ...k5Seeds];
-                    modified = true;
-                }
-                // Pastikan seluruh data siswa kelas 5 menggunakan kelas 5D dan menyinkronkan kunci jawaban resmi
-                parsed.forEach(p => {
-                    if ((p.kelas || '').startsWith('5') && p.kelas !== '5D') {
-                        p.kelas = '5D';
-                        modified = true;
-                    }
-                    if (p.id === 'seed_k5_1' || p.id === 'seed_k5_2') {
-                        const seedMatch = DEFAULT_STUDENTS_SEED.find(s => s.id === p.id);
-                        if (seedMatch && seedMatch.answers && seedMatch.answers.uraian) {
-                            p.answers.uraian = seedMatch.answers.uraian;
-                            modified = true;
-                        }
-                    }
-                });
-                // Periksa apakah sudah ada data Kelas 6; jika belum, gabungkan seed Kelas 6
-                const hasK6 = parsed.some(p => (p.kelas || '').startsWith('6'));
-                if (!hasK6) {
-                    const k6Seeds = DEFAULT_STUDENTS_SEED.filter(s => (s.kelas || '').startsWith('6'));
-                    parsed = [...parsed, ...k6Seeds];
-                    modified = true;
-                }
-                if (modified) {
-                    localStorage.setItem('remedial_tzuchi_records', JSON.stringify(parsed));
-                }
+            if (Array.isArray(parsed)) {
                 return parsed;
             }
         }
     } catch (e) {
         console.log(e);
     }
-    // Jika belum ada data, simpan seed default
-    localStorage.setItem('remedial_tzuchi_records', JSON.stringify(DEFAULT_STUDENTS_SEED));
-    localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(DEFAULT_STUDENTS_SEED));
-    return DEFAULT_STUDENTS_SEED;
+    // Jika belum ada data sama sekali di browser, default adalah tabel bersih kosong []
+    localStorage.setItem('remedial_tzuchi_records', JSON.stringify([]));
+    localStorage.setItem('remedial_tzuchi_k4', JSON.stringify([]));
+    return [];
+}
+
+/* ==============================================================
+   HAPUS SEMUA DATA SISWA YANG SUDAH UJIAN (RESET REKAP)
+   ============================================================== */
+function clearAllExamData() {
+    playCuteSound('pop');
+    const list = getRecapList();
+    if (list.length === 0) {
+        showToast('ℹ️ Data siswa sudah dalam keadaan kosong.');
+        return;
+    }
+
+    const confirmClear = confirm(
+        "⚠️ PERINGATAN PENGHAPUSAN DATA SISWA!\n\n" +
+        `Saat ini tersimpan ${list.length} data siswa yang sudah ujian.\n` +
+        "Apakah Anda yakin ingin MENGHAPUS SEMUA DATA SISWA tersebut?\n\n" +
+        "Seluruh data nilai dan lembar jawaban akan dibersihkan dari rekapitulasi.\n" +
+        "Tekan OK untuk melanjutkan penghapusan."
+    );
+    if (!confirmClear) return;
+
+    localStorage.setItem('remedial_tzuchi_records', JSON.stringify([]));
+    localStorage.setItem('remedial_tzuchi_k4', JSON.stringify([]));
+    renderTeacherTable();
+    playCuteSound('fanfare');
+    showToast('🗑️ Semua data siswa yang sudah ujian berhasil dihapus!');
 }
 
 /* ==============================================================
@@ -2708,6 +2710,10 @@ function renderTeacherTable() {
         if (avgScoreElem) avgScoreElem.innerText = Math.round(totalSum / list.length);
         if (highestScoreElem) highestScoreElem.innerText = maxScore;
         if (passedCountElem) passedCountElem.innerText = `${passRate}% (${passedCount}/${list.length})`;
+    } else {
+        if (avgScoreElem) avgScoreElem.innerText = 0;
+        if (highestScoreElem) highestScoreElem.innerText = 0;
+        if (passedCountElem) passedCountElem.innerText = '0% (0/0)';
     }
 
     if (filtered.length === 0) {
