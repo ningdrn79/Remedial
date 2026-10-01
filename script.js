@@ -2368,7 +2368,10 @@ function clearAllExamData() {
 /* ==============================================================
    GOOGLE SHEETS CLOUD INTEGRATION (UJIAN SERENTAK)
    ============================================================== */
-let GOOGLE_SHEETS_WEBAPP_URL = localStorage.getItem('tzuchi_sheets_url') || '';
+// TEMPELKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
+// AGAR OTOMATIS BERLAKU DI SELURUH LAPTOP/HP SISWA YANG MEMBUKA LINK GITHUB
+const DEFAULT_GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbyIWSK4MWmzZwAoJBdwTTibDEYtFHyFrzjUaZg4CcBQCvsSBM4JNcYE-9vMDhQibamQ/exec"; 
+let GOOGLE_SHEETS_WEBAPP_URL = DEFAULT_GOOGLE_SHEETS_URL || localStorage.getItem('tzuchi_sheets_url') || '';
 
 function updateCloudStatusUI() {
     const dot = document.getElementById('cloudStatusDot');
@@ -2377,10 +2380,10 @@ function updateCloudStatusUI() {
 
     if (GOOGLE_SHEETS_WEBAPP_URL && GOOGLE_SHEETS_WEBAPP_URL.trim().startsWith('http')) {
         dot.className = 'cloud-status-dot';
-        text.innerHTML = `<strong>Cloud Aktif:</strong> Terhubung ke Google Sheets (<span style="color:#0284c7; font-weight:600;">${GOOGLE_SHEETS_WEBAPP_URL.substring(0, 40)}...</span>)`;
+        text.innerHTML = `<strong>Cloud Aktif:</strong> Terhubung ke Google Sheets (<span style="color:#0284c7; font-weight:600;">${GOOGLE_SHEETS_WEBAPP_URL.substring(0, 42)}...</span>)`;
     } else {
         dot.className = 'cloud-status-dot offline';
-        text.innerHTML = `Mode Offline / Penyimpanan Lokal (Belum terhubung ke Google Sheets)`;
+        text.innerHTML = `<strong>Mode Offline (Belum Terhubung Cloud):</strong> Hasil ujian siswa di HP/laptop lain belum bisa masuk ke sini. Klik 'Setup Cloud' untuk menghubungkan Google Sheets.`;
     }
 }
 
@@ -2449,15 +2452,17 @@ function testCloudConnection() {
         });
 }
 
-async function syncDataFromCloud() {
+async function syncDataFromCloud(isSilent = false) {
     if (!GOOGLE_SHEETS_WEBAPP_URL) {
-        alert('URL Google Sheets belum diatur. Silakan klik tombol "Setup Cloud" terlebih dahulu.');
-        openCloudConfigModal();
+        if (!isSilent) {
+            alert('URL Google Sheets belum diatur. Silakan klik tombol "Setup Cloud" terlebih dahulu.');
+            openCloudConfigModal();
+        }
         return;
     }
     const btn = document.getElementById('btnCloudSync');
     if (btn) btn.classList.add('syncing');
-    showToast('☁️ Sedang menyinkronkan data dari Google Sheets...');
+    if (!isSilent) showToast('☁️ Sedang menyinkronkan data dari Google Sheets...');
 
     try {
         const response = await fetch(GOOGLE_SHEETS_WEBAPP_URL);
@@ -2500,14 +2505,18 @@ async function syncDataFromCloud() {
             localStorage.setItem('remedial_tzuchi_records', JSON.stringify(localList));
             localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(localList));
             renderTeacherTable();
-            playCuteSound('fanfare');
-            showToast(`✅ Sinkronisasi berhasil! Menambahkan ${addedCount} data siswa baru dari Cloud.`);
-        } else {
-            showToast('ℹ️ Data Google Sheets masih kosong atau sudah tersinkron seluruhnya.');
+            if (addedCount > 0) {
+                playCuteSound('fanfare');
+                showToast(`✅ Sinkronisasi berhasil! Menambahkan ${addedCount} data siswa baru dari Cloud.`);
+            } else if (!isSilent) {
+                showToast('ℹ️ Seluruh data siswa dari Cloud sudah tersinkron.');
+            }
+        } else if (!isSilent) {
+            showToast('ℹ️ Data Google Sheets masih kosong atau belum ada siswa yang mengirim.');
         }
     } catch (err) {
         console.error('Error syncing cloud data:', err);
-        showToast('⚠️ Gagal mengambil data Cloud. Periksa koneksi internet atau Web App URL.');
+        if (!isSilent) showToast('⚠️ Gagal mengambil data Cloud. Periksa koneksi internet atau Web App URL.');
     } finally {
         if (btn) btn.classList.remove('syncing');
     }
@@ -2562,6 +2571,10 @@ function openTeacherPortal() {
     updateCloudStatusUI();
     renderTeacherTable();
     showToast('🔒 Membuka Panel Khusus Guru...');
+
+    if (GOOGLE_SHEETS_WEBAPP_URL && GOOGLE_SHEETS_WEBAPP_URL.trim().startsWith('http')) {
+        syncDataFromCloud(true);
+    }
 }
 
 function closeTeacherPortal() {
