@@ -2322,19 +2322,16 @@ if (localStorage.getItem('tzuchi_data_cleared_by_user_req') !== 'true') {
 
 function getRecapList() {
     try {
-        const stored = localStorage.getItem('remedial_tzuchi_records');
-        if (stored !== null) {
+        const stored = localStorage.getItem('remedial_tzuchi_records') || localStorage.getItem('remedial_tzuchi_k4');
+        if (stored) {
             let parsed = JSON.parse(stored);
             if (Array.isArray(parsed)) {
                 return parsed;
             }
         }
     } catch (e) {
-        console.log(e);
+        console.warn('Error reading recap records from localStorage:', e);
     }
-    // Jika belum ada data sama sekali di browser, default adalah tabel bersih kosong []
-    localStorage.setItem('remedial_tzuchi_records', JSON.stringify([]));
-    localStorage.setItem('remedial_tzuchi_k4', JSON.stringify([]));
     return [];
 }
 
@@ -2370,7 +2367,7 @@ function clearAllExamData() {
    ============================================================== */
 // TEMPELKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
 // AGAR OTOMATIS BERLAKU DI SELURUH LAPTOP/HP SISWA YANG MEMBUKA LINK GITHUB
-const DEFAULT_GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbyG-7ywcYinI1-2xbcEfWUS2k7inwVhWWWO26eYvgOovDemRWQbNVLxS8QnNjIgJ_wXmQ/exec"; 
+const DEFAULT_GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbyIWSK4MWmzZwAoJBdwTTibDEYtFHyFrzjUaZg4CcBQCvsSBM4JNcYE-9vMDhQibamQ/exec"; 
 let GOOGLE_SHEETS_WEBAPP_URL = DEFAULT_GOOGLE_SHEETS_URL || localStorage.getItem('tzuchi_sheets_url') || '';
 
 function updateCloudStatusUI() {
@@ -2654,122 +2651,153 @@ function updateSortIcons() {
 }
 
 function renderTeacherTable() {
-    const list = getRecapList();
-    const tbody = document.getElementById('teacherTableBody');
-    const emptyNotice = document.getElementById('teacherEmptyState');
+    try {
+        const rawList = getRecapList();
+        const tbody = document.getElementById('teacherTableBody');
+        const emptyNotice = document.getElementById('teacherEmptyState');
 
-    if (!tbody) return;
+        if (!tbody) return;
 
-    // Filter by Class and Search Query
-    let filtered = list.filter(item => {
-        let matchesClass = false;
-        if (teacherActiveFilter === 'SEMUA') {
-            matchesClass = true;
-        } else if (teacherActiveFilter === 'KELAS_4') {
-            matchesClass = (item.kelas || '').startsWith('4');
-        } else if (teacherActiveFilter === 'KELAS_5') {
-            matchesClass = (item.kelas || '').startsWith('5');
-        } else if (teacherActiveFilter === 'KELAS_6') {
-            matchesClass = (item.kelas || '').startsWith('6');
-        } else {
-            matchesClass = (item.kelas === teacherActiveFilter);
+        const list = Array.isArray(rawList) ? rawList.filter(item => item && typeof item === 'object') : [];
+        const searchQ = String(teacherSearchQuery || '').trim().toLowerCase();
+        const activeFilter = String(teacherActiveFilter || 'SEMUA').trim().toUpperCase();
+
+        // Filter by Class and Search Query
+        let filtered = list.filter(item => {
+            try {
+                const itemKelas = String(item.kelas || '').trim();
+                const itemName = String(item.name || '').trim().toLowerCase();
+                const itemAbsen = String(item.absen !== undefined && item.absen !== null ? item.absen : '').trim().toLowerCase();
+
+                let matchesClass = false;
+                if (activeFilter === 'SEMUA') {
+                    matchesClass = true;
+                } else if (activeFilter === 'KELAS_4') {
+                    matchesClass = itemKelas.startsWith('4');
+                } else if (activeFilter === 'KELAS_5') {
+                    matchesClass = itemKelas.startsWith('5');
+                } else if (activeFilter === 'KELAS_6') {
+                    matchesClass = itemKelas.startsWith('6');
+                } else {
+                    matchesClass = (itemKelas.toUpperCase() === activeFilter);
+                }
+
+                const nameMatches = itemName.includes(searchQ);
+                const absenMatches = itemAbsen.includes(searchQ);
+                return matchesClass && (nameMatches || absenMatches);
+            } catch (errFilter) {
+                console.warn('Error filtering item in teacher table:', errFilter, item);
+                return true;
+            }
+        });
+
+        // Urutkan data jika kolom sort aktif
+        if (teacherSortCol !== 'default') {
+            filtered.sort((a, b) => {
+                try {
+                    let res = 0;
+                    if (teacherSortCol === 'name') {
+                        res = String(a.name || '').localeCompare(String(b.name || ''));
+                    } else if (teacherSortCol === 'kelas') {
+                        res = String(a.kelas || '').localeCompare(String(b.kelas || ''));
+                    } else if (teacherSortCol === 'absen') {
+                        res = (parseInt(a.absen, 10) || 0) - (parseInt(b.absen, 10) || 0);
+                    } else if (teacherSortCol === 'nilaiAwal') {
+                        res = Number(a.nilaiAwal || 0) - Number(b.nilaiAwal || 0);
+                    } else if (teacherSortCol === 'nilaiAkhir') {
+                        res = Number(a.nilaiAkhir || 0) - Number(b.nilaiAkhir || 0);
+                    } else if (teacherSortCol === 'no') {
+                        res = String(a.id || '').localeCompare(String(b.id || ''));
+                    }
+                    return teacherSortAsc ? res : -res;
+                } catch (eSort) {
+                    return 0;
+                }
+            });
         }
 
-        const nameMatches = (item.name || '').toLowerCase().includes(teacherSearchQuery);
-        const absenMatches = (item.absen || '').toLowerCase().includes(teacherSearchQuery);
-        return matchesClass && (nameMatches || absenMatches);
-    });
+        // Perbarui counter badge jumlah siswa
+        const badgeCounter = document.getElementById('tableStudentsCountBadge');
+        if (badgeCounter) {
+            badgeCounter.innerHTML = `<i class="fa-solid fa-users"></i> Menampilkan <strong>${filtered.length}</strong> Data Siswa`;
+        }
 
-    // Urutkan data jika kolom sort aktif
-    if (teacherSortCol !== 'default') {
-        filtered.sort((a, b) => {
-            let res = 0;
-            if (teacherSortCol === 'name') {
-                res = (a.name || '').localeCompare(b.name || '');
-            } else if (teacherSortCol === 'kelas') {
-                res = (a.kelas || '').localeCompare(b.kelas || '');
-            } else if (teacherSortCol === 'absen') {
-                res = (parseInt(a.absen, 10) || 0) - (parseInt(b.absen, 10) || 0);
-            } else if (teacherSortCol === 'nilaiAwal') {
-                res = Number(a.nilaiAwal || 0) - Number(b.nilaiAwal || 0);
-            } else if (teacherSortCol === 'nilaiAkhir') {
-                res = Number(a.nilaiAkhir || 0) - Number(b.nilaiAkhir || 0);
-            } else if (teacherSortCol === 'no') {
-                res = (a.id || '').localeCompare(b.id || '');
-            }
-            return teacherSortAsc ? res : -res;
-        });
+        // Update Teacher Quick Metrics
+        const totalStudentsElem = document.getElementById('teacherTotalStudents');
+        const avgScoreElem = document.getElementById('teacherAverageScore');
+        const highestScoreElem = document.getElementById('teacherHighestScore');
+        const passedCountElem = document.getElementById('teacherPassedCount');
+
+        if (totalStudentsElem) totalStudentsElem.innerText = list.length;
+        if (list.length > 0) {
+            const totalSum = list.reduce((acc, curr) => acc + Number(curr.nilaiAkhir || 0), 0);
+            const maxScore = Math.max(...list.map(curr => Number(curr.nilaiAkhir || 0)));
+            const passedCount = list.filter(curr => Number(curr.nilaiAkhir || 0) >= 80).length;
+            const passRate = Math.round((passedCount / list.length) * 100);
+
+            if (avgScoreElem) avgScoreElem.innerText = Math.round(totalSum / list.length);
+            if (highestScoreElem) highestScoreElem.innerText = maxScore;
+            if (passedCountElem) passedCountElem.innerText = `${passRate}% (${passedCount}/${list.length})`;
+        } else {
+            if (avgScoreElem) avgScoreElem.innerText = 0;
+            if (highestScoreElem) highestScoreElem.innerText = 0;
+            if (passedCountElem) passedCountElem.innerText = '0% (0/0)';
+        }
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = '';
+            if (emptyNotice) emptyNotice.style.display = 'block';
+            return;
+        }
+
+        if (emptyNotice) emptyNotice.style.display = 'none';
+
+        tbody.innerHTML = filtered.map((st, idx) => {
+            const safeName = String(st.name || '-');
+            const safeKelas = String(st.kelas || '-');
+            const safeAbsen = String(st.absen !== undefined && st.absen !== null ? st.absen : '-');
+            const safeAwal = st.nilaiAwal !== undefined ? st.nilaiAwal : 0;
+            const safeAkhir = Number(st.nilaiAkhir !== undefined ? st.nilaiAkhir : 0);
+            const isPassed = safeAkhir >= 80;
+            const safeStatus = st.status || (isPassed ? 'Lulus' : 'Tuntas');
+            const safeTimestamp = String(st.timestamp || st.date || '-');
+            const safeDuration = String(st.duration || '60 Menit');
+            const safeId = String(st.id || ('st_' + idx));
+
+            return `
+                <tr>
+                    <td style="color: #64748b; font-weight: 700;">#${idx + 1}</td>
+                    <td><strong>${safeName}</strong></td>
+                    <td><span class="class-tag">Kelas ${safeKelas}</span></td>
+                    <td><strong>${safeAbsen}</strong></td>
+                    <td><span style="color: #64748b; font-weight: 700;">${safeAwal}</span></td>
+                    <td><span class="score-badge-cell">${safeAkhir}</span></td>
+                    <td>
+                        <span style="font-size: 0.85rem; color: #475569; display: block; font-weight: 600;">${safeTimestamp}</span>
+                        <small style="font-size: 0.76rem; color: #94a3b8;">${safeDuration}</small>
+                    </td>
+                    <td>
+                        <span class="status-badge-cell ${isPassed ? 'status-lulus' : 'status-tuntas'}">
+                            <i class="fa-solid fa-circle-check"></i> ${safeStatus}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <div class="teacher-actions-cell">
+                            <button class="btn-action-pdf" onclick="downloadStudentFullAnswersPDF('${safeId}')" title="Unduh Lembar Hasil & Jawaban Lengkap (PDF)">
+                                <i class="fa-solid fa-file-pdf"></i> Unduh PDF Jawaban
+                            </button>
+                            <button class="btn-action-preview" onclick="previewStudentAnswers('${safeId}')" title="Lihat Lembar Jawaban Siswa">
+                                <i class="fa-solid fa-eye"></i> Lihat
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+    } catch (errTable) {
+        console.error('Fatal error in renderTeacherTable:', errTable);
     }
-
-    // Perbarui counter badge jumlah siswa
-    const badgeCounter = document.getElementById('tableStudentsCountBadge');
-    if (badgeCounter) {
-        badgeCounter.innerHTML = `<i class="fa-solid fa-users"></i> Menampilkan <strong>${filtered.length}</strong> Data Siswa`;
-    }
-
-    // Update Teacher Quick Metrics
-    const totalStudentsElem = document.getElementById('teacherTotalStudents');
-    const avgScoreElem = document.getElementById('teacherAverageScore');
-    const highestScoreElem = document.getElementById('teacherHighestScore');
-    const passedCountElem = document.getElementById('teacherPassedCount');
-
-    if (totalStudentsElem) totalStudentsElem.innerText = list.length;
-    if (list.length > 0) {
-        const totalSum = list.reduce((acc, curr) => acc + Number(curr.nilaiAkhir || 0), 0);
-        const maxScore = Math.max(...list.map(curr => Number(curr.nilaiAkhir || 0)));
-        const passedCount = list.filter(curr => Number(curr.nilaiAkhir || 0) >= 80).length;
-        const passRate = Math.round((passedCount / list.length) * 100);
-
-        if (avgScoreElem) avgScoreElem.innerText = Math.round(totalSum / list.length);
-        if (highestScoreElem) highestScoreElem.innerText = maxScore;
-        if (passedCountElem) passedCountElem.innerText = `${passRate}% (${passedCount}/${list.length})`;
-    } else {
-        if (avgScoreElem) avgScoreElem.innerText = 0;
-        if (highestScoreElem) highestScoreElem.innerText = 0;
-        if (passedCountElem) passedCountElem.innerText = '0% (0/0)';
-    }
-
-    if (filtered.length === 0) {
-        tbody.innerHTML = '';
-        if (emptyNotice) emptyNotice.style.display = 'block';
-        return;
-    }
-
-    if (emptyNotice) emptyNotice.style.display = 'none';
-
-    tbody.innerHTML = filtered.map((st, idx) => `
-        <tr>
-            <td style="color: #64748b; font-weight: 700;">#${idx + 1}</td>
-            <td>
-                <strong>${st.name}</strong>
-            </td>
-            <td><span class="class-tag">Kelas ${st.kelas}</span></td>
-            <td><strong>${st.absen || '-'}</strong></td>
-            <td><span style="color: #64748b; font-weight: 700;">${st.nilaiAwal}</span></td>
-            <td>
-                <span class="score-badge-cell">${st.nilaiAkhir}</span>
-            </td>
-            <td>
-                <span style="font-size: 0.85rem; color: #475569; display: block; font-weight: 600;">${st.timestamp || '-'}</span>
-                <small style="font-size: 0.76rem; color: #94a3b8;">${st.duration || '60 Menit'}</small>
-            </td>
-            <td>
-                <span class="status-badge-cell ${st.nilaiAkhir >= 80 ? 'status-lulus' : 'status-tuntas'}">
-                    <i class="fa-solid fa-circle-check"></i> ${st.status || (st.nilaiAkhir >= 80 ? 'Lulus' : 'Tuntas')}
-                </span>
-            </td>
-            <td class="text-center">
-                <div class="teacher-actions-cell">
-                    <button class="btn-action-pdf" onclick="downloadStudentFullAnswersPDF('${st.id}')" title="Unduh Lembar Hasil & Jawaban Lengkap (PDF)">
-                        <i class="fa-solid fa-file-pdf"></i> Unduh PDF Jawaban
-                    </button>
-                    <button class="btn-action-preview" onclick="previewStudentAnswers('${st.id}')" title="Lihat Lembar Jawaban Siswa">
-                        <i class="fa-solid fa-eye"></i> Lihat
-                    </button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
 }
 
 /* ==============================================================
