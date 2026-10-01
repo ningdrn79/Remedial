@@ -2367,7 +2367,7 @@ function clearAllExamData() {
    ============================================================== */
 // TEMPELKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
 // AGAR OTOMATIS BERLAKU DI SELURUH LAPTOP/HP SISWA YANG MEMBUKA LINK GITHUB
-const DEFAULT_GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbyIWSK4MWmzZwAoJBdwTTibDEYtFHyFrzjUaZg4CcBQCvsSBM4JNcYE-9vMDhQibamQ/exec"; 
+const DEFAULT_GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbzil6UJ0oSP8dVExsalXW5uKlMDZ8MKZEc92klqG2Y/dev"; 
 let GOOGLE_SHEETS_WEBAPP_URL = DEFAULT_GOOGLE_SHEETS_URL || localStorage.getItem('tzuchi_sheets_url') || '';
 
 function updateCloudStatusUI() {
