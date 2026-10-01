@@ -2367,8 +2367,11 @@ function clearAllExamData() {
    ============================================================== */
 // TEMPELKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
 // AGAR OTOMATIS BERLAKU DI SELURUH LAPTOP/HP SISWA YANG MEMBUKA LINK GITHUB
-const DEFAULT_GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbzil6UJ0oSP8dVExsalXW5uKlMDZ8MKZEc92klqG2Y/dev"; 
-let GOOGLE_SHEETS_WEBAPP_URL = DEFAULT_GOOGLE_SHEETS_URL || localStorage.getItem('tzuchi_sheets_url') || '';
+const DEFAULT_GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbxU8hVZNvwNE95sCGbkjJwXw9OAuLI-D39_A_zWZQReVFov5pUNDVSSFCxIMNdbVaU6/exec"; 
+let GOOGLE_SHEETS_WEBAPP_URL = localStorage.getItem('tzuchi_sheets_url') || DEFAULT_GOOGLE_SHEETS_URL;
+if (GOOGLE_SHEETS_WEBAPP_URL && GOOGLE_SHEETS_WEBAPP_URL.endsWith('/dev')) {
+    GOOGLE_SHEETS_WEBAPP_URL = GOOGLE_SHEETS_WEBAPP_URL.replace(/\/dev$/, '/exec');
+}
 
 function updateCloudStatusUI() {
     const dot = document.getElementById('cloudStatusDot');
@@ -2401,10 +2404,17 @@ function closeCloudConfigModal() {
 function saveCloudConfig() {
     playCuteSound('pop');
     const input = document.getElementById('inputSheetsWebappUrl');
-    const val = input ? input.value.trim() : '';
+    let val = input ? input.value.trim() : '';
     if (val && !val.startsWith('http')) {
         alert('Harap masukkan URL yang valid (dimulai dengan https://script.google.com/...)');
         return;
+    }
+    if (val.endsWith('/dev')) {
+        const confirmFix = confirm('⚠️ PERHATIAN:\nURL yang Anda tempelkan berakhiran "/dev" (URL Uji Coba Developer).\nGoogle memblokir akses siswa/website luar untuk URL "/dev".\n\nApakah Anda ingin otomatis mengubah akhiran "/dev" menjadi "/exec"?\n(Klik OK untuk otomatis ubah ke /exec, atau Batal untuk mengecek ulang di Apps Script).');
+        if (confirmFix) {
+            val = val.replace(/\/dev$/, '/exec');
+            if (input) input.value = val;
+        }
     }
     GOOGLE_SHEETS_WEBAPP_URL = val;
     localStorage.setItem('tzuchi_sheets_url', val);
@@ -2429,24 +2439,40 @@ function copyGasCodeToClipboard() {
     });
 }
 
-function testCloudConnection() {
+async function testCloudConnection() {
     const input = document.getElementById('inputSheetsWebappUrl');
-    const testUrl = input ? input.value.trim() : GOOGLE_SHEETS_WEBAPP_URL;
+    let testUrl = input ? input.value.trim() : GOOGLE_SHEETS_WEBAPP_URL;
     if (!testUrl || !testUrl.startsWith('http')) {
         alert('Silakan tempelkan Web App URL Google Sheets terlebih dahulu!');
         return;
     }
+    if (testUrl.endsWith('/dev')) {
+        alert('⚠️ URL BERAKHIRAN "/dev" TIDAK BISA DIGUNAKAN!\n\nURL berakhiran /dev adalah "Test deployment" yang hanya bisa dibuka akun pembuat dan diblokir Google jika diakses dari web/siswa.\n\nCara mendapatkan URL yang benar:\n1. Di Google Apps Script, klik "Deploy" -> "New deployment"\n2. Pastikan Who has access: "Anyone" (Siapa saja)\n3. Klik "Deploy", lalu salin URL yang berakhiran "/exec".');
+        testUrl = testUrl.replace(/\/dev$/, '/exec');
+        if (input) input.value = testUrl;
+        return;
+    }
     showToast('🔄 Menguji koneksi ke Google Sheets...');
-    fetch(testUrl)
-        .then(res => res.json())
-        .then(data => {
-            playCuteSound('fanfare');
-            alert('🎉 Koneksi Berhasil! Google Sheets terhubung dan siap menerima data ujian siswa.');
-        })
-        .catch(err => {
-            console.warn('Test Cloud connection note:', err);
-            alert('ℹ️ Permintaan dikirim ke Google Apps Script! Pastikan setting Who has access sudah "Anyone" (Siapa saja).');
-        });
+    try {
+        const res = await fetch(testUrl, { method: 'GET', redirect: 'follow', cache: 'no-store' });
+        const text = await res.text();
+        let json;
+        try {
+            json = JSON.parse(text);
+        } catch(e) {
+            if (text.includes('accounts.google.com') || text.includes('ServiceLogin')) {
+                alert('⚠️ KONEKSI DITOLAK GOOGLE (LOGIN DIWAJIBKAN)!\n\nSaat deploy Apps Script, pilihan "Who has access" masih diatur ke "Only myself".\n\nCara memperbaiki:\n1. Buka Apps Script -> Deploy -> Manage deployments\n2. Klik ikon pensil (Edit)\n3. Ubah "Who has access" menjadi "Anyone" (Siapa saja)\n4. Klik Deploy.');
+                return;
+            }
+            alert('⚠️ Respons bukan JSON valid:\n' + text.substring(0, 160) + '...\n\nPastikan URL berakhiran /exec dan script sudah dideploy dengan izin Anyone.');
+            return;
+        }
+        playCuteSound('fanfare');
+        alert('🎉 KONEKSI BERHASIL 100%!\n\nGoogle Sheets terhubung aktif dan siap menerima data ujian siswa.');
+    } catch(err) {
+        console.warn('Test Cloud connection error:', err);
+        alert('⚠️ GAGAL TERHUBUNG KE GOOGLE APPS SCRIPT!\n\nKemungkinan penyebab:\n1. Di Apps Script, pilihan "Who has access" belum diatur ke "Anyone" (Siapa saja).\n2. Izin akses (Review permissions) belum disetujui di akun Google Anda.\n3. URL Web App belum berakhiran /exec.');
+    }
 }
 
 async function syncDataFromCloud(isSilent = false) {
@@ -2462,8 +2488,23 @@ async function syncDataFromCloud(isSilent = false) {
     if (!isSilent) showToast('☁️ Sedang menyinkronkan data dari Google Sheets...');
 
     try {
-        const response = await fetch(GOOGLE_SHEETS_WEBAPP_URL);
-        const cloudData = await response.json();
+        const response = await fetch(GOOGLE_SHEETS_WEBAPP_URL, {
+            method: 'GET',
+            redirect: 'follow',
+            cache: 'no-store'
+        });
+        const text = await response.text();
+        let cloudData;
+        try {
+            cloudData = JSON.parse(text);
+        } catch(jsonErr) {
+            console.error('Non-JSON response from Google Apps Script:', text);
+            if (text.includes('accounts.google.com') || text.includes('ServiceLogin')) {
+                throw new Error('Akses Google Sheets terkunci login. Mohon pastikan saat Deploy di Apps Script, pilihan "Who has access" sudah diatur ke "Anyone" (Siapa saja).');
+            } else {
+                throw new Error('Respons dari Apps Script bukan format JSON. Periksa apakah kode doGet sudah terpasang dan URL berakhiran /exec.');
+            }
+        }
 
         if (Array.isArray(cloudData) && cloudData.length > 0) {
             const localList = getRecapList();
@@ -2472,8 +2513,8 @@ async function syncDataFromCloud(isSilent = false) {
             cloudData.forEach(c => {
                 // Periksa apakah data sudah ada secara lokal
                 const exists = localList.some(l => 
-                    (c.studentId && l.id === c.studentId) || 
-                    (l.name.toLowerCase() === (c.studentName || '').toLowerCase() && l.kelas === c.grade)
+                    (c.studentId && String(l.id) === String(c.studentId)) || 
+                    (String(l.name || '').toLowerCase() === String(c.studentName || '').toLowerCase() && String(l.kelas || '') === String(c.grade || ''))
                 );
                 if (!exists) {
                     localList.unshift({
@@ -2513,7 +2554,9 @@ async function syncDataFromCloud(isSilent = false) {
         }
     } catch (err) {
         console.error('Error syncing cloud data:', err);
-        if (!isSilent) showToast('⚠️ Gagal mengambil data Cloud. Periksa koneksi internet atau Web App URL.');
+        if (!isSilent) {
+            alert('⚠️ GAGAL SINKRONISASI CLOUD:\n\n' + (err.message || 'Periksa koneksi internet atau Web App URL.') + '\n\nSilakan periksa pengaturan Deployment di Apps Script.');
+        }
     } finally {
         if (btn) btn.classList.remove('syncing');
     }
