@@ -3803,5 +3803,198 @@ body {
     background: linear-gradient(135deg, #047857, #065f46);
 }
 
+/* ===================================================
+   LIVE EXAM TOKEN STYLES (GURU & SISWA)
+   =================================================== */
+.teacher-token-card {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    border: 2px solid #a7f3d0;
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px -2px rgba(16, 185, 129, 0.08);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
 
+.token-card-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
 
+.token-badge-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    box-shadow: 0 6px 14px -3px rgba(16, 185, 129, 0.4);
+}
+
+.token-info h4 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: #065f46;
+    font-weight: 700;
+}
+
+.token-info p {
+    margin: 3px 0 0 0;
+    font-size: 0.82rem;
+    color: #047857;
+}
+
+.token-display-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    padding: 8px 14px;
+    border-radius: 12px;
+    border: 2px dashed #059669;
+}
+
+.token-active-badge {
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: #047857;
+    letter-spacing: 3px;
+    font-family: 'Fredoka', cursive, monospace;
+}
+
+.token-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-token-action {
+    background: white;
+    border: 1.5px solid #cbd5e1;
+    color: #334155;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-token-action:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+.btn-token-action.primary {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: none;
+    color: white;
+}
+
+.btn-token-action.primary:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+}
+
+/* Student Token Input Styling */
+.student-token-box {
+    background: #eff6ff;
+    border: 2px solid #93c5fd;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+}
+
+.student-token-box label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: #1e40af;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+}
+
+.student-token-input {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 1.25rem;
+    font-weight: 900;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    text-align: center;
+    color: #1e3a8a;
+    background: white;
+    border: 2px solid #3b82f6;
+    border-radius: 8px;
+    outline: none;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.student-token-input:focus {
+    border-color: #1d4ed8;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+.student-token-hint {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.8rem;
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+/* High Visibility Exam Sticky Header */
+.exam-student-bar {
+    background: #ffffff;
+    border-bottom: 3px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.student-bar-item strong {
+    font-size: 1.05rem;
+    color: #0f172a;
+}
+
+/* Tombol Edit Nilai Awal Langsung di Tabel Guru */
+.btn-edit-nilai-awal {
+    background: #f8fafc;
+    border: 1.5px dashed #94a3b8;
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #334155;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-edit-nilai-awal:hover {
+    background: #e0f2fe;
+    border-color: #0284c7;
+    border-style: solid;
+    color: #0369a1;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.15);
+}
+
+.btn-edit-nilai-awal i {
+    font-size: 0.72rem;
+    color: #0284c7;
+    opacity: 0.8;
+}

@@ -309,6 +309,13 @@
                                 </div>
                             </div>
 
+                            <!-- Input Token Ujian dari Guru -->
+                            <div class="student-token-box">
+                                <label for="k4ExamToken"><i class="fa-solid fa-key"></i> Token Ujian (Tanya Guru / Lihat di Papan Tulis) *</label>
+                                <input type="text" id="k4ExamToken" class="student-token-input" required placeholder="MASUKKAN TOKEN" maxlength="10" autocomplete="off">
+                                <small class="student-token-hint"><i class="fa-solid fa-circle-info"></i> Masukkan kode token yang diberikan oleh Guru di kelas untuk membuka soal.</small>
+                            </div>
+
                             <!-- Petunjuk Umum & Kata Perenungan Master Cheng Yen -->
                             <div class="guidelines-card">
                                 <h4><i class="fa-solid fa-circle-info"></i> Petunjuk Umum:</h4>
@@ -969,6 +976,13 @@
                                 </div>
                             </div>
 
+                            <!-- Input Token Ujian dari Guru -->
+                            <div class="student-token-box">
+                                <label for="k5ExamToken"><i class="fa-solid fa-key"></i> Token Ujian (Tanya Guru / Lihat di Papan Tulis) *</label>
+                                <input type="text" id="k5ExamToken" class="student-token-input" required placeholder="MASUKKAN TOKEN" maxlength="10" autocomplete="off">
+                                <small class="student-token-hint"><i class="fa-solid fa-circle-info"></i> Masukkan kode token yang diberikan oleh Guru di kelas untuk membuka soal.</small>
+                            </div>
+
                             <!-- Petunjuk Umum & Kata Perenungan Master Cheng Yen -->
                             <div class="guidelines-card">
                                 <h4><i class="fa-solid fa-circle-info"></i> Petunjuk Umum:</h4>
@@ -1548,6 +1562,13 @@
                                     <label for="k6Absen"><i class="fa-solid fa-hashtag"></i> Nomor Absen</label>
                                     <input type="number" id="k6Absen" min="1" max="50" placeholder="Contoh: 15">
                                 </div>
+                            </div>
+
+                            <!-- Input Token Ujian dari Guru -->
+                            <div class="student-token-box">
+                                <label for="k6ExamToken"><i class="fa-solid fa-key"></i> Token Ujian (Tanya Guru / Lihat di Papan Tulis) *</label>
+                                <input type="text" id="k6ExamToken" class="student-token-input" required placeholder="MASUKKAN TOKEN" maxlength="10" autocomplete="off">
+                                <small class="student-token-hint"><i class="fa-solid fa-circle-info"></i> Masukkan kode token yang diberikan oleh Guru di kelas untuk membuka soal.</small>
                             </div>
 
                             <!-- Petunjuk Umum & Kata Perenungan Master Cheng Yen -->
@@ -2180,6 +2201,31 @@
                     </button>
                 </div>
 
+                <!-- Live Token Management Card (Pengawas Ruang Ujian) -->
+                <div class="teacher-token-card" id="teacherTokenCard">
+                    <div class="token-card-left">
+                        <div class="token-badge-icon">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                        <div class="token-info">
+                            <h4>🔑 Token Ujian Remedial (Live Token Pengawas)</h4>
+                            <p>Tuliskan kode token ini di papan tulis kelas agar hanya siswa di kelas yang bisa membuka soal remedial.</p>
+                        </div>
+                    </div>
+                    <div class="token-display-wrap">
+                        <span style="font-size: 0.82rem; font-weight: 800; color: #047857;">TOKEN AKTIF:</span>
+                        <span class="token-active-badge" id="activeTokenDisplay">TZU26</span>
+                    </div>
+                    <div class="token-actions">
+                        <button type="button" class="btn-token-action" onclick="generateRandomExamToken()" title="Buat Token Acak Baru">
+                            <i class="fa-solid fa-dice"></i> Acak Token
+                        </button>
+                        <button type="button" class="btn-token-action primary" onclick="editCustomExamToken()" title="Ubah Token Sesuai Keinginan Guru">
+                            <i class="fa-solid fa-pen-to-square"></i> Ubah Token
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Quick Metric Cards -->
                 <div class="teacher-stats-grid">
                     <div class="teacher-stat-card">
@@ -2536,7 +2582,7 @@ function doPost(e) {
   try {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     if (sheet.getLastRow() === 0) {
-      sheet.appendRow(["Timestamp", "ID Siswa", "Nama Lengkap", "Kelas", "Nilai", "Predikat", "Status", "Jawaban PG", "Jawaban Essay"]);
+      sheet.appendRow(["Timestamp", "ID Siswa", "Nama Lengkap", "Kelas", "No Absen", "Nilai Awal", "Nilai Akhir", "Predikat", "Status", "Durasi", "Jawaban PG", "Jawaban Essay"]);
     }
     var data = JSON.parse(e.postData.contents);
     sheet.appendRow([
@@ -2544,9 +2590,12 @@ function doPost(e) {
       data.studentId || "",
       data.studentName || "",
       data.grade || "",
+      data.absen || "-",
+      data.nilaiAwal !== undefined ? data.nilaiAwal : (data.initialScore || 0),
       data.score || 0,
       data.predicate || "",
       data.status || "",
+      data.duration || "-",
       JSON.stringify(data.pgAnswers || {}),
       JSON.stringify(data.essayAnswers || {})
     ]);
@@ -2564,19 +2613,36 @@ function doGet(e) {
   if (rows.length &lt;= 1) {
     return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
   }
+  var headers = rows[0].map(function(h){ return String(h).toLowerCase().trim(); });
+  var idxId = headers.indexOf("id siswa");
+  var idxName = headers.indexOf("nama lengkap");
+  var idxGrade = headers.indexOf("kelas");
+  var idxAbsen = headers.indexOf("no absen");
+  var idxAwal = headers.indexOf("nilai awal");
+  var idxScore = headers.indexOf("nilai akhir") !== -1 ? headers.indexOf("nilai akhir") : headers.indexOf("nilai");
+  var idxPred = headers.indexOf("predikat");
+  var idxStatus = headers.indexOf("status");
+  var idxDur = headers.indexOf("durasi");
+  var idxPg = headers.indexOf("jawaban pg");
+  var idxEssay = headers.indexOf("jawaban essay");
+
   var records = [];
   for (var i = 1; i &lt; rows.length; i++) {
     var r = rows[i];
+    var isNewFormat = (idxAwal !== -1 || r.length &gt;= 10);
     records.push({
       date: r[0],
-      studentId: r[1],
-      studentName: r[2],
-      grade: r[3],
-      score: r[4],
-      predicate: r[5],
-      status: r[6],
-      pgAnswers: r[7] ? JSON.parse(r[7]) : {},
-      essayAnswers: r[8] ? JSON.parse(r[8]) : {}
+      studentId: idxId !== -1 ? r[idxId] : r[1],
+      studentName: idxName !== -1 ? r[idxName] : r[2],
+      grade: idxGrade !== -1 ? r[idxGrade] : r[3],
+      absen: idxAbsen !== -1 ? r[idxAbsen] : (isNewFormat ? r[4] : "-"),
+      nilaiAwal: idxAwal !== -1 ? r[idxAwal] : (isNewFormat ? r[5] : 0),
+      score: idxScore !== -1 ? r[idxScore] : (isNewFormat ? r[6] : r[4]),
+      predicate: idxPred !== -1 ? r[idxPred] : (isNewFormat ? r[7] : r[5]),
+      status: idxStatus !== -1 ? r[idxStatus] : (isNewFormat ? r[8] : r[6]),
+      duration: idxDur !== -1 ? r[idxDur] : (isNewFormat ? r[9] : "-"),
+      pgAnswers: (idxPg !== -1 &amp;&amp; r[idxPg]) ? JSON.parse(r[idxPg]) : (r[7] ? JSON.parse(r[7]) : {}),
+      essayAnswers: (idxEssay !== -1 &amp;&amp; r[idxEssay]) ? JSON.parse(r[idxEssay]) : (r[8] ? JSON.parse(r[8]) : {})
     });
   }
   return ContentService.createTextOutput(JSON.stringify(records))

@@ -231,15 +231,42 @@ function startExamK4(event) {
     const classChecked = document.querySelector('input[name="k4ClassChoice"]:checked');
     const nilaiAwal = document.getElementById('k4NilaiAwal').value;
     const absen = document.getElementById('k4Absen').value || '-';
+    const tokenInput = document.getElementById('k4ExamToken');
+    const enteredToken = tokenInput ? tokenInput.value.trim().toUpperCase() : '';
+    const correctToken = getActiveExamToken();
 
     if (!classChecked) {
         showToast('⚠️ Silakan pilih salah satu kelas (4A - 4E)!');
         return;
     }
 
+    // 1. Validasi Token Ujian dari Guru (Live Token)
+    if (enteredToken !== correctToken) {
+        playCuteSound('pop');
+        alert(`⚠️ TOKEN UJIAN SALAH!\n\nToken yang kamu masukkan "${enteredToken || '(kosong)'}" tidak cocok.\n\nSilakan periksa kode token di papan tulis kelas atau tanyakan kepada Guru pengawas.`);
+        if (tokenInput) {
+            tokenInput.focus();
+            tokenInput.select();
+        }
+        return;
+    }
+
+    // 2. Kunci 1x Pengerjaan (Cegah nama siswa yang sama dikerjakan ulang / joki)
+    const selectedClass = classChecked.value;
+    const localList = getRecapList();
+    const alreadyDone = localList.some(s => 
+        String(s.name || '').trim().toLowerCase() === name.toLowerCase() && 
+        String(s.kelas || '').trim().toLowerCase() === selectedClass.toLowerCase()
+    );
+    if (alreadyDone) {
+        playCuteSound('pop');
+        alert(`⚠️ SISWA INI SUDAH PERNAH MENGERJAKAN!\n\nNama "${name}" di Kelas ${selectedClass} sudah tercatat menyelesaikan ujian remedial.\n\nSatu siswa hanya boleh mengerjakan 1 kali. Jika ada kendala teknis atau perlu remedial ulang, silakan lapor kepada Guru pengawas.`);
+        return;
+    }
+
     currentStudentData = {
         name: name,
-        kelas: classChecked.value,
+        kelas: selectedClass,
         nilaiAwal: parseInt(nilaiAwal) || 0,
         absen: absen
     };
@@ -968,8 +995,34 @@ function startExamK5(event) {
     const classChecked = document.querySelector('input[name="k5ClassChoice"]:checked');
     const nilaiAwal = document.getElementById('k5NilaiAwal').value;
     const absen = document.getElementById('k5Absen').value || '-';
+    const tokenInput = document.getElementById('k5ExamToken');
+    const enteredToken = tokenInput ? tokenInput.value.trim().toUpperCase() : '';
+    const correctToken = getActiveExamToken();
 
     const selectedClass = classChecked ? classChecked.value : '5D';
+
+    // 1. Validasi Token Ujian dari Guru (Live Token)
+    if (enteredToken !== correctToken) {
+        playCuteSound('pop');
+        alert(`⚠️ TOKEN UJIAN SALAH!\n\nToken yang kamu masukkan "${enteredToken || '(kosong)'}" tidak cocok.\n\nSilakan periksa kode token di papan tulis kelas atau tanyakan kepada Guru pengawas.`);
+        if (tokenInput) {
+            tokenInput.focus();
+            tokenInput.select();
+        }
+        return;
+    }
+
+    // 2. Kunci 1x Pengerjaan (Cegah nama siswa yang sama dikerjakan ulang / joki)
+    const localList = getRecapList();
+    const alreadyDone = localList.some(s => 
+        String(s.name || '').trim().toLowerCase() === name.toLowerCase() && 
+        String(s.kelas || '').trim().toLowerCase() === selectedClass.toLowerCase()
+    );
+    if (alreadyDone) {
+        playCuteSound('pop');
+        alert(`⚠️ SISWA INI SUDAH PERNAH MENGERJAKAN!\n\nNama "${name}" di Kelas ${selectedClass} sudah tercatat menyelesaikan ujian remedial.\n\nSatu siswa hanya boleh mengerjakan 1 kali. Jika ada kendala teknis atau perlu remedial ulang, silakan lapor kepada Guru pengawas.`);
+        return;
+    }
 
     currentStudentDataK5 = {
         name: name,
@@ -1602,15 +1655,42 @@ function startExamK6(event) {
     const classChecked = document.querySelector('input[name="k6ClassChoice"]:checked');
     const nilaiAwal = document.getElementById('k6NilaiAwal').value;
     const absen = document.getElementById('k6Absen').value || '-';
+    const tokenInput = document.getElementById('k6ExamToken');
+    const enteredToken = tokenInput ? tokenInput.value.trim().toUpperCase() : '';
+    const correctToken = getActiveExamToken();
 
     if (!classChecked) {
         showToast('⚠️ Silakan pilih salah satu kelas (6A - 6E)!');
         return;
     }
 
+    // 1. Validasi Token Ujian dari Guru (Live Token)
+    if (enteredToken !== correctToken) {
+        playCuteSound('pop');
+        alert(`⚠️ TOKEN UJIAN SALAH!\n\nToken yang kamu masukkan "${enteredToken || '(kosong)'}" tidak cocok.\n\nSilakan periksa kode token di papan tulis kelas atau tanyakan kepada Guru pengawas.`);
+        if (tokenInput) {
+            tokenInput.focus();
+            tokenInput.select();
+        }
+        return;
+    }
+
+    // 2. Kunci 1x Pengerjaan (Cegah nama siswa yang sama dikerjakan ulang / joki)
+    const selectedClass = classChecked.value;
+    const localList = getRecapList();
+    const alreadyDone = localList.some(s => 
+        String(s.name || '').trim().toLowerCase() === name.toLowerCase() && 
+        String(s.kelas || '').trim().toLowerCase() === selectedClass.toLowerCase()
+    );
+    if (alreadyDone) {
+        playCuteSound('pop');
+        alert(`⚠️ SISWA INI SUDAH PERNAH MENGERJAKAN!\n\nNama "${name}" di Kelas ${selectedClass} sudah tercatat menyelesaikan ujian remedial.\n\nSatu siswa hanya boleh mengerjakan 1 kali. Jika ada kendala teknis atau perlu remedial ulang, silakan lapor kepada Guru pengawas.`);
+        return;
+    }
+
     currentStudentDataK6 = {
         name: name,
-        kelas: classChecked.value,
+        kelas: selectedClass,
         nilaiAwal: parseInt(nilaiAwal) || 0,
         absen: absen
     };
@@ -2512,17 +2592,22 @@ async function syncDataFromCloud(isSilent = false) {
 
             cloudData.forEach(c => {
                 // Periksa apakah data sudah ada secara lokal
-                const exists = localList.some(l => 
+                const existingIdx = localList.findIndex(l => 
                     (c.studentId && String(l.id) === String(c.studentId)) || 
                     (String(l.name || '').toLowerCase() === String(c.studentName || '').toLowerCase() && String(l.kelas || '') === String(c.grade || ''))
                 );
-                if (!exists) {
+                const cloudNilaiAwal = c.nilaiAwal !== undefined ? c.nilaiAwal : (c.initialScore !== undefined ? c.initialScore : 0);
+                if (existingIdx !== -1) {
+                    if ((!localList[existingIdx].nilaiAwal || localList[existingIdx].nilaiAwal === 0) && cloudNilaiAwal) {
+                        localList[existingIdx].nilaiAwal = cloudNilaiAwal;
+                    }
+                } else {
                     localList.unshift({
                         id: c.studentId || ('st_cloud_' + Date.now() + Math.random().toString(36).substr(2, 5)),
                         name: c.studentName || 'Siswa',
                         kelas: c.grade || '4A',
                         absen: c.absen || '-',
-                        nilaiAwal: c.nilaiAwal || 0,
+                        nilaiAwal: cloudNilaiAwal,
                         nilaiAkhir: Number(c.score) || 0,
                         pgScore: c.pgScore || 0,
                         uraianScore: c.uraianScore || 0,
@@ -2578,10 +2663,14 @@ function saveStudentToRecap(newStudent) {
             studentId: newStudent.id,
             studentName: newStudent.name,
             grade: newStudent.kelas,
-            absen: newStudent.absen,
+            absen: newStudent.absen || '-',
+            nilaiAwal: newStudent.nilaiAwal !== undefined ? newStudent.nilaiAwal : 0,
+            initialScore: newStudent.nilaiAwal !== undefined ? newStudent.nilaiAwal : 0,
             score: newStudent.nilaiAkhir,
             predicate: newStudent.predicate,
             status: newStudent.status,
+            duration: newStudent.duration || '-',
+            timestamp: newStudent.timestamp || '-',
             pgAnswers: newStudent.answers ? newStudent.answers.pg : [],
             essayAnswers: newStudent.answers ? newStudent.answers.uraian : []
         };
@@ -2601,6 +2690,58 @@ function saveStudentToRecap(newStudent) {
 }
 
 /* ==============================================================
+   LIVE EXAM TOKEN MANAGEMENT (PENGAWAS RUANG UJIAN)
+   ============================================================== */
+const DEFAULT_LIVE_TOKEN = 'TZU26';
+
+function getActiveExamToken() {
+    return (localStorage.getItem('tzuchi_exam_live_token') || DEFAULT_LIVE_TOKEN).toUpperCase().trim();
+}
+
+function setActiveExamToken(token) {
+    const clean = (token || DEFAULT_LIVE_TOKEN).toUpperCase().trim();
+    localStorage.setItem('tzuchi_exam_live_token', clean);
+    updateActiveTokenDisplay();
+}
+
+function updateActiveTokenDisplay() {
+    const badge = document.getElementById('activeTokenDisplay');
+    if (badge) badge.innerText = getActiveExamToken();
+}
+
+function generateRandomExamToken() {
+    playCuteSound('pop');
+    const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+    const numbers = '23456789';
+    let token = '';
+    for (let i = 0; i < 3; i++) {
+        token += letters.charAt(Math.floor(Math.random() * letters.length));
+    }
+    for (let i = 0; i < 2; i++) {
+        token += numbers.charAt(Math.floor(Math.random() * numbers.length));
+    }
+    setActiveExamToken(token);
+    playCuteSound('fanfare');
+    showToast(`🎲 Token baru dibuat: ${token}. Silakan tulis di papan tulis!`);
+}
+
+function editCustomExamToken() {
+    playCuteSound('pop');
+    const current = getActiveExamToken();
+    const custom = prompt('Masukkan kode token ujian yang Anda inginkan (Contoh: KODING4, TZU26, SEMANGAT):', current);
+    if (custom !== null) {
+        const clean = custom.trim().toUpperCase();
+        if (!clean) {
+            alert('Token tidak boleh kosong!');
+            return;
+        }
+        setActiveExamToken(clean);
+        playCuteSound('fanfare');
+        showToast(`💾 Token ujian berhasil diubah menjadi: ${clean}`);
+    }
+}
+
+/* ==============================================================
    TEACHER PORTAL LOGIC (TERSEMBUNYI KHUSUS GURU)
    ============================================================== */
 function openTeacherPortal() {
@@ -2609,6 +2750,7 @@ function openTeacherPortal() {
     if (!modal) return;
     modal.classList.add('open');
     updateCloudStatusUI();
+    updateActiveTokenDisplay();
     renderTeacherTable();
     showToast('🔒 Membuka Panel Khusus Guru...');
 
@@ -2813,7 +2955,12 @@ function renderTeacherTable() {
                     <td><strong>${safeName}</strong></td>
                     <td><span class="class-tag">Kelas ${safeKelas}</span></td>
                     <td><strong>${safeAbsen}</strong></td>
-                    <td><span style="color: #64748b; font-weight: 700;">${safeAwal}</span></td>
+                    <td>
+                        <button type="button" class="btn-edit-nilai-awal" onclick="editStudentNilaiAwal('${safeId}')" title="Klik untuk mengubah Nilai Awal siswa ini">
+                            <span>${safeAwal}</span>
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                    </td>
                     <td><span class="score-badge-cell">${safeAkhir}</span></td>
                     <td>
                         <span style="font-size: 0.85rem; color: #475569; display: block; font-weight: 600;">${safeTimestamp}</span>
@@ -2840,6 +2987,34 @@ function renderTeacherTable() {
 
     } catch (errTable) {
         console.error('Fatal error in renderTeacherTable:', errTable);
+    }
+}
+
+/* ==============================================================
+   UBAH / EDIT NILAI AWAL SISWA LANGSUNG OLEH GURU
+   ============================================================== */
+function editStudentNilaiAwal(studentId) {
+    playCuteSound('pop');
+    const list = getRecapList();
+    const student = list.find(s => String(s.id) === String(studentId));
+    if (!student) {
+        showToast('Data siswa tidak ditemukan.');
+        return;
+    }
+    const currentVal = student.nilaiAwal !== undefined ? student.nilaiAwal : 0;
+    const input = prompt(`Masukkan Nilai Awal (Sebelum Remedial) untuk ${student.name} (${student.kelas}):`, currentVal);
+    if (input !== null) {
+        const parsed = parseInt(input.trim(), 10);
+        if (isNaN(parsed) || parsed < 0 || parsed > 100) {
+            alert('Mohon masukkan angka nilai yang valid antara 0 - 100!');
+            return;
+        }
+        student.nilaiAwal = parsed;
+        localStorage.setItem('remedial_tzuchi_records', JSON.stringify(list));
+        localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(list));
+        renderTeacherTable();
+        playCuteSound('fanfare');
+        showToast(`✅ Nilai Awal ${student.name} berhasil diubah menjadi ${parsed}!`);
     }
 }
 
@@ -3566,5 +3741,6 @@ function showToast(message) {
 window.addEventListener('DOMContentLoaded', () => {
     getRecapList();
     updateCloudStatusUI();
+    updateActiveTokenDisplay();
 });
 
