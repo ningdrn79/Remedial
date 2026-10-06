@@ -2608,45 +2608,59 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var rows = sheet.getDataRange().getValues();
-  if (rows.length &lt;= 1) {
-    return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
-  }
-  var headers = rows[0].map(function(h){ return String(h).toLowerCase().trim(); });
-  var idxId = headers.indexOf("id siswa");
-  var idxName = headers.indexOf("nama lengkap");
-  var idxGrade = headers.indexOf("kelas");
-  var idxAbsen = headers.indexOf("no absen");
-  var idxAwal = headers.indexOf("nilai awal");
-  var idxScore = headers.indexOf("nilai akhir") !== -1 ? headers.indexOf("nilai akhir") : headers.indexOf("nilai");
-  var idxPred = headers.indexOf("predikat");
-  var idxStatus = headers.indexOf("status");
-  var idxDur = headers.indexOf("durasi");
-  var idxPg = headers.indexOf("jawaban pg");
-  var idxEssay = headers.indexOf("jawaban essay");
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var rows = sheet.getDataRange().getValues();
+    if (rows.length &lt;= 1) {
+      return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
+    }
+    var headers = rows[0].map(function(h){ return String(h).toLowerCase().trim(); });
+    var idxId = headers.indexOf("id siswa");
+    var idxName = headers.indexOf("nama lengkap");
+    var idxGrade = headers.indexOf("kelas");
+    var idxAbsen = headers.indexOf("no absen");
+    var idxAwal = headers.indexOf("nilai awal");
+    var idxScore = headers.indexOf("nilai akhir") !== -1 ? headers.indexOf("nilai akhir") : headers.indexOf("nilai");
+    var idxPred = headers.indexOf("predikat");
+    var idxStatus = headers.indexOf("status");
+    var idxDur = headers.indexOf("durasi");
+    var idxPg = headers.indexOf("jawaban pg");
+    var idxEssay = headers.indexOf("jawaban essay");
 
-  var records = [];
-  for (var i = 1; i &lt; rows.length; i++) {
-    var r = rows[i];
-    var isNewFormat = (idxAwal !== -1 || r.length &gt;= 10);
-    records.push({
-      date: r[0],
-      studentId: idxId !== -1 ? r[idxId] : r[1],
-      studentName: idxName !== -1 ? r[idxName] : r[2],
-      grade: idxGrade !== -1 ? r[idxGrade] : r[3],
-      absen: idxAbsen !== -1 ? r[idxAbsen] : (isNewFormat ? r[4] : "-"),
-      nilaiAwal: idxAwal !== -1 ? r[idxAwal] : (isNewFormat ? r[5] : 0),
-      score: idxScore !== -1 ? r[idxScore] : (isNewFormat ? r[6] : r[4]),
-      predicate: idxPred !== -1 ? r[idxPred] : (isNewFormat ? r[7] : r[5]),
-      status: idxStatus !== -1 ? r[idxStatus] : (isNewFormat ? r[8] : r[6]),
-      duration: idxDur !== -1 ? r[idxDur] : (isNewFormat ? r[9] : "-"),
-      pgAnswers: (idxPg !== -1 &amp;&amp; r[idxPg]) ? JSON.parse(r[idxPg]) : (r[7] ? JSON.parse(r[7]) : {}),
-      essayAnswers: (idxEssay !== -1 &amp;&amp; r[idxEssay]) ? JSON.parse(r[idxEssay]) : (r[8] ? JSON.parse(r[8]) : {})
-    });
+    function safeParse(val) {
+      if (!val) return [];
+      try {
+        return typeof val === "string" &amp;&amp; (val.charAt(0) === "{" || val.charAt(0) === "[") ? JSON.parse(val) : [];
+      } catch (errParse) {
+        return [];
+      }
+    }
+
+    var records = [];
+    for (var i = 1; i &lt; rows.length; i++) {
+      var r = rows[i];
+      var isNewFormat = (idxAwal !== -1 || r.length &gt;= 10);
+      records.push({
+        date: r[0],
+        studentId: idxId !== -1 ? r[idxId] : r[1],
+        studentName: idxName !== -1 ? r[idxName] : r[2],
+        grade: idxGrade !== -1 ? r[idxGrade] : r[3],
+        absen: idxAbsen !== -1 ? r[idxAbsen] : (isNewFormat ? r[4] : "-"),
+        nilaiAwal: idxAwal !== -1 ? r[idxAwal] : (isNewFormat ? r[5] : 0),
+        score: idxScore !== -1 ? r[idxScore] : (isNewFormat ? r[6] : r[4]),
+        predicate: idxPred !== -1 ? r[idxPred] : (isNewFormat ? r[7] : r[5]),
+        status: idxStatus !== -1 ? r[idxStatus] : (isNewFormat ? r[8] : r[6]),
+        duration: idxDur !== -1 ? r[idxDur] : (isNewFormat ? r[9] : "-"),
+        pgAnswers: safeParse(idxPg !== -1 ? r[idxPg] : r[7]),
+        essayAnswers: safeParse(idxEssay !== -1 ? r[idxEssay] : r[8])
+      });
+    }
+    return ContentService.createTextOutput(JSON.stringify(records))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({status: "error", message: err.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
   }
-  return ContentService.createTextOutput(JSON.stringify(records))
-    .setMimeType(ContentService.MimeType.JSON);
 }</pre>
                 </div>
 
