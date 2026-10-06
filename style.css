@@ -175,6 +175,74 @@ body {
     transform: translateY(-2px);
 }
 
+.btn-lang-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #ffffff;
+    border: 2px solid #0284c7;
+    color: #0369a1;
+    padding: 0.42rem 1.05rem;
+    border-radius: 30px;
+    font-family: var(--font-heading);
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.18);
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-lang-toggle:hover {
+    background: #f0f9ff;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
+    border-color: #0284c7;
+}
+
+.lang-icon {
+    font-size: 0.95rem;
+    color: #0284c7;
+    transition: transform 0.35s ease;
+}
+
+.btn-lang-toggle:hover .lang-icon {
+    transform: rotate(30deg);
+}
+
+.bubble-tts-btn {
+    position: absolute;
+    right: -10px;
+    top: -10px;
+    background: linear-gradient(135deg, #0d9488, #059669);
+    color: #ffffff;
+    border: 2.5px solid #ffffff;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4);
+    transition: all 0.2s ease;
+    z-index: 2;
+}
+
+.bubble-tts-btn:hover {
+    transform: scale(1.15) rotate(8deg);
+    background: linear-gradient(135deg, #0f766e, #047857);
+}
+
+.bubble-tts-btn.speaking {
+    animation: pulseSpeaking 1s infinite alternate;
+}
+
+@keyframes pulseSpeaking {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.7); }
+    100% { transform: scale(1.18); box-shadow: 0 0 0 8px rgba(13, 148, 136, 0); }
+}
+
 .badge-pill {
     background: linear-gradient(135deg, #0d9488, #059669);
     color: #ffffff;
@@ -198,73 +266,97 @@ body {
     padding: 2rem 1.5rem 4rem 1.5rem;
 }
 
-/* ================= HERO SECTION ================= */
+/* ================= HERO SECTION (SIDE-BY-SIDE LAYOUT) ================= */
 .hero-section {
-    text-align: center;
+    text-align: left;
     margin-bottom: 3.5rem;
+    padding: 0.5rem 0;
 }
 
-.hero-content {
+.hero-content.hero-side-by-side {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 3.5rem;
+    max-width: 1140px;
+    margin: 0 auto;
+}
+
+.hero-image-col {
+    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.2rem;
 }
 
-.mascot-wrapper {
-    position: relative;
+.hero-text-col {
+    flex: 1 1 500px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    margin-bottom: 0.5rem;
+    align-items: flex-start;
+    text-align: left;
 }
 
 .speech-bubble {
     background: #ffffff;
     border: 3px solid #6366f1;
-    border-radius: 20px;
-    padding: 0.75rem 1.4rem;
+    border-radius: 22px;
+    padding: 0.95rem 1.5rem;
     font-family: var(--font-heading);
     font-size: 1.05rem;
     font-weight: 600;
     color: #312e81;
-    max-width: 460px;
-    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.15);
+    max-width: 540px;
+    box-shadow: 0 10px 24px rgba(99, 102, 241, 0.16);
     position: relative;
-    margin-bottom: 12px;
+    margin-bottom: 1.3rem;
     animation: bubbleFloat 4s infinite ease-in-out;
+    cursor: pointer;
+    line-height: 1.5;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.speech-bubble::after {
-    content: '';
-    position: absolute;
-    bottom: -12px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-top: 12px solid #6366f1;
+.speech-bubble:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 14px 28px rgba(99, 102, 241, 0.22);
 }
 
-.speech-bubble::before {
+/* Balon percakapan menyamping mengarah ke foto guru */
+.speech-bubble.side-bubble::after {
     content: '';
     position: absolute;
-    bottom: -8px;
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: auto;
+    left: -14px;
+    top: 26px;
+    transform: none;
     width: 0;
     height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-top: 9px solid #ffffff;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 14px solid #6366f1;
+    border-left: none;
+}
+
+.speech-bubble.side-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: auto;
+    left: -9px;
+    top: 27px;
+    transform: none;
+    width: 0;
+    height: 0;
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+    border-right: 11px solid #ffffff;
+    border-left: none;
     z-index: 1;
 }
 
 @keyframes bubbleFloat {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
+    50% { transform: translateY(-7px); }
 }
 
 /* ================= TEACHER MENTOR HERO IMAGE ================= */
@@ -445,12 +537,110 @@ body {
     -webkit-text-fill-color: transparent;
 }
 
-.subtitle {
+.subtitle,
+.hero-subtext {
     font-size: 1.12rem;
     line-height: 1.6;
     color: #475569;
-    max-width: 680px;
-    margin: 0 auto;
+    max-width: 620px;
+    margin: 0 0 1.5rem 0;
+}
+
+.hero-quick-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn-hero-explore {
+    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+    color: #ffffff;
+    padding: 0.75rem 1.6rem;
+    border-radius: 30px;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    box-shadow: 0 6px 18px rgba(13, 148, 136, 0.35);
+    transition: all 0.25s ease;
+}
+
+.btn-hero-explore:hover {
+    background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(13, 148, 136, 0.45);
+    color: #ffffff;
+}
+
+.btn-hero-cheer {
+    background: #ffffff;
+    color: #ec4899;
+    border: 2px solid #fbcfe8;
+    padding: 0.7rem 1.4rem;
+    border-radius: 30px;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 14px rgba(236, 72, 153, 0.15);
+    transition: all 0.25s ease;
+}
+
+.btn-hero-cheer:hover {
+    background: #fdf2f8;
+    border-color: #f472b6;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(236, 72, 153, 0.25);
+}
+
+/* Responsif Mobile & Tablet untuk Tata Letak Bersebelahan */
+@media (max-width: 860px) {
+    .hero-content.hero-side-by-side {
+        flex-direction: column;
+        text-align: center;
+        gap: 2rem;
+    }
+    .hero-text-col {
+        align-items: center;
+        text-align: center;
+    }
+    .hero-subtext {
+        margin: 0 auto 1.5rem auto;
+    }
+    .speech-bubble.side-bubble {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    .speech-bubble.side-bubble::after {
+        left: 50%;
+        top: auto;
+        bottom: -12px;
+        transform: translateX(-50%);
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 12px solid #6366f1;
+        border-bottom: none;
+    }
+    .speech-bubble.side-bubble::before {
+        left: 50%;
+        top: auto;
+        bottom: -8px;
+        transform: translateX(-50%);
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 9px solid #ffffff;
+        border-bottom: none;
+    }
+    .hero-quick-actions {
+        justify-content: center;
+    }
 }
 
 /* ================= SECTION HEADINGS ================= */
@@ -753,8 +943,10 @@ body {
 }
 
 .modal-overlay.open {
-    opacity: 1;
-    visibility: visible;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+    pointer-events: auto !important;
 }
 
 .modal-card {
@@ -3826,6 +4018,155 @@ body {
 }
 .btn-save-cloud-config:hover {
     background: linear-gradient(135deg, #047857, #065f46);
+}
+
+/* ===================================================
+   MASTER EXAM SESSION SWITCH (KONTROL PENGAWAS)
+   =================================================== */
+.teacher-exam-switch-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 2px solid #cbd5e1;
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+.exam-switch-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 260px;
+}
+
+.exam-switch-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.exam-switch-icon.closed {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.exam-switch-info h4 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.exam-switch-info p {
+    margin: 3px 0 0 0;
+    font-size: 0.82rem;
+    color: #64748b;
+}
+
+.exam-switch-status-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.exam-switch-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: 0.5px;
+}
+
+.exam-status-pill {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.exam-status-pill.open {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1.5px solid #86efac;
+}
+
+.exam-status-pill.closed {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1.5px solid #fca5a5;
+}
+
+.exam-switch-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-toggle-exam-session {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.84rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+}
+
+.btn-toggle-exam-session:hover {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    transform: translateY(-1px);
+}
+
+.btn-toggle-exam-session.open-mode {
+    background: linear-gradient(135deg, #059669, #10b981);
+    box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
+}
+
+.btn-toggle-exam-session.open-mode:hover {
+    background: linear-gradient(135deg, #047857, #059669);
+}
+
+.btn-change-pin {
+    background: white;
+    border: 1.5px solid #cbd5e1;
+    color: #334155;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.btn-change-pin:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
 }
 
 /* ===================================================

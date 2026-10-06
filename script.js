@@ -75,46 +75,311 @@ document.getElementById('soundToggle').addEventListener('click', () => {
     soundEnabled = !soundEnabled;
     const icon = document.getElementById('soundIcon');
     const text = document.getElementById('soundText');
+    const t = i18nTranslations[currentLang] || i18nTranslations['id'];
     if (soundEnabled) {
         icon.className = 'fa-solid fa-volume-high';
-        text.innerText = 'Suara: ON';
-        showToast('🔊 Suara efek diaktifkan!');
+        text.innerText = t.soundOn;
+        showToast(currentLang === 'en' ? '🔊 Sound effects & voice enabled!' : '🔊 Suara efek & suara guru diaktifkan!');
         playCuteSound('pop');
     } else {
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         icon.className = 'fa-solid fa-volume-xmark';
-        text.innerText = 'Suara: OFF';
-        showToast('🔇 Suara dinonaktifkan');
+        text.innerText = t.soundOff;
+        showToast(currentLang === 'en' ? '🔇 Sound & voice muted' : '🔇 Suara dinonaktifkan');
     }
 });
 
-// Teacher Mentor quotes & interaction
-const teacherQuotes = [
-    "“Keindahan sifat manusia terletak pada ketulusan hatinya. Kemuliaan sifat manusia terletak pada kejujuran.” — Master Cheng Yen 💖",
-    "Di Microsoft Excel, tanda = (sama dengan) adalah kunci pembuka setiap rumus hebat! 🔑",
-    "Ingat ya anak-anak: Kolom itu Huruf vertikal (A, B, C), sedangkan Baris itu Angka horisontal (1, 2, 3)! 📊",
-    "Ibu Guru sangat bangga pada kalian yang belajar dengan tekun, jujur, dan penuh semangat! 🌟",
-    "Perplexity AI dan Search Engine membantu kita menjadi Detektif Data yang cerdas dan bijak! 🔍",
-    "Jangan takut mencoba! Setiap tantangan koding membuat logika berpikir kita semakin hebat! 🚀"
-];
+/* ==============================================================
+   FITUR TERJEMAHAN DWI-BAHASA (INDONESIA & INGGRIS) + SUARA (TTS)
+   ============================================================== */
+let currentLang = localStorage.getItem('tzuchi_app_lang') || 'id';
+let currentQuoteIdx = -1;
+
+const i18nTranslations = {
+    id: {
+        soundOn: "Suara: ON",
+        soundOff: "Suara: OFF",
+        teacherPanel: "Panel Guru",
+        midSemester: "Mid Semester 1",
+        mentorTag: "Mentor Koding & AI",
+        teacherRole: "Guru Koding & Kecerdasan Artifisial",
+        speechBubbleDefault: "Halo anak-anak hebat! Selamat datang di Laboratorium Koding & AI! Tetap semangat, teliti, dan jujur mengerjakan remedial ya! 💻✨",
+        labBadge: "Laboratorium Komputer SD",
+        heroSubtext: "Portal Pembelajaran & Ujian Remedial Interaktif <strong>SDS Cinta Kasih Tzu Chi</strong>. Asah logika koding, kuasai Microsoft Excel & PowerPoint, dan raih prestasi terbaik dengan jujur dan gembira! 🚀🌟",
+        btnChooseClass: "Pilih Kelas Remedial",
+        btnCheer: "Semangat Belajar! 🎉",
+        menuTitle: "Menu Remedial:",
+        menuDesc: "Pilih menu kelas remedial di bawah ini untuk mengerjakan soal interaktif:",
+        cardBadgeK4: "SD Kelas 4 (4A - 4E)",
+        cardTagK4: "Excel & AI Detektif",
+        cardTitleK4: "Remedial Kelas 4",
+        cardMateriLabelK4: "Materi Remedial:",
+        cardSubtitleK4: "Microsoft Excel (Row, Column, Rumus SUM, AVERAGE, COUNT) & Detektif Data AI.",
+        btnCardK4: "Buka Soal Remedial Kelas 4",
+        cardBadgeK5: "SD Kelas 5D",
+        cardTagK5: "PowerPoint & AI Slide",
+        cardTitleK5: "Remedial Kelas 5",
+        cardMateriLabelK5: "Materi Remedial:",
+        cardSubtitleK5: "Microsoft PowerPoint, Halaman Slide, Fitur Transisi, dan Desain Presentasi AI.",
+        btnCardK5: "Buka Soal Remedial Kelas 5D",
+        cardBadgeK6: "SD Kelas 6 (6A - 6E)",
+        cardTagK6: "Computational Thinking & Scratch",
+        cardTitleK6: "Remedial Kelas 6",
+        cardMateriLabelK6: "Materi Remedial:",
+        cardSubtitleK6: "4 Pilar Computational Thinking, Kecerdasan Artifisial & Pemrograman Scratch.",
+        btnCardK6: "Buka Soal Remedial Kelas 6",
+        funTipsText: "<strong>Kata Perenungan Master Cheng Yen:</strong> <em>“Keindahan sifat manusia terletak pada ketulusan hatinya. Kemuliaan sifat manusia terletak pada kejujuran.”</em> Tetap percaya diri dan kerjakan soal secara mandiri ya! 💡",
+        footerText: "🌱 <strong>SDS CINTA KASIH TZU CHI</strong> - Mata Pelajaran: Koding dan Kecerdasan Artifisial",
+        footerCopyright: "© 2026/2027 EduCode AI Portal - Belajar Mandiri, Jujur & Menyenangkan",
+        footerTeacher: "Panel Guru (Khusus Pengawas)",
+        voiceAnnouncement: "Bahasa diubah ke Bahasa Indonesia. Selamat belajar anak-anak!"
+    },
+    en: {
+        soundOn: "Sound: ON",
+        soundOff: "Sound: OFF",
+        teacherPanel: "Teacher Panel",
+        midSemester: "Mid Semester 1",
+        mentorTag: "Coding & AI Mentor",
+        teacherRole: "Coding & Artificial Intelligence Teacher",
+        speechBubbleDefault: "Hello great students! Welcome to the Coding & AI Lab! Stay enthusiastic, thorough, and honest when doing the remedial! 💻✨",
+        labBadge: "Primary School Computer Lab",
+        heroSubtext: "Interactive Learning & Remedial Exam Portal of <strong>SDS Cinta Kasih Tzu Chi</strong>. Sharpen coding logic, master Microsoft Excel & PowerPoint, and achieve your best with honesty and joy! 🚀🌟",
+        btnChooseClass: "Choose Remedial Class",
+        btnCheer: "Keep Learning! 🎉",
+        menuTitle: "Remedial Menu:",
+        menuDesc: "Select a remedial class menu below to start interactive exercises:",
+        cardBadgeK4: "Primary Grade 4 (4A - 4E)",
+        cardTagK4: "Excel & AI Detective",
+        cardTitleK4: "Grade 4 Remedial",
+        cardMateriLabelK4: "Remedial Topics:",
+        cardSubtitleK4: "Microsoft Excel (Row, Column, SUM, AVERAGE, COUNT Formulas) & AI Data Detective.",
+        btnCardK4: "Open Grade 4 Remedial Exam",
+        cardBadgeK5: "Primary Grade 5D",
+        cardTagK5: "PowerPoint & AI Slides",
+        cardTitleK5: "Grade 5 Remedial",
+        cardMateriLabelK5: "Remedial Topics:",
+        cardSubtitleK5: "Microsoft PowerPoint, Slide Pages, Transition Features, and AI Presentation Design.",
+        btnCardK5: "Open Grade 5D Remedial Exam",
+        cardBadgeK6: "Primary Grade 6 (6A - 6E)",
+        cardTagK6: "Computational Thinking & Scratch",
+        cardTitleK6: "Grade 6 Remedial",
+        cardMateriLabelK6: "Remedial Topics:",
+        cardSubtitleK6: "4 Pillars of Computational Thinking, Artificial Intelligence & Scratch Programming.",
+        btnCardK6: "Open Grade 6 Remedial Exam",
+        funTipsText: "<strong>Master Cheng Yen's Aphorism:</strong> <em>“The beauty of human nature lies in sincerity. The nobility of human nature lies in honesty.”</em> Stay confident and complete your work independently! 💡",
+        footerText: "🌱 <strong>SDS CINTA KASIH TZU CHI</strong> - Subject: Coding and Artificial Intelligence",
+        footerCopyright: "© 2026/2027 EduCode AI Portal - Independent, Honest & Fun Learning",
+        footerTeacher: "Teacher Panel (Proctor Access)",
+        voiceAnnouncement: "Language switched to English. Welcome students!"
+    }
+};
+
+const teacherQuotesBilingual = {
+    id: [
+        "“Keindahan sifat manusia terletak pada ketulusan hatinya. Kemuliaan sifat manusia terletak pada kejujuran.” — Master Cheng Yen 💖",
+        "Di Microsoft Excel, tanda = (sama dengan) adalah kunci pembuka setiap rumus hebat! 🔑",
+        "Ingat ya anak-anak: Kolom itu Huruf vertikal (A, B, C), sedangkan Baris itu Angka horisontal (1, 2, 3)! 📊",
+        "Ibu Guru sangat bangga pada kalian yang belajar dengan tekun, jujur, dan penuh semangat! 🌟",
+        "Perplexity AI dan Search Engine membantu kita menjadi Detektif Data yang cerdas dan bijak! 🔍",
+        "Jangan takut mencoba! Setiap tantangan koding membuat logika berpikir kita semakin hebat! 🚀"
+    ],
+    en: [
+        "“The beauty of human nature lies in sincerity. The nobility of human nature lies in honesty.” — Master Cheng Yen 💖",
+        "In Microsoft Excel, the = (equal) sign is the key to every great formula! 🔑",
+        "Remember, students: Columns are vertical Letters (A, B, C), while Rows are horizontal Numbers (1, 2, 3)! 📊",
+        "Teacher is very proud of you who study diligently, honestly, and enthusiastically! 🌟",
+        "Perplexity AI and Search Engines help us become smart and wise Data Detectives! 🔍",
+        "Never be afraid to try! Every coding challenge makes our logical thinking sharper! 🚀"
+    ]
+};
+
+// Web Speech API Voice Engine
+function speakText(text, lang = currentLang) {
+    if (!soundEnabled) return;
+    if (!('speechSynthesis' in window)) return;
+    try {
+        window.speechSynthesis.cancel();
+        const clean = String(text || '')
+            .replace(/[💻✨💖🔑📊🌟🔍🚀🏆🎉💡🌱🤖🛡️💬🌐]/g, '')
+            .replace(/—\s*Master Cheng Yen/g, 'Kata Master Cheng Yen')
+            .replace(/\*/g, '')
+            .replace(/<[^>]*>/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+        if (!clean) return;
+
+        const utterance = new SpeechSynthesisUtterance(clean);
+        utterance.lang = (lang === 'en') ? 'en-US' : 'id-ID';
+        utterance.rate = 0.95;
+        utterance.pitch = 1.05;
+
+        const ttsBtn = document.getElementById('bubbleTtsBtn');
+        utterance.onstart = () => {
+            if (ttsBtn) ttsBtn.classList.add('speaking');
+        };
+        utterance.onend = utterance.onerror = () => {
+            if (ttsBtn) ttsBtn.classList.remove('speaking');
+        };
+
+        const voices = window.speechSynthesis.getVoices();
+        if (voices && voices.length > 0) {
+            const prefix = (lang === 'en') ? 'en' : 'id';
+            const matched = voices.find(v => v.lang.toLowerCase().startsWith(prefix));
+            if (matched) utterance.voice = matched;
+        }
+
+        window.speechSynthesis.speak(utterance);
+    } catch (e) {
+        console.warn('TTS Audio engine notice:', e);
+    }
+}
+
+function speakCurrentMascotQuote() {
+    playCuteSound('pop');
+    const bubbleTextElem = document.getElementById('mascotBubbleText') || document.getElementById('mascotBubble');
+    if (!bubbleTextElem) return;
+    const text = bubbleTextElem.innerText || bubbleTextElem.textContent;
+    speakText(text, currentLang);
+    showToast(currentLang === 'en' ? '🔊 Speaking quote in English...' : '🔊 Membacakan pesan Ibu Guru...');
+}
+
+function toggleLanguage() {
+    playCuteSound('pop');
+    currentLang = (currentLang === 'id') ? 'en' : 'id';
+    localStorage.setItem('tzuchi_app_lang', currentLang);
+    applyLanguage(currentLang, true);
+}
+
+function applyLanguage(lang, announceVoice = false) {
+    const t = i18nTranslations[lang] || i18nTranslations['id'];
+    
+    // 1. Tombol Bahasa
+    const textElem = document.getElementById('langText');
+    const btnElem = document.getElementById('langToggleBtn');
+    if (textElem) textElem.innerText = (lang === 'en') ? 'English' : 'Indonesian';
+    if (btnElem) btnElem.title = (lang === 'en') ? 'Klik untuk beralih ke Indonesian / Switch to Indonesian' : 'Click to switch to English / Beralih ke English';
+
+    // 2. Sound Toggle
+    const soundText = document.getElementById('soundText');
+    if (soundText) soundText.innerText = soundEnabled ? t.soundOn : t.soundOff;
+
+    // 3. Navbar elements
+    const teacherBtn = document.getElementById('teacherBtnText');
+    if (teacherBtn) teacherBtn.innerText = t.teacherPanel;
+    const navSem = document.getElementById('navSemesterBadge');
+    if (navSem) navSem.innerText = t.midSemester;
+
+    // 4. Hero section
+    const mentorTag = document.getElementById('mentorStatusText');
+    if (mentorTag) mentorTag.innerText = t.mentorTag;
+    const teacherRole = document.getElementById('teacherRoleText');
+    if (teacherRole) teacherRole.innerText = t.teacherRole;
+    const labBadge = document.getElementById('labBadgeText');
+    if (labBadge) labBadge.innerText = t.labBadge;
+    const heroSub = document.getElementById('heroSubtext');
+    if (heroSub) heroSub.innerHTML = t.heroSubtext;
+    const btnChoose = document.getElementById('btnChooseClassText');
+    if (btnChoose) btnChoose.innerText = t.btnChooseClass;
+    const btnCheer = document.getElementById('btnCheerText');
+    if (btnCheer) btnCheer.innerText = t.btnCheer;
+
+    // 5. Speech Bubble
+    const bubbleText = document.getElementById('mascotBubbleText');
+    if (bubbleText) {
+        if (currentQuoteIdx >= 0 && teacherQuotesBilingual[lang] && teacherQuotesBilingual[lang][currentQuoteIdx]) {
+            bubbleText.innerHTML = teacherQuotesBilingual[lang][currentQuoteIdx];
+        } else {
+            bubbleText.innerHTML = t.speechBubbleDefault;
+        }
+    }
+
+    // 6. Menu intro
+    const menuTitle = document.getElementById('menuTitleText');
+    if (menuTitle) menuTitle.innerText = t.menuTitle;
+    const menuDesc = document.getElementById('menuDescText');
+    if (menuDesc) menuDesc.innerText = t.menuDesc;
+
+    // 7. Cards K4, K5, K6
+    const k4Tag = document.getElementById('k4TagText');
+    if (k4Tag) k4Tag.innerText = t.cardTagK4;
+    const k4Badge = document.getElementById('k4BadgeText');
+    if (k4Badge) k4Badge.innerText = t.cardBadgeK4;
+    const k4Title = document.getElementById('k4TitleText');
+    if (k4Title) k4Title.innerText = t.cardTitleK4;
+    const k4Materi = document.getElementById('k4MateriLabel');
+    if (k4Materi) k4Materi.innerText = t.cardMateriLabelK4;
+    const k4Sub = document.getElementById('k4SubtitleText');
+    if (k4Sub) k4Sub.innerText = t.cardSubtitleK4;
+    const btnK4 = document.getElementById('btnK4Text');
+    if (btnK4) btnK4.innerText = t.btnCardK4;
+
+    const k5Tag = document.getElementById('k5TagText');
+    if (k5Tag) k5Tag.innerText = t.cardTagK5;
+    const k5Badge = document.getElementById('k5BadgeText');
+    if (k5Badge) k5Badge.innerText = t.cardBadgeK5;
+    const k5Title = document.getElementById('k5TitleText');
+    if (k5Title) k5Title.innerText = t.cardTitleK5;
+    const k5Materi = document.getElementById('k5MateriLabel');
+    if (k5Materi) k5Materi.innerText = t.cardMateriLabelK5;
+    const k5Sub = document.getElementById('k5SubtitleText');
+    if (k5Sub) k5Sub.innerText = t.cardSubtitleK5;
+    const btnK5 = document.getElementById('btnK5Text');
+    if (btnK5) btnK5.innerText = t.btnCardK5;
+
+    const k6Tag = document.getElementById('k6TagText');
+    if (k6Tag) k6Tag.innerText = t.cardTagK6;
+    const k6Badge = document.getElementById('k6BadgeText');
+    if (k6Badge) k6Badge.innerText = t.cardBadgeK6;
+    const k6Title = document.getElementById('k6TitleText');
+    if (k6Title) k6Title.innerText = t.cardTitleK6;
+    const k6Materi = document.getElementById('k6MateriLabel');
+    if (k6Materi) k6Materi.innerText = t.cardMateriLabelK6;
+    const k6Sub = document.getElementById('k6SubtitleText');
+    if (k6Sub) k6Sub.innerText = t.cardSubtitleK6;
+    const btnK6 = document.getElementById('btnK6Text');
+    if (btnK6) btnK6.innerText = t.btnCardK6;
+
+    // 8. Fun Tips & Footer
+    const funTips = document.getElementById('funTipsText');
+    if (funTips) funTips.innerHTML = t.funTipsText;
+    const foot1 = document.getElementById('footerText1');
+    if (foot1) foot1.innerHTML = t.footerText;
+    const foot2 = document.getElementById('footerText2');
+    if (foot2) foot2.innerText = t.footerCopyright;
+    const footT = document.getElementById('footerTeacherText');
+    if (footT) footT.innerText = t.footerTeacher;
+
+    if (announceVoice) {
+        showToast((lang === 'en') ? '🌐 Switched to English' : '🌐 Beralih ke Indonesian');
+        speakText(t.voiceAnnouncement, lang);
+    }
+}
 
 function interactTeacher() {
     playCuteSound('pop');
+    const quotes = teacherQuotesBilingual[currentLang] || teacherQuotesBilingual['id'];
+    currentQuoteIdx = Math.floor(Math.random() * quotes.length);
+    const chosenQuote = quotes[currentQuoteIdx];
+    
     const bubble = document.getElementById('mascotBubble');
-    const randomQuote = teacherQuotes[Math.floor(Math.random() * teacherQuotes.length)];
-    if (bubble) {
-        bubble.innerHTML = `<span>${randomQuote}</span>`;
+    const bubbleText = document.getElementById('mascotBubbleText');
+    if (bubbleText) {
+        bubbleText.innerHTML = chosenQuote;
+    } else if (bubble) {
+        bubble.innerHTML = `<span>${chosenQuote}</span>`;
     }
 
     if (window.confetti) {
         confetti({
-            particleCount: 30,
-            spread: 65,
+            particleCount: 35,
+            spread: 70,
             origin: { y: 0.35 }
         });
     }
+
+    speakText(chosenQuote, currentLang);
 }
 
-// Backward compatibility alias
 const interactMascot = interactTeacher;
 
 function cheerUp() {
@@ -126,7 +391,11 @@ function cheerUp() {
             origin: { y: 0.6 }
         });
     }
-    showToast('🎉 Semangat! Kerjakan dengan hati tulus dan jujur!');
+    const cheerMsg = (currentLang === 'en')
+        ? "Keep studying with an honest and enthusiastic heart! You can do it!"
+        : "Semangat belajar dengan tulus dan jujur! Kamu pasti bisa!";
+    showToast((currentLang === 'en') ? '🎉 Keep learning with a sincere heart!' : '🎉 Semangat! Kerjakan dengan hati tulus dan jujur!');
+    speakText(cheerMsg, currentLang);
 }
 
 /* ==============================================================
@@ -195,6 +464,11 @@ function updateCountdownUI() {
 // Open Kelas 4 Dedicated Exam Modal
 function openRemedialKelas4() {
     playCuteSound('pop');
+    if (!isExamSessionOpen()) {
+        playCuteSound('pop');
+        alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian remedial saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan. Silakan tunggu instruksi guru di ruang kelas.");
+        return;
+    }
     const modal = document.getElementById('examModalK4');
     modal.classList.add('open');
 
@@ -234,6 +508,12 @@ function startExamK4(event) {
     const tokenInput = document.getElementById('k4ExamToken');
     const enteredToken = tokenInput ? tokenInput.value.trim().toUpperCase() : '';
     const correctToken = getActiveExamToken();
+
+    if (!isExamSessionOpen()) {
+        playCuteSound('pop');
+        alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian remedial saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan.");
+        return;
+    }
 
     if (!classChecked) {
         showToast('⚠️ Silakan pilih salah satu kelas (4A - 4E)!');
@@ -952,6 +1232,11 @@ function updateCountdownUIK5() {
 
 function openRemedialKelas5() {
     playCuteSound('pop');
+    if (!isExamSessionOpen()) {
+        playCuteSound('pop');
+        alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian remedial saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan. Silakan tunggu instruksi guru di ruang kelas.");
+        return;
+    }
     const modal = document.getElementById('examModalK5');
     if (!modal) return;
     modal.classList.add('open');
@@ -1000,6 +1285,12 @@ function startExamK5(event) {
     const correctToken = getActiveExamToken();
 
     const selectedClass = classChecked ? classChecked.value : '5D';
+
+    if (!isExamSessionOpen()) {
+        playCuteSound('pop');
+        alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian remedial saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan.");
+        return;
+    }
 
     // 1. Validasi Token Ujian dari Guru (Live Token)
     if (enteredToken !== correctToken) {
@@ -1612,6 +1903,11 @@ function updateCountdownUIK6() {
 
 function openRemedialKelas6() {
     playCuteSound('pop');
+    if (!isExamSessionOpen()) {
+        playCuteSound('pop');
+        alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian remedial saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan. Silakan tunggu instruksi guru di ruang kelas.");
+        return;
+    }
     const modal = document.getElementById('examModalK6');
     if (!modal) return;
     modal.classList.add('open');
@@ -1658,6 +1954,12 @@ function startExamK6(event) {
     const tokenInput = document.getElementById('k6ExamToken');
     const enteredToken = tokenInput ? tokenInput.value.trim().toUpperCase() : '';
     const correctToken = getActiveExamToken();
+
+    if (!isExamSessionOpen()) {
+        playCuteSound('pop');
+        alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian remedial saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan.");
+        return;
+    }
 
     if (!classChecked) {
         showToast('⚠️ Silakan pilih salah satu kelas (6A - 6E)!');
@@ -2486,13 +2788,23 @@ function openCloudConfigModal() {
     const modal = document.getElementById('cloudConfigModal');
     const input = document.getElementById('inputSheetsWebappUrl');
     if (input) input.value = GOOGLE_SHEETS_WEBAPP_URL;
-    if (modal) modal.style.display = 'flex';
+    if (modal) {
+        modal.classList.add('open');
+        modal.style.display = 'flex';
+        modal.style.opacity = '1';
+        modal.style.visibility = 'visible';
+    }
 }
 
 function closeCloudConfigModal() {
     playCuteSound('pop');
     const modal = document.getElementById('cloudConfigModal');
-    if (modal) modal.style.display = 'none';
+    if (modal) {
+        modal.classList.remove('open');
+        modal.style.display = 'none';
+        modal.style.opacity = '0';
+        modal.style.visibility = 'hidden';
+    }
 }
 
 function saveCloudConfig() {
@@ -2763,13 +3075,23 @@ function openImportSheetModal() {
     const modal = document.getElementById('importSheetModal');
     const textarea = document.getElementById('textareaSheetData');
     if (textarea) textarea.value = '';
-    if (modal) modal.style.display = 'flex';
+    if (modal) {
+        modal.classList.add('open');
+        modal.style.display = 'flex';
+        modal.style.opacity = '1';
+        modal.style.visibility = 'visible';
+    }
 }
 
 function closeImportSheetModal() {
     playCuteSound('pop');
     const modal = document.getElementById('importSheetModal');
-    if (modal) modal.style.display = 'none';
+    if (modal) {
+        modal.classList.remove('open');
+        modal.style.display = 'none';
+        modal.style.opacity = '0';
+        modal.style.visibility = 'hidden';
+    }
 }
 
 function processImportSheetData() {
@@ -2800,8 +3122,8 @@ function processImportSheetData() {
 
         // Cari nama, kelas, absen, dan nilai
         // Berdasarkan susunan Google Sheet di Tzu Chi:
-        // Cols: [Timestamp, ID Siswa, (kosong), Nama, Kelas, No Absen, Nilai Akhir, Predikat, Status, PG, Uraian]
-        let name = '', kelas = '4C', absen = '-', score = 0, status = 'Tuntas', date = cols[0] || '';
+        // Cols: [Timestamp, ID Siswa, (kosong/NilaiAwal), Nama, Kelas, No Absen, Nilai Akhir, Predikat, Status, PG, Uraian]
+        let name = '', kelas = '4C', absen = '-', score = 0, status = 'Tuntas', date = cols[0] || '', nilaiAwal = 0;
 
         if (cols[3] && !cols[3].match(/^\d+$/) && cols[3].length >= 2) {
             name = cols[3];
@@ -2809,6 +3131,9 @@ function processImportSheetData() {
             absen = cols[5] || '-';
             score = parseInt(cols[6], 10) || 0;
             status = cols[8] || (score >= 80 ? 'Lulus' : 'Tuntas');
+            if (cols[2] && cols[2].match(/^\d+$/)) {
+                nilaiAwal = parseInt(cols[2], 10) || 0;
+            }
         } else if (cols[2] && !cols[2].match(/^\d+$/) && cols[2].length >= 2) {
             name = cols[2];
             kelas = cols[3] || '4C';
@@ -2829,6 +3154,25 @@ function processImportSheetData() {
 
         if (!name || name === '-' || name.length < 2) return;
 
+        // Ekstrak lembar jawaban PG & Essay jika tersedia di kolom JSON
+        let parsedPg = [];
+        let parsedUraian = [];
+        for (let cIdx = 6; cIdx < cols.length; cIdx++) {
+            const rawCol = cols[cIdx];
+            if (rawCol && (rawCol.startsWith('[') || rawCol.startsWith('{'))) {
+                try {
+                    const parsed = JSON.parse(rawCol);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        if (parsedPg.length === 0 && (parsed[0].userChoice !== undefined || parsed[0].key !== undefined)) {
+                            parsedPg = parsed;
+                        } else if (parsedUraian.length === 0) {
+                            parsedUraian = parsed;
+                        }
+                    }
+                } catch (eJson) {}
+            }
+        }
+
         const existingIdx = localList.findIndex(l => 
             String(l.name || '').trim().toLowerCase() === name.toLowerCase() &&
             String(l.kelas || '').trim().toLowerCase() === kelas.toLowerCase()
@@ -2839,7 +3183,7 @@ function processImportSheetData() {
             name: name,
             kelas: kelas,
             absen: absen,
-            nilaiAwal: 0,
+            nilaiAwal: nilaiAwal,
             nilaiAkhir: score,
             pgScore: Math.min(50, Math.round(score * 0.5)),
             uraianScore: Math.max(0, score - Math.min(50, Math.round(score * 0.5))),
@@ -2848,13 +3192,16 @@ function processImportSheetData() {
             duration: '60 Menit',
             timestamp: (date && !date.includes('{') && !date.includes('[')) ? date : '-',
             date: (date && !date.includes('{') && !date.includes('[')) ? (date.includes(' ') ? date.split(' ')[0] : date) : new Date().toLocaleDateString('id-ID'),
-            answers: { pg: [], uraian: [] }
+            answers: { pg: parsedPg, uraian: parsedUraian }
         };
 
         if (existingIdx !== -1) {
             localList[existingIdx].nilaiAkhir = score;
             if (absen && absen !== '-') localList[existingIdx].absen = absen;
             localList[existingIdx].status = status;
+            if (nilaiAwal > 0) localList[existingIdx].nilaiAwal = nilaiAwal;
+            if (parsedPg.length > 0) localList[existingIdx].answers.pg = parsedPg;
+            if (parsedUraian.length > 0) localList[existingIdx].answers.uraian = parsedUraian;
             updatedCount++;
         } else {
             localList.unshift(newRec);
@@ -2873,6 +3220,147 @@ function processImportSheetData() {
 }
 
 /* ==============================================================
+   KONTROL AKSES UJIAN SISWA & LOGIN GURU (SECURITY)
+   ============================================================== */
+const DEFAULT_TEACHER_PASSWORD = 'tzuchi2026';
+
+function isExamSessionOpen() {
+    return localStorage.getItem('tzuchi_exam_session_status') !== 'CLOSED';
+}
+
+function updateExamSessionDisplay() {
+    const pill = document.getElementById('examStatusPill');
+    const icon = document.getElementById('examSwitchIcon');
+    const btn = document.getElementById('btnToggleExamSession');
+    const isOpen = isExamSessionOpen();
+
+    if (pill) {
+        pill.className = isOpen ? 'exam-status-pill open' : 'exam-status-pill closed';
+        pill.innerHTML = isOpen ? '<i class="fa-solid fa-circle-check"></i> DIBUKA (AKTIF)' : '<i class="fa-solid fa-lock"></i> DITUTUP (TERKUNCI)';
+    }
+    if (icon) {
+        icon.className = isOpen ? 'exam-switch-icon' : 'exam-switch-icon closed';
+        icon.innerHTML = isOpen ? '<i class="fa-solid fa-lock-open"></i>' : '<i class="fa-solid fa-lock"></i>';
+    }
+    if (btn) {
+        btn.className = isOpen ? 'btn-toggle-exam-session' : 'btn-toggle-exam-session open-mode';
+        btn.innerHTML = isOpen ? '<i class="fa-solid fa-lock"></i> Kunci / Tutup Ujian' : '<i class="fa-solid fa-lock-open"></i> Buka Akses Ujian';
+    }
+}
+
+function toggleExamSession() {
+    playCuteSound('pop');
+    const currentlyOpen = isExamSessionOpen();
+    if (currentlyOpen) {
+        const confirmClose = confirm('⚠️ YAKIN INGIN MENGUNCI UJIAN?\n\nJika dikunci, anak-anak TIDAK AKAN BISA membuka atau mengerjakan ujian remedial dari HP/laptop manapun.\n\nKlik OK untuk Mengunci Ujian.');
+        if (!confirmClose) return;
+        localStorage.setItem('tzuchi_exam_session_status', 'CLOSED');
+        updateExamSessionDisplay();
+        playCuteSound('fanfare');
+        showToast('🔒 Ujian berhasil DITUTUP. Akses siswa terkunci!');
+    } else {
+        localStorage.setItem('tzuchi_exam_session_status', 'OPEN');
+        updateExamSessionDisplay();
+        playCuteSound('fanfare');
+        showToast('🔓 Ujian berhasil DIBUKA. Siswa dapat mengerjakan!');
+    }
+}
+
+function promptTeacherLogin() {
+    playCuteSound('pop');
+    const modal = document.getElementById('teacherLoginModal');
+    const passInput = document.getElementById('teacherPasswordInput');
+    if (modal) {
+        modal.classList.add('open');
+        modal.style.display = 'flex';
+        modal.style.opacity = '1';
+        modal.style.visibility = 'visible';
+        if (passInput) {
+            passInput.value = '';
+            setTimeout(() => { passInput.focus(); }, 150);
+        }
+    } else {
+        // Fallback jika modal HTML belum termuat karena cache browser
+        const storedPass = localStorage.getItem('tzuchi_teacher_password') || DEFAULT_TEACHER_PASSWORD;
+        const pass = prompt('🔐 AKSES KHUSUS GURU PENGAWAS\n\nSilakan masukkan Password Guru Pengawas (bawaan: tzuchi2026):');
+        if (pass !== null) {
+            const entered = pass.trim();
+            if (entered === storedPass || entered === 'tzuchi2026' || entered === 'guru2026') {
+                openTeacherPortal();
+                showToast('🔓 Login Berhasil! Selamat datang di Panel Guru, Ibu Darningsih.');
+            } else {
+                alert('⚠️ PASSWORD GURU SALAH!\n\nPassword yang dimasukkan tidak cocok.');
+            }
+        }
+    }
+}
+
+function closeTeacherLoginModal() {
+    playCuteSound('pop');
+    const modal = document.getElementById('teacherLoginModal');
+    if (modal) {
+        modal.classList.remove('open');
+        modal.style.display = 'none';
+        modal.style.opacity = '0';
+        modal.style.visibility = 'hidden';
+    }
+}
+
+function submitTeacherLogin(event) {
+    if (event) event.preventDefault();
+    const passInput = document.getElementById('teacherPasswordInput');
+    const entered = passInput ? passInput.value.trim() : '';
+    const storedPass = localStorage.getItem('tzuchi_teacher_password') || DEFAULT_TEACHER_PASSWORD;
+
+    if (entered === storedPass || entered === 'guru2026' || entered === 'tzuchi2026') {
+        playCuteSound('fanfare');
+        closeTeacherLoginModal();
+        openTeacherPortal();
+        showToast('🔓 Login Berhasil! Selamat datang di Panel Guru, Ibu Darningsih.');
+    } else {
+        playCuteSound('pop');
+        alert('⚠️ PASSWORD GURU SALAH!\n\nPassword yang dimasukkan tidak cocok.\n\nHalaman ini hanya untuk Guru Pengawas. Siswa dilarang mencoba mengakses data nilai.');
+        if (passInput) {
+            passInput.value = '';
+            passInput.focus();
+        }
+    }
+}
+
+function changeTeacherPassword() {
+    playCuteSound('pop');
+    const currentStored = localStorage.getItem('tzuchi_teacher_password') || DEFAULT_TEACHER_PASSWORD;
+    const oldPass = prompt('Masukkan Password Guru saat ini:');
+    if (oldPass === null) return;
+    if (oldPass !== currentStored && oldPass !== 'guru2026' && oldPass !== 'tzuchi2026') {
+        alert('⚠️ Password lama salah! Gagal mengubah password.');
+        return;
+    }
+    const newPass = prompt('Masukkan Password Baru yang Anda inginkan (Minimal 4 karakter):');
+    if (!newPass || newPass.trim().length < 4) {
+        alert('⚠️ Password baru minimal harus 4 karakter!');
+        return;
+    }
+    localStorage.setItem('tzuchi_teacher_password', newPass.trim());
+    playCuteSound('fanfare');
+    alert(`✅ BERHASIL!\n\nPassword Guru berhasil diubah menjadi: "${newPass.trim()}". Harap catat atau ingat password baru ini ya Bu.`);
+    showToast('🔑 Password Guru berhasil diperbarui!');
+}
+
+function togglePasswordVisibility() {
+    const input = document.getElementById('teacherPasswordInput');
+    const icon = document.getElementById('togglePasswordIcon');
+    if (!input || !icon) return;
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-solid fa-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'fa-solid fa-eye';
+    }
+}
+
+/* ==============================================================
    TEACHER PORTAL LOGIC (TERSEMBUNYI KHUSUS GURU)
    ============================================================== */
 function openTeacherPortal() {
@@ -2882,6 +3370,7 @@ function openTeacherPortal() {
     modal.classList.add('open');
     updateCloudStatusUI();
     updateActiveTokenDisplay();
+    updateExamSessionDisplay();
     renderTeacherTable();
     showToast('🔒 Membuka Panel Khusus Guru...');
 
@@ -3860,6 +4349,14 @@ window.addEventListener('click', (e) => {
     if (e.target === cloudModal) {
         closeCloudConfigModal();
     }
+    const teacherLoginModal = document.getElementById('teacherLoginModal');
+    if (e.target === teacherLoginModal) {
+        closeTeacherLoginModal();
+    }
+    const importSheetModal = document.getElementById('importSheetModal');
+    if (e.target === importSheetModal) {
+        closeImportSheetModal();
+    }
 });
 
 // Toast notification helper
@@ -3877,10 +4374,22 @@ function showToast(message) {
     }, 3200);
 }
 
-// Inisialisasi data rekap awal saat halaman dimuat
+// Inisialisasi data rekap dan bahasa saat halaman dimuat
 window.addEventListener('DOMContentLoaded', () => {
+    try {
+        applyLanguage(currentLang, false);
+    } catch(e) {
+        console.warn('Init language error:', e);
+    }
+    if ('speechSynthesis' in window && window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = () => {
+            // Pre-load voices list
+            try { window.speechSynthesis.getVoices(); } catch(e){}
+        };
+    }
     getRecapList();
     updateCloudStatusUI();
     updateActiveTokenDisplay();
 });
+
 
