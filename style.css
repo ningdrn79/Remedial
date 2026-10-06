@@ -2483,6 +2483,29 @@ body {
     gap: 0.8rem;
 }
 
+.btn-import-sheet {
+    background: #0284c7;
+    color: #ffffff;
+    border: none;
+    padding: 0.65rem 1.1rem;
+    border-radius: 12px;
+    font-family: var(--font-heading);
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+}
+
+.btn-import-sheet:hover {
+    background: #0369a1;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(2, 132, 199, 0.4);
+}
+
 .btn-export-csv {
     background: #059669;
     color: #ffffff;

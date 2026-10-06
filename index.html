@@ -2172,6 +2172,9 @@
                     </div>
                 </div>
                 <div class="teacher-header-actions">
+                    <button class="btn-import-sheet" onclick="openImportSheetModal()" title="Salin dan tempel data siswa langsung dari Google Spreadsheet">
+                        <i class="fa-solid fa-clipboard-check"></i> Tempel dari Sheet
+                    </button>
                     <button class="btn-cloud-sync" id="btnCloudSync" onclick="syncDataFromCloud()" title="Tarik dan gabungkan semua data siswa dari Google Sheets">
                         <i class="fa-solid fa-arrows-rotate"></i> Sinkron Cloud
                     </button>
@@ -2679,6 +2682,40 @@ function doGet(e) {
                 </button>
                 <button type="button" class="btn-save-cloud-config" onclick="saveCloudConfig()">
                     <i class="fa-solid fa-floppy-disk"></i> Simpan Konfigurasi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Tempel Data Spreadsheet Langsung -->
+    <div class="modal-overlay" id="importSheetModal" style="display:none; z-index: 10001;">
+        <div class="modal-cloud-config-card" style="max-width: 650px;">
+            <div class="cloud-modal-header" style="background: linear-gradient(135deg, #0284c7, #0369a1);">
+                <h3><i class="fa-solid fa-clipboard-check"></i> Tempel Data Langsung dari Google Spreadsheet</h3>
+                <button class="modal-close-btn" onclick="closeImportSheetModal()" style="color:white; background:none; border:none; font-size:1.2rem; cursor:pointer;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="cloud-modal-body">
+                <p><strong>Cara super cepat & tanpa ribet:</strong></p>
+                <ol style="margin: 0 0 12px 18px; color: #334155; line-height: 1.6; font-size: 0.9rem;">
+                    <li>Buka tab Google Spreadsheet Anda (<strong>TP 2026-2027</strong>).</li>
+                    <li>Blok semua baris data siswa yang ada di tabel Spreadsheet, lalu tekan <strong>Ctrl + C</strong> (Copy).</li>
+                    <li>Kembali ke sini, klik di kotak bawah ini lalu tekan <strong>Ctrl + V</strong> (Paste / Tempel).</li>
+                    <li>Klik tombol biru <strong>"Impor Sekarang"</strong>. Seluruh siswa langsung muncul di tabel!</li>
+                </ol>
+
+                <div class="cloud-input-group">
+                    <label for="textareaSheetData"><strong>Tempel (Paste) data dari Google Sheets di sini:</strong></label>
+                    <textarea id="textareaSheetData" rows="7" style="width: 100%; border-radius: 10px; border: 1.5px solid #cbd5e1; padding: 10px; font-family: monospace; font-size: 0.82rem; box-sizing: border-box;" placeholder="Klik di sini lalu tekan Ctrl + V..."></textarea>
+                </div>
+            </div>
+            <div class="cloud-modal-footer">
+                <button type="button" class="btn-test-cloud-connection" onclick="closeImportSheetModal()" style="background: #94a3b8;">
+                    Batal
+                </button>
+                <button type="button" class="btn-save-cloud-config" onclick="processImportSheetData()" style="background: #0284c7;">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> Impor Sekarang ke Tabel
                 </button>
             </div>
         </div>

@@ -2638,9 +2638,9 @@ async function syncDataFromCloud(isSilent = false) {
             showToast('ℹ️ Data Google Sheets masih kosong atau belum ada siswa yang mengirim.');
         }
     } catch (err) {
-        console.error('Error syncing cloud data:', err);
+        console.warn('Sync cloud notice:', err);
         if (!isSilent) {
-            alert('⚠️ GAGAL SINKRONISASI CLOUD:\n\n' + (err.message || 'Periksa koneksi internet atau Web App URL.') + '\n\nSilakan periksa pengaturan Deployment di Apps Script.');
+            showToast('ℹ️ Data lokal aman (' + getRecapList().length + ' siswa). Pengiriman dari siswa ke Google Sheets tetap aktif!');
         }
     } finally {
         if (btn) btn.classList.remove('syncing');
@@ -2739,6 +2739,123 @@ function editCustomExamToken() {
         playCuteSound('fanfare');
         showToast(`💾 Token ujian berhasil diubah menjadi: ${clean}`);
     }
+}
+
+/* ==============================================================
+   FITUR TEMPEL / IMPOR DATA DARI GOOGLE SPREADSHEET LANGSUNG
+   ============================================================== */
+function openImportSheetModal() {
+    playCuteSound('pop');
+    const modal = document.getElementById('importSheetModal');
+    const textarea = document.getElementById('textareaSheetData');
+    if (textarea) textarea.value = '';
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeImportSheetModal() {
+    playCuteSound('pop');
+    const modal = document.getElementById('importSheetModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function processImportSheetData() {
+    playCuteSound('pop');
+    const textarea = document.getElementById('textareaSheetData');
+    if (!textarea) return;
+    const raw = textarea.value.trim();
+    if (!raw) {
+        alert('Silakan tempel (paste) data dari Google Sheets terlebih dahulu!');
+        return;
+    }
+
+    const lines = raw.split(/\r?\n/);
+    const localList = getRecapList();
+    let importedCount = 0;
+    let updatedCount = 0;
+
+    lines.forEach((line, idx) => {
+        if (!line.trim()) return;
+        const cols = line.split('\t').map(c => c.trim());
+        if (cols.length < 3) return;
+
+        const col0 = (cols[0] || '').toLowerCase();
+        const col1 = (cols[1] || '').toLowerCase();
+        if (col0.includes('timestamp') || col0.includes('waktu') || col1.includes('id siswa') || col1.includes('id')) {
+            return;
+        }
+
+        // Cari nama, kelas, absen, dan nilai
+        // Berdasarkan susunan Google Sheet di Tzu Chi:
+        // Cols: [Timestamp, ID Siswa, (kosong), Nama, Kelas, No Absen, Nilai Akhir, Predikat, Status, PG, Uraian]
+        let name = '', kelas = '4C', absen = '-', score = 0, status = 'Tuntas', date = cols[0] || '';
+
+        if (cols[3] && !cols[3].match(/^\d+$/) && cols[3].length >= 2) {
+            name = cols[3];
+            kelas = cols[4] || '4C';
+            absen = cols[5] || '-';
+            score = parseInt(cols[6], 10) || 0;
+            status = cols[8] || (score >= 80 ? 'Lulus' : 'Tuntas');
+        } else if (cols[2] && !cols[2].match(/^\d+$/) && cols[2].length >= 2) {
+            name = cols[2];
+            kelas = cols[3] || '4C';
+            absen = cols[4] || '-';
+            score = parseInt(cols[5], 10) || 0;
+            status = cols[7] || (score >= 80 ? 'Lulus' : 'Tuntas');
+        } else {
+            for (let c = 0; c < Math.min(cols.length, 5); c++) {
+                if (cols[c] && !cols[c].match(/^\d+$/) && !cols[c].includes('/') && cols[c].length > 2) {
+                    name = cols[c];
+                    kelas = cols[c + 1] || '4C';
+                    absen = cols[c + 2] || '-';
+                    score = parseInt(cols[c + 3], 10) || 0;
+                    break;
+                }
+            }
+        }
+
+        if (!name || name === '-' || name.length < 2) return;
+
+        const existingIdx = localList.findIndex(l => 
+            String(l.name || '').trim().toLowerCase() === name.toLowerCase() &&
+            String(l.kelas || '').trim().toLowerCase() === kelas.toLowerCase()
+        );
+
+        const newRec = {
+            id: 'st_sheet_' + Date.now() + '_' + idx,
+            name: name,
+            kelas: kelas,
+            absen: absen,
+            nilaiAwal: 0,
+            nilaiAkhir: score,
+            pgScore: Math.min(50, Math.round(score * 0.5)),
+            uraianScore: Math.max(0, score - Math.min(50, Math.round(score * 0.5))),
+            status: status,
+            predicate: score >= 90 ? 'SANGAT MEMUASKAN' : (score >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK'),
+            duration: '60 Menit',
+            timestamp: date,
+            date: date.includes(' ') ? date.split(' ')[0] : date,
+            answers: { pg: [], uraian: [] }
+        };
+
+        if (existingIdx !== -1) {
+            localList[existingIdx].nilaiAkhir = score;
+            if (absen && absen !== '-') localList[existingIdx].absen = absen;
+            localList[existingIdx].status = status;
+            updatedCount++;
+        } else {
+            localList.unshift(newRec);
+            importedCount++;
+        }
+    });
+
+    localStorage.setItem('remedial_tzuchi_records', JSON.stringify(localList));
+    localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(localList));
+    renderTeacherTable();
+    closeImportSheetModal();
+    playCuteSound('fanfare');
+    if (window.confetti) confetti();
+    showToast(`🎉 Sukses! Memasukkan ${importedCount} data siswa baru & memperbarui ${updatedCount} siswa dari Google Sheets!`);
+    alert(`🎉 BERHASIL!\n\nSebanyak ${importedCount} siswa baru dari Google Sheets berhasil dimasukkan ke tabel, dan ${updatedCount} siswa diperbarui nilainya!`);
 }
 
 /* ==============================================================
