@@ -14,7 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <!-- HTML2PDF CDN for generating professional PDF reports -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20261006_1">
 </head>
 <body>
 
@@ -2727,6 +2727,37 @@ function doGet(e) {
         <span class="toast-message" id="toastMsg">Pesan</span>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+    // Pembersihan otomatis data rusak/JSON mentah di localStorage
+    (function() {
+        try {
+            ['remedial_tzuchi_records', 'remedial_tzuchi_k4'].forEach(function(key) {
+                var raw = localStorage.getItem(key);
+                if (!raw) return;
+                var list = JSON.parse(raw);
+                if (!Array.isArray(list)) return;
+                var cleaned = list.filter(function(st) {
+                    if (!st || typeof st !== 'object') return false;
+                    var n = String(st.name || '').trim();
+                    return n && n !== '-' && n !== 'null' && n !== 'undefined' && n.length >= 2;
+                }).map(function(st) {
+                    var dur = String(st.duration || '');
+                    if (dur.indexOf('{') !== -1 || dur.indexOf('[') !== -1 || dur.length > 25) {
+                        st.duration = '60 Menit';
+                    }
+                    var ts = String(st.timestamp || '');
+                    if (ts.indexOf('{') !== -1 || ts.indexOf('[') !== -1 || ts.length > 35) {
+                        st.timestamp = st.date || '-';
+                    }
+                    return st;
+                });
+                localStorage.setItem(key, JSON.stringify(cleaned));
+            });
+        } catch(e) {
+            console.warn('Auto cleanup notice:', e);
+        }
+    })();
+    </script>
+    <script src="script.js?v=20261006_1"></script>
 </body>
 </html>
