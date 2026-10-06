@@ -2406,7 +2406,21 @@ function getRecapList() {
         if (stored) {
             let parsed = JSON.parse(stored);
             if (Array.isArray(parsed)) {
-                return parsed;
+                return parsed.filter(item => {
+                    if (!item || typeof item !== 'object') return false;
+                    const n = String(item.name || '').trim();
+                    return n && n !== '-' && n !== 'null' && n !== 'undefined' && n.length >= 2;
+                }).map(item => {
+                    const dur = String(item.duration || '');
+                    if (dur.includes('{') || dur.includes('[') || dur.length > 25) {
+                        item.duration = '60 Menit';
+                    }
+                    const ts = String(item.timestamp || '');
+                    if (ts.includes('{') || ts.includes('[') || ts.length > 35) {
+                        item.timestamp = item.date || '-';
+                    }
+                    return item;
+                });
             }
         }
     } catch (e) {
@@ -2832,8 +2846,8 @@ function processImportSheetData() {
             status: status,
             predicate: score >= 90 ? 'SANGAT MEMUASKAN' : (score >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK'),
             duration: '60 Menit',
-            timestamp: date,
-            date: date.includes(' ') ? date.split(' ')[0] : date,
+            timestamp: (date && !date.includes('{') && !date.includes('[')) ? date : '-',
+            date: (date && !date.includes('{') && !date.includes('[')) ? (date.includes(' ') ? date.split(' ')[0] : date) : new Date().toLocaleDateString('id-ID'),
             answers: { pg: [], uraian: [] }
         };
 
@@ -3062,8 +3076,17 @@ function renderTeacherTable() {
             const safeAkhir = Number(st.nilaiAkhir !== undefined ? st.nilaiAkhir : 0);
             const isPassed = safeAkhir >= 80;
             const safeStatus = st.status || (isPassed ? 'Lulus' : 'Tuntas');
-            const safeTimestamp = String(st.timestamp || st.date || '-');
-            const safeDuration = String(st.duration || '60 Menit');
+            let safeTimestamp = String(st.timestamp || st.date || '-');
+            if (safeTimestamp.includes('{') || safeTimestamp.includes('[') || safeTimestamp.length > 35) {
+                safeTimestamp = String(st.date || '-');
+                if (safeTimestamp.includes('{') || safeTimestamp.includes('[') || safeTimestamp.length > 35) {
+                    safeTimestamp = '-';
+                }
+            }
+            let safeDuration = String(st.duration || '60 Menit');
+            if (safeDuration.includes('{') || safeDuration.includes('[') || safeDuration.length > 25) {
+                safeDuration = '60 Menit';
+            }
             const safeId = String(st.id || ('st_' + idx));
 
             return `
@@ -3079,7 +3102,7 @@ function renderTeacherTable() {
                         </button>
                     </td>
                     <td><span class="score-badge-cell">${safeAkhir}</span></td>
-                    <td>
+                    <td style="max-width: 140px; overflow: hidden;">
                         <span style="font-size: 0.85rem; color: #475569; display: block; font-weight: 600;">${safeTimestamp}</span>
                         <small style="font-size: 0.76rem; color: #94a3b8;">${safeDuration}</small>
                     </td>

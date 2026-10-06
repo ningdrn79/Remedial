@@ -2828,6 +2828,8 @@ body {
     border-bottom: 1px solid #f1f5f9;
     color: #1e293b;
     vertical-align: middle;
+    max-width: 250px;
+    word-break: break-word;
 }
 
 .teacher-data-table tr:hover {
