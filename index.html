@@ -14,7 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <!-- HTML2PDF CDN for generating professional PDF reports -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=20261007_score_separation">
+    <link rel="stylesheet" href="style.css?v=20261007_v7">
 </head>
 <body>
 
@@ -2465,115 +2465,83 @@
     </div>
 
     <!-- ============================================================== -->
-    <!-- OFF-SCREEN PRINTABLE TEMPLATE: HASIL SCORE & JAWABAN LENGKAP SISWA -->
-    <!-- Digunakan oleh html2pdf untuk menghasilkan file PDF resmi -->
+    <!-- OFF-SCREEN PRINTABLE TEMPLATE: HASIL SCORE & JAWABAN LENGKAP SISWA (1 HALAMAN RESMI) -->
     <!-- ============================================================== -->
-    <div class="pdf-offscreen-container" style="position: fixed; left: -99999px; top: 0; width: 210mm; height: auto; opacity: 0; pointer-events: none; z-index: -9999; overflow: hidden;">
+    <div class="pdf-offscreen-container" id="pdfOffscreenContainer">
         <div id="studentFullAnswersPdfDoc" class="pdf-full-answers-page">
             
             <!-- Kop Surat Resmi SDS Cinta Kasih Tzu Chi -->
             <div class="pdf-kop-wrapper">
                 <div class="pdf-kop-logo">
-                    <img src="logo_tzuchi.png" alt="Logo Yayasan Buddha Tzu Chi" style="width: 72px; height: auto; object-fit: contain;">
+                    <div class="pdf-tzuchi-symbol-badge">
+                        <span>🌱</span>
+                    </div>
                 </div>
                 <div class="pdf-kop-text">
                     <h2 class="pdf-kop-title">SDS CINTA KASIH TZU CHI</h2>
                     <p class="pdf-kop-subtitle">SEKOLAH DASAR SWASTA BERAKREDITASI "A"</p>
-                    <p class="pdf-kop-address">Jl. Lingkar Luar Barat No. 88, Cengkareng Timur, Cengkareng, Jakarta Barat 11730</p>
-                    <p class="pdf-kop-web">Email: info@cintakasihtzuchi.sch.id | Telp: (021) 5439 7462</p>
+                    <p class="pdf-kop-address">Jl. Lingkar Luar Barat No. 88, Cengkareng Timur, Jakarta Barat • Telp: (021) 5439 7462</p>
                 </div>
             </div>
             <div class="pdf-kop-divider-double"></div>
 
-            <!-- Judul Dokumen -->
+            <!-- Judul Dokumen & Subjek -->
             <div class="pdf-doc-title-box">
-                <h3 class="pdf-doc-title">LEMBAR HASIL EVALUASI & JAWABAN SISWA</h3>
-                <p class="pdf-doc-meta">REMEDIAL MID SEMESTER 1 • TAHUN PELAJARAN 2026/2027</p>
-                <p class="pdf-doc-subject">Mata Pelajaran: <strong>Koding dan Kecerdasan Artifisial</strong> (<span id="pdfAnsDocGradeLabel">Kelas 4 SD</span>)</p>
+                <h3 class="pdf-doc-title">LEMBAR HASIL EVALUASI & JAWABAN REMEDIAL</h3>
+                <p class="pdf-doc-meta">Mata Pelajaran: <strong>Koding dan Kecerdasan Artifisial</strong> (<span id="pdfAnsDocGradeLabel">Kelas 4 SD</span>) • Mid Semester 1 TP 2026/2027</p>
             </div>
 
-            <!-- Identitas Siswa -->
-            <table class="pdf-info-table">
-                <tr>
-                    <td class="col-lbl">Nama Lengkap Siswa</td>
-                    <td class="col-sep">:</td>
-                    <td class="col-val"><strong id="pdfAnsDocName">-</strong></td>
-                    <td class="col-lbl">Kelas / Rombel</td>
-                    <td class="col-sep">:</td>
-                    <td class="col-val"><strong id="pdfAnsDocClass">-</strong></td>
-                </tr>
-                <tr>
-                    <td class="col-lbl">Nomor Absen</td>
-                    <td class="col-sep">:</td>
-                    <td class="col-val" id="pdfAnsDocAbsen">-</td>
-                    <td class="col-lbl">Waktu & Durasi</td>
-                    <td class="col-sep">:</td>
-                    <td class="col-val" id="pdfAnsDocDuration">-</td>
-                </tr>
-                <tr>
-                    <td class="col-lbl">Tanggal Pelaksanaan</td>
-                    <td class="col-sep">:</td>
-                    <td class="col-val" id="pdfAnsDocDate">-</td>
-                    <td class="col-lbl">Nilai Awal (Sebelum)</td>
-                    <td class="col-sep">:</td>
-                    <td class="col-val" id="pdfAnsDocNilaiAwal">-</td>
-                </tr>
-            </table>
-
-            <!-- Rekapitulasi Skor Akhir -->
-            <table class="pdf-grades-table">
-                <thead>
+            <!-- Grid Terpadu: Identitas Siswa & Capaian Nilai (Kompak 1 Baris) -->
+            <div class="pdf-summary-grid">
+                <table class="pdf-info-compact-table">
                     <tr>
-                        <th style="width: 40px;">No</th>
-                        <th>Komponen Penilaian Remedial</th>
-                        <th style="width: 120px;" class="text-center">Bobot Maksimal</th>
-                        <th style="width: 120px;" class="text-center">Capaian Nilai</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="text-center">1</td>
-                        <td>Bagian I: Pilihan Ganda (10 Soal × 5 Poin)</td>
-                        <td class="text-center">50 Poin</td>
-                        <td class="text-center" id="pdfAnsDocPgScore">50</td>
+                        <td style="width: 32%; color: #475569;">Nama Siswa</td>
+                        <td style="width: 3%;">:</td>
+                        <td><strong id="pdfAnsDocName">-</strong></td>
                     </tr>
                     <tr>
-                        <td class="text-center">2</td>
-                        <td>Bagian II: Soal Uraian Mandiri (5 Soal)</td>
-                        <td class="text-center">50 Poin</td>
-                        <td class="text-center" id="pdfAnsDocUraianScore">50</td>
+                        <td style="color: #475569;">Kelas / Absen</td>
+                        <td>:</td>
+                        <td><strong id="pdfAnsDocClass">-</strong> (Absen: <span id="pdfAnsDocAbsen">-</span>)</td>
                     </tr>
-                    <tr class="pdf-grade-total-row">
-                        <td colspan="3" class="text-right"><strong>NILAI AKHIR EVALUASI REMEDIAL :</strong></td>
-                        <td class="text-center pdf-huge-grade" id="pdfAnsDocFinalScore">100</td>
+                    <tr>
+                        <td style="color: #475569;">Waktu / Tgl</td>
+                        <td>:</td>
+                        <td><span id="pdfAnsDocDuration">-</span> • <span id="pdfAnsDocDate">-</span></td>
                     </tr>
-                </tbody>
-            </table>
-
-            <div class="pdf-result-status-bar">
-                <div class="pdf-status-item">
-                    <span class="label">STATUS KELULUSAN:</span>
-                    <strong class="badge-status-green" id="pdfAnsDocStatus">LULUS REMEDIAL</strong>
-                </div>
-                <div class="pdf-status-item">
-                    <span class="label">PREDIKAT:</span>
-                    <strong id="pdfAnsDocPredicate">SANGAT MEMUASKAN</strong>
+                </table>
+                <div class="pdf-score-compact-box">
+                    <div class="pdf-score-stats">
+                        <span>Nilai Awal: <strong id="pdfAnsDocNilaiAwal">-</strong></span>
+                        <span>PG: <strong id="pdfAnsDocPgScore">-</strong></span>
+                        <span>Uraian: <strong id="pdfAnsDocUraianScore">-</strong></span>
+                    </div>
+                    <div class="pdf-final-badge-wrap">
+                        <div class="pdf-huge-score-pill">
+                            <small>NILAI AKHIR</small>
+                            <span id="pdfAnsDocFinalScore">100</span>
+                        </div>
+                        <div class="pdf-status-meta">
+                            <span class="status-badge-cell status-lulus" id="pdfAnsDocStatusBadge">
+                                <i class="fa-solid fa-circle-check"></i> <span id="pdfAnsDocStatus">LULUS</span>
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- BAGIAN I: RINCIAN JAWABAN PILIHAN GANDA -->
+            <!-- BAGIAN I: RINCIAN JAWABAN PILIHAN GANDA (10 SOAL) -->
             <div class="pdf-section-divider">
-                <h4>BAGIAN I: LEMBAR JAWABAN PILIHAN GANDA (10 SOAL)</h4>
+                <h4>BAGIAN I: LEMBAR JAWABAN PILIHAN GANDA (10 NOMOR • BOBOT MAKSIMAL 50 POIN)</h4>
             </div>
             <table class="pdf-answers-pg-table">
                 <thead>
                     <tr>
-                        <th style="width: 28px;" class="text-center">No</th>
-                        <th style="width: 190px;">Pertanyaan Soal</th>
-                        <th style="width: 140px;">Jawaban Siswa</th>
-                        <th style="width: 140px;">Kunci Jawaban</th>
-                        <th style="width: 55px;" class="text-center">Score</th>
-                        <th>Keterangan / Pembahasan</th>
+                        <th style="width: 24px;" class="text-center">No</th>
+                        <th>Pertanyaan Soal</th>
+                        <th style="width: 145px;">Jawaban Siswa</th>
+                        <th style="width: 135px;">Kunci Jawaban</th>
+                        <th style="width: 55px;" class="text-center">Skor</th>
                     </tr>
                 </thead>
                 <tbody id="pdfAnsDocPgBody">
@@ -2581,17 +2549,28 @@
                 </tbody>
             </table>
 
-            <!-- BAGIAN II: RINCIAN JAWABAN SOAL URAIAN -->
-            <div class="pdf-section-divider" style="margin-top: 15px;">
-                <h4>BAGIAN II: LEMBAR JAWABAN SOAL URAIAN (5 SOAL)</h4>
+            <!-- BAGIAN II: RINCIAN JAWABAN SOAL URAIAN (5 SOAL) -->
+            <div class="pdf-section-divider">
+                <h4>BAGIAN II: LEMBAR JAWABAN SOAL URAIAN MANDIRI (5 NOMOR • BOBOT MAKSIMAL 50 POIN)</h4>
             </div>
-            <div class="pdf-uraian-answers-list" id="pdfAnsDocUraianBody">
-                <!-- Populated by JS -->
-            </div>
+            <table class="pdf-answers-uraian-table">
+                <thead>
+                    <tr>
+                        <th style="width: 24px;" class="text-center">No</th>
+                        <th style="width: 195px;">Pertanyaan Uraian</th>
+                        <th>Jawaban Siswa</th>
+                        <th style="width: 185px;">Standar Kurikulum</th>
+                        <th style="width: 55px;" class="text-center">Skor</th>
+                    </tr>
+                </thead>
+                <tbody id="pdfAnsDocUraianBody">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
 
             <!-- Mutiara Kata Perenungan Master Cheng Yen -->
-            <div class="pdf-tzuchi-quote-box" style="margin-top: 15px;">
-                <p><em>“Keindahan sifat manusia terletak pada ketulusan hatinya. Kemuliaan sifat manusia terletak pada kejujuran.”</em></p>
+            <div class="pdf-tzuchi-quote-box">
+                <em>“Keindahan sifat manusia terletak pada ketulusan hatinya. Kemuliaan sifat manusia terletak pada kejujuran.”</em>
                 <span>— Kata Perenungan Master Cheng Yen</span>
             </div>
 
@@ -2604,15 +2583,11 @@
                     <p class="pdf-sig-line">( ........................................ )</p>
                 </div>
                 <div class="pdf-sig-box">
-                    <p id="pdfAnsDocSignDate">Jakarta, 30 September 2026</p>
-                    <p>Guru Koding & AI</p>
+                    <p id="pdfAnsDocSignDate">Jakarta, 7 Oktober 2026</p>
+                    <p>Guru Pengawas Koding & AI</p>
                     <div class="pdf-sig-space"></div>
                     <p class="pdf-sig-line"><strong>( Darningsih, S.T. )</strong></p>
                 </div>
-            </div>
-
-            <div class="pdf-official-note">
-                <small>* Dokumen laporan lembar jawaban resmi diterbitkan melalui Portal EduCode AI SDS Cinta Kasih Tzu Chi.</small>
             </div>
 
         </div>
@@ -2838,9 +2813,39 @@ function doGet(e) {
     </div>
 
     <script>
-    // Pembersihan otomatis data rusak/JSON mentah di localStorage
+    // Pembersihan & Penataan Master Nilai Remedial di localStorage
     (function() {
         try {
+            var REMEDIAL_REAL_SCORES = {
+                "daniel": { awal: 55, akhir: 87, status: "Lulus", predicate: "BAIK SEKALI" },
+                "annabel kartika mika": { awal: 30, akhir: 67, status: "Tuntas", predicate: "CUKUP BAIK" },
+                "nuriyah hasanah": { awal: 15, akhir: 69, status: "Tuntas", predicate: "CUKUP BAIK" },
+                "william ferdinand hendarmin": { awal: 25, akhir: 65, status: "Tuntas", predicate: "CUKUP BAIK" },
+                "catherin carolin": { awal: 70, akhir: 68, status: "Tuntas", predicate: "CUKUP BAIK" },
+                "dio soehardjo": { awal: 70, akhir: 76, status: "Tuntas", predicate: "CUKUP BAIK" },
+                "evelyn veglia bong": { awal: 70, akhir: 85, status: "Lulus", predicate: "BAIK SEKALI" },
+                "elvira agatha": { awal: 25, akhir: 69, status: "Tuntas", predicate: "CUKUP BAIK" },
+                "jason rh": { awal: 70, akhir: 67, status: "Tuntas", predicate: "CUKUP BAIK" },
+                "seleena kathleen lim": { awal: 25, akhir: 68, status: "Tuntas", predicate: "CUKUP BAIK" },
+                "gracia jesslyn ang": { awal: 70, akhir: 63, status: "Tuntas", predicate: "CUKUP BAIK" },
+                "aerillyne letisha adzkia rahmanta": { awal: 25, akhir: 55, status: "Tuntas", predicate: "CUKUP BAIK" },
+                "ramadhan ardiansyah": { awal: 40, akhir: 42, status: "Tuntas", predicate: "CUKUP BAIK" },
+                "vita aulia": { awal: 25, akhir: 55, status: "Tuntas", predicate: "CUKUP BAIK" },
+                "jarvis wu": { awal: 55, akhir: 54, status: "Tuntas", predicate: "CUKUP BAIK" },
+                "fakhry zafran .a": { awal: 40, akhir: 36, status: "Tuntas", predicate: "CUKUP BAIK" },
+                "nazhifa putri.p": { awal: 30, akhir: 32, status: "Tuntas", predicate: "CUKUP BAIK" }
+            };
+
+            function getOverride(name) {
+                if (!name) return null;
+                var clean = String(name).trim().toLowerCase();
+                if (REMEDIAL_REAL_SCORES[clean]) return REMEDIAL_REAL_SCORES[clean];
+                for (var k in REMEDIAL_REAL_SCORES) {
+                    if (clean.indexOf(k) !== -1 || k.indexOf(clean) !== -1) return REMEDIAL_REAL_SCORES[k];
+                }
+                return null;
+            }
+
             ['remedial_tzuchi_records', 'remedial_tzuchi_k4'].forEach(function(key) {
                 var raw = localStorage.getItem(key);
                 if (!raw) return;
@@ -2851,17 +2856,25 @@ function doGet(e) {
                     var n = String(st.name || '').trim();
                     return n && n !== '-' && n !== 'null' && n !== 'undefined' && n.length >= 2;
                 }).map(function(st) {
-                    var predNum = Number(st.predicate);
-                    var statusStr = String(st.status || '').toUpperCase();
-                    if (!isNaN(predNum) && predNum > 0) {
-                        st.nilaiAwal = Number(st.nilaiAwal !== undefined && st.nilaiAwal !== 0 ? st.nilaiAwal : (st.nilaiAkhir || 0));
-                        st.nilaiAkhir = predNum;
-                        if (statusStr.indexOf('BAIK') !== -1 || statusStr.indexOf('MEMUASKAN') !== -1) {
-                            st.predicate = String(st.status);
+                    var ov = getOverride(st.name);
+                    if (ov) {
+                        if (!st.userEditedAwal) st.nilaiAwal = ov.awal;
+                        st.nilaiAkhir = ov.akhir;
+                        st.status = ov.status;
+                        st.predicate = ov.predicate;
+                    } else {
+                        var predNum = Number(st.predicate);
+                        var statusStr = String(st.status || '').toUpperCase();
+                        if (!isNaN(predNum) && predNum > 0) {
+                            if (!st.userEditedAwal) st.nilaiAwal = Number(st.nilaiAwal !== undefined && st.nilaiAwal !== 0 ? st.nilaiAwal : (st.nilaiAkhir || 0));
+                            st.nilaiAkhir = predNum;
+                            if (statusStr.indexOf('BAIK') !== -1 || statusStr.indexOf('MEMUASKAN') !== -1) {
+                                st.predicate = String(st.status);
+                            }
+                            st.status = predNum >= 80 ? 'Lulus' : 'Tuntas';
+                        } else if (statusStr.indexOf('BAIK') !== -1 || statusStr.indexOf('MEMUASKAN') !== -1) {
+                            st.status = Number(st.nilaiAkhir || 0) >= 80 ? 'Lulus' : 'Tuntas';
                         }
-                        st.status = predNum >= 80 ? 'Lulus' : 'Tuntas';
-                    } else if (statusStr.indexOf('BAIK') !== -1 || statusStr.indexOf('MEMUASKAN') !== -1) {
-                        st.status = Number(st.nilaiAkhir || 0) >= 80 ? 'Lulus' : 'Tuntas';
                     }
 
                     var dur = String(st.duration || '');
@@ -2928,6 +2941,6 @@ function doGet(e) {
         }
     };
     </script>
-    <script src="script.js?v=20261007_score_separation"></script>
+    <script src="script.js?v=20261007_v7"></script>
 </body>
 </html>
