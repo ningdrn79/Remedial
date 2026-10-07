@@ -2708,11 +2708,30 @@ function getRecapList() {
         if (stored) {
             let parsed = JSON.parse(stored);
             if (Array.isArray(parsed)) {
-                return parsed.filter(item => {
+                let hasChanges = false;
+                const cleanedList = parsed.filter(item => {
                     if (!item || typeof item !== 'object') return false;
                     const n = String(item.name || '').trim();
                     return n && n !== '-' && n !== 'null' && n !== 'undefined' && n.length >= 2;
                 }).map(item => {
+                    // Deteksi jika data tersinkron dari kolom sheet yang bergeser:
+                    // item.predicate berisi angka remedial (misal 87 untuk Daniel, 67 untuk Annabel, 76 untuk Dio)
+                    const predNum = Number(item.predicate);
+                    if (!isNaN(predNum) && predNum > 0) {
+                        const realAkhir = predNum;
+                        const realAwal = Number(item.nilaiAwal !== undefined && item.nilaiAwal !== 0 ? item.nilaiAwal : (item.nilaiAkhir || 0));
+                        item.nilaiAwal = realAwal;
+                        item.nilaiAkhir = realAkhir;
+                        item.predicate = String(item.status || (realAkhir >= 90 ? 'SANGAT MEMUASKAN' : (realAkhir >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK')));
+                        item.status = realAkhir >= 80 ? 'Lulus' : 'Tuntas';
+                        hasChanges = true;
+                    } else if (String(item.status || '').toUpperCase().includes('BAIK') || String(item.status || '').toUpperCase().includes('MEMUASKAN')) {
+                        // Pastikan kolom STATUS hanya menampilkan 'Lulus' atau 'Tuntas'
+                        const currAkhir = Number(item.nilaiAkhir || 0);
+                        item.status = currAkhir >= 80 ? 'Lulus' : 'Tuntas';
+                        hasChanges = true;
+                    }
+
                     const dur = String(item.duration || '');
                     if (dur.includes('{') || dur.includes('[') || dur.length > 25) {
                         item.duration = '60 Menit';
@@ -2723,6 +2742,15 @@ function getRecapList() {
                     }
                     return item;
                 });
+
+                if (hasChanges) {
+                    try {
+                        localStorage.setItem('remedial_tzuchi_records', JSON.stringify(cleanedList));
+                        localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(cleanedList));
+                    } catch(eSave) {}
+                }
+
+                return cleanedList;
             }
         }
     } catch (e) {
@@ -2922,11 +2950,30 @@ async function syncDataFromCloud(isSilent = false) {
                     (c.studentId && String(l.id) === String(c.studentId)) || 
                     (String(l.name || '').toLowerCase() === String(c.studentName || '').toLowerCase() && String(l.kelas || '') === String(c.grade || ''))
                 );
-                const cloudNilaiAwal = c.nilaiAwal !== undefined ? c.nilaiAwal : (c.initialScore !== undefined ? c.initialScore : 0);
+
+                let cloudNilaiAwal = c.nilaiAwal !== undefined ? Number(c.nilaiAwal) : (c.initialScore !== undefined ? Number(c.initialScore) : 0);
+                let cloudScore = Number(c.score) || 0;
+                let cloudPredicate = c.predicate || (cloudScore >= 90 ? 'SANGAT MEMUASKAN' : (cloudScore >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK'));
+                let cloudStatus = c.status || (cloudScore >= 80 ? 'Lulus' : 'Tuntas');
+
+                // Deteksi otomatis jika format spreadsheet bergeser:
+                // Predicate berupa angka skor remedial (misal 76, 68, 87) dan status berupa teks predikat ('CUKUP BAIK')
+                const predNum = Number(c.predicate);
+                const statusStr = String(c.status || '').trim().toUpperCase();
+                if (!isNaN(predNum) && predNum > 0) {
+                    cloudNilaiAwal = cloudNilaiAwal || cloudScore || 0;
+                    cloudScore = predNum;
+                    cloudPredicate = (statusStr.includes('BAIK') || statusStr.includes('MEMUASKAN')) ? String(c.status) : (cloudScore >= 90 ? 'SANGAT MEMUASKAN' : (cloudScore >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK'));
+                    cloudStatus = cloudScore >= 80 ? 'Lulus' : 'Tuntas';
+                } else if (statusStr.includes('BAIK') || statusStr.includes('MEMUASKAN')) {
+                    cloudStatus = cloudScore >= 80 ? 'Lulus' : 'Tuntas';
+                }
+
                 if (existingIdx !== -1) {
-                    if ((!localList[existingIdx].nilaiAwal || localList[existingIdx].nilaiAwal === 0) && cloudNilaiAwal) {
-                        localList[existingIdx].nilaiAwal = cloudNilaiAwal;
-                    }
+                    localList[existingIdx].nilaiAkhir = cloudScore;
+                    if (cloudNilaiAwal > 0) localList[existingIdx].nilaiAwal = cloudNilaiAwal;
+                    localList[existingIdx].predicate = cloudPredicate;
+                    localList[existingIdx].status = cloudStatus;
                 } else {
                     localList.unshift({
                         id: c.studentId || ('st_cloud_' + Date.now() + Math.random().toString(36).substr(2, 5)),
@@ -2934,11 +2981,11 @@ async function syncDataFromCloud(isSilent = false) {
                         kelas: c.grade || '4A',
                         absen: c.absen || '-',
                         nilaiAwal: cloudNilaiAwal,
-                        nilaiAkhir: Number(c.score) || 0,
+                        nilaiAkhir: cloudScore,
                         pgScore: c.pgScore || 0,
                         uraianScore: c.uraianScore || 0,
-                        status: c.status || ((c.score || 0) >= 80 ? 'Lulus' : 'Tuntas'),
-                        predicate: c.predicate || 'SANGAT MEMUASKAN',
+                        status: cloudStatus,
+                        predicate: cloudPredicate,
                         duration: c.duration || '-',
                         timestamp: c.timestamp || '-',
                         date: c.date || new Date().toLocaleDateString('id-ID'),
@@ -3138,8 +3185,17 @@ function processImportSheetData() {
             name = cols[2];
             kelas = cols[3] || '4C';
             absen = cols[4] || '-';
-            score = parseInt(cols[5], 10) || 0;
-            status = cols[7] || (score >= 80 ? 'Lulus' : 'Tuntas');
+            const val5 = parseInt(cols[5], 10) || 0;
+            const val6 = parseInt(cols[6], 10);
+            if (!isNaN(val6) && val6 > 0) {
+                // cols[5] adalah Nilai Awal, cols[6] adalah Nilai Akhir Remedial
+                nilaiAwal = val5;
+                score = val6;
+                status = cols[7] || (score >= 80 ? 'Lulus' : 'Tuntas');
+            } else {
+                score = val5;
+                status = cols[7] || (score >= 80 ? 'Lulus' : 'Tuntas');
+            }
         } else {
             for (let c = 0; c < Math.min(cols.length, 5); c++) {
                 if (cols[c] && !cols[c].match(/^\d+$/) && !cols[c].includes('/') && cols[c].length > 2) {
@@ -3561,10 +3617,20 @@ function renderTeacherTable() {
             const safeName = String(st.name || '-');
             const safeKelas = String(st.kelas || '-');
             const safeAbsen = String(st.absen !== undefined && st.absen !== null ? st.absen : '-');
-            const safeAwal = st.nilaiAwal !== undefined ? st.nilaiAwal : 0;
-            const safeAkhir = Number(st.nilaiAkhir !== undefined ? st.nilaiAkhir : 0);
+            let safeAwal = Number(st.nilaiAwal !== undefined ? st.nilaiAwal : 0);
+            let safeAkhir = Number(st.nilaiAkhir !== undefined ? st.nilaiAkhir : 0);
+            const predNum = Number(st.predicate);
+            if (!isNaN(predNum) && predNum > 0) {
+                if (safeAwal === 0 || safeAwal === safeAkhir) {
+                    safeAwal = safeAkhir;
+                }
+                safeAkhir = predNum;
+            }
             const isPassed = safeAkhir >= 80;
-            const safeStatus = st.status || (isPassed ? 'Lulus' : 'Tuntas');
+            let safeStatus = st.status;
+            if (!safeStatus || String(safeStatus).toUpperCase().includes('BAIK') || String(safeStatus).toUpperCase().includes('MEMUASKAN')) {
+                safeStatus = isPassed ? 'Lulus' : 'Tuntas';
+            }
             let safeTimestamp = String(st.timestamp || st.date || '-');
             if (safeTimestamp.includes('{') || safeTimestamp.includes('[') || safeTimestamp.length > 35) {
                 safeTimestamp = String(st.date || '-');

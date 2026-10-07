@@ -14,7 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <!-- HTML2PDF CDN for generating professional PDF reports -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=20261006_lang_indonesian_english">
+    <link rel="stylesheet" href="style.css?v=20261007_score_separation">
 </head>
 <body>
 
@@ -2700,20 +2700,29 @@ function doGet(e) {
     var records = [];
     for (var i = 1; i &lt; rows.length; i++) {
       var r = rows[i];
-      var isNewFormat = (idxAwal !== -1 || r.length &gt;= 10);
+      var isNewFormat = (idxAwal !== -1 || r.length &gt;= 12);
+      var rAwal = idxAwal !== -1 ? r[idxAwal] : (isNewFormat ? r[5] : 0);
+      var rScore = idxScore !== -1 ? r[idxScore] : (isNewFormat ? r[6] : r[5]);
+      var rPred = idxPred !== -1 ? r[idxPred] : (isNewFormat ? r[7] : r[6]);
+      var rStatus = idxStatus !== -1 ? r[idxStatus] : (isNewFormat ? r[8] : r[7]);
+      if (!isNaN(Number(rPred)) && Number(rPred) > 0 && typeof rStatus === "string" && (rStatus.indexOf("BAIK") !== -1 || rStatus.indexOf("MEMUASKAN") !== -1)) {
+        rScore = Number(rPred);
+        rPred = rStatus;
+        rStatus = rScore >= 80 ? "Lulus" : "Tuntas";
+      }
       records.push({
         date: r[0],
         studentId: idxId !== -1 ? r[idxId] : r[1],
         studentName: idxName !== -1 ? r[idxName] : r[2],
         grade: idxGrade !== -1 ? r[idxGrade] : r[3],
         absen: idxAbsen !== -1 ? r[idxAbsen] : (isNewFormat ? r[4] : "-"),
-        nilaiAwal: idxAwal !== -1 ? r[idxAwal] : (isNewFormat ? r[5] : 0),
-        score: idxScore !== -1 ? r[idxScore] : (isNewFormat ? r[6] : r[4]),
-        predicate: idxPred !== -1 ? r[idxPred] : (isNewFormat ? r[7] : r[5]),
-        status: idxStatus !== -1 ? r[idxStatus] : (isNewFormat ? r[8] : r[6]),
+        nilaiAwal: rAwal,
+        score: rScore,
+        predicate: rPred,
+        status: (rStatus === "Lulus" || rStatus === "Tuntas") ? rStatus : (Number(rScore) >= 80 ? "Lulus" : "Tuntas"),
         duration: idxDur !== -1 ? r[idxDur] : (isNewFormat ? r[9] : "-"),
-        pgAnswers: safeParse(idxPg !== -1 ? r[idxPg] : r[7]),
-        essayAnswers: safeParse(idxEssay !== -1 ? r[idxEssay] : r[8])
+        pgAnswers: safeParse(idxPg !== -1 ? r[idxPg] : (isNewFormat ? r[10] : r[7])),
+        essayAnswers: safeParse(idxEssay !== -1 ? r[idxEssay] : (isNewFormat ? r[11] : r[8]))
       });
     }
     return ContentService.createTextOutput(JSON.stringify(records))
@@ -2842,6 +2851,19 @@ function doGet(e) {
                     var n = String(st.name || '').trim();
                     return n && n !== '-' && n !== 'null' && n !== 'undefined' && n.length >= 2;
                 }).map(function(st) {
+                    var predNum = Number(st.predicate);
+                    var statusStr = String(st.status || '').toUpperCase();
+                    if (!isNaN(predNum) && predNum > 0) {
+                        st.nilaiAwal = Number(st.nilaiAwal !== undefined && st.nilaiAwal !== 0 ? st.nilaiAwal : (st.nilaiAkhir || 0));
+                        st.nilaiAkhir = predNum;
+                        if (statusStr.indexOf('BAIK') !== -1 || statusStr.indexOf('MEMUASKAN') !== -1) {
+                            st.predicate = String(st.status);
+                        }
+                        st.status = predNum >= 80 ? 'Lulus' : 'Tuntas';
+                    } else if (statusStr.indexOf('BAIK') !== -1 || statusStr.indexOf('MEMUASKAN') !== -1) {
+                        st.status = Number(st.nilaiAkhir || 0) >= 80 ? 'Lulus' : 'Tuntas';
+                    }
+
                     var dur = String(st.duration || '');
                     if (dur.indexOf('{') !== -1 || dur.indexOf('[') !== -1 || dur.length > 25) {
                         st.duration = '60 Menit';
@@ -2906,6 +2928,6 @@ function doGet(e) {
         }
     };
     </script>
-    <script src="script.js?v=20261006_lang_indonesian_english"></script>
+    <script src="script.js?v=20261007_score_separation"></script>
 </body>
 </html>
