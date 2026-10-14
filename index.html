@@ -14,7 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <!-- HTML2PDF CDN for generating professional PDF reports -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=20261007_v7">
+    <link rel="stylesheet" href="style.css?v=20261011_v5">
 </head>
 <body>
 
@@ -125,7 +125,81 @@
         <!-- Menu Section Header -->
         <section class="menu-intro" id="menu-remedial">
             <h2 class="section-title" id="menuTitleText" data-i18n="menuTitle">Menu Remedial:</h2>
-            <p class="section-desc" id="menuDescText" data-i18n="menuDesc">Pilih menu kelas remedial di bawah ini untuk mengerjakan soal interaktif:</p>
+            <p class="section-desc" id="menuDescText" data-i18n="menuDesc">Pilih periode penilaian dan menu kelas remedial di bawah ini untuk mengerjakan soal interaktif:</p>
+
+            <!-- Interactive Period Selector: Semester 1 & Semester 2 (PTS / PAS) -->
+            <div class="period-selector-wrapper">
+                <div class="period-selector-topbar">
+                    <span class="period-control-label">
+                        <i class="fa-solid fa-calendar-check" style="color: #0d9488;"></i> Status Periode Asesmen & Ujian:
+                        <small style="display: block; font-size: 0.76rem; color: #64748b; font-weight: normal; margin-top: 2px;">
+                            (Diatur dari Dashboard Guru Pengawas • Hanya tombol aktif yang dapat dibuka siswa)
+                        </small>
+                    </span>
+                    <span class="period-status-pill" id="periodStatusPill">
+                        <span class="status-pulse-dot"></span>
+                        <span id="periodStatusPillText">Semester 1 • Remedial PTS (Mid)</span>
+                    </span>
+                </div>
+                
+                <div class="period-tabs-grid" id="periodTabsGrid">
+                    <!-- Tab 1: Semester 1 PTS -->
+                    <button type="button" class="period-tab-card active" data-period="sem1_pts" onclick="selectRemedialPeriod('sem1_pts')" id="periodTab_sem1_pts" title="Periode Aktif">
+                        <div class="tab-card-header">
+                            <span class="semester-tag sem1">Semester 1</span>
+                            <div style="display: flex; gap: 4px; align-items: center;">
+                                <span class="period-official-badge visible" id="officialBadge_sem1_pts"><i class="fa-solid fa-circle-check"></i> Dibuka Guru</span>
+                                <span class="period-locked-badge" id="lockedBadge_sem1_pts"><i class="fa-solid fa-lock"></i> Nonaktif</span>
+                                <span class="active-check-badge"><i class="fa-solid fa-check"></i> Aktif</span>
+                            </div>
+                        </div>
+                        <h4 class="tab-card-title"><i class="fa-solid fa-file-signature"></i> Remedial PTS</h4>
+                        <p class="tab-card-desc">Penilaian Tengah Semester 1</p>
+                    </button>
+
+                    <!-- Tab 2: Semester 1 PAS -->
+                    <button type="button" class="period-tab-card disabled-period" data-period="sem1_pas" onclick="selectRemedialPeriod('sem1_pas')" id="periodTab_sem1_pas" title="Dinonaktifkan oleh Guru">
+                        <div class="tab-card-header">
+                            <span class="semester-tag sem1">Semester 1</span>
+                            <div style="display: flex; gap: 4px; align-items: center;">
+                                <span class="period-official-badge" id="officialBadge_sem1_pas"><i class="fa-solid fa-circle-check"></i> Dibuka Guru</span>
+                                <span class="period-locked-badge visible" id="lockedBadge_sem1_pas"><i class="fa-solid fa-lock"></i> Nonaktif</span>
+                                <span class="active-check-badge"><i class="fa-solid fa-check"></i> Aktif</span>
+                            </div>
+                        </div>
+                        <h4 class="tab-card-title"><i class="fa-solid fa-award"></i> Remedial PAS</h4>
+                        <p class="tab-card-desc">Penilaian Akhir Semester 1</p>
+                    </button>
+
+                    <!-- Tab 3: Semester 2 PTS -->
+                    <button type="button" class="period-tab-card disabled-period" data-period="sem2_pts" onclick="selectRemedialPeriod('sem2_pts')" id="periodTab_sem2_pts" title="Dinonaktifkan oleh Guru">
+                        <div class="tab-card-header">
+                            <span class="semester-tag sem2">Semester 2</span>
+                            <div style="display: flex; gap: 4px; align-items: center;">
+                                <span class="period-official-badge" id="officialBadge_sem2_pts"><i class="fa-solid fa-circle-check"></i> Dibuka Guru</span>
+                                <span class="period-locked-badge visible" id="lockedBadge_sem2_pts"><i class="fa-solid fa-lock"></i> Nonaktif</span>
+                                <span class="active-check-badge"><i class="fa-solid fa-check"></i> Aktif</span>
+                            </div>
+                        </div>
+                        <h4 class="tab-card-title"><i class="fa-solid fa-file-signature"></i> Remedial PTS</h4>
+                        <p class="tab-card-desc">Penilaian Tengah Semester 2</p>
+                    </button>
+
+                    <!-- Tab 4: Semester 2 PAS -->
+                    <button type="button" class="period-tab-card disabled-period" data-period="sem2_pas" onclick="selectRemedialPeriod('sem2_pas')" id="periodTab_sem2_pas" title="Dinonaktifkan oleh Guru">
+                        <div class="tab-card-header">
+                            <span class="semester-tag sem2">Semester 2</span>
+                            <div style="display: flex; gap: 4px; align-items: center;">
+                                <span class="period-official-badge" id="officialBadge_sem2_pas"><i class="fa-solid fa-circle-check"></i> Dibuka Guru</span>
+                                <span class="period-locked-badge visible" id="lockedBadge_sem2_pas"><i class="fa-solid fa-lock"></i> Nonaktif</span>
+                                <span class="active-check-badge"><i class="fa-solid fa-check"></i> Aktif</span>
+                            </div>
+                        </div>
+                        <h4 class="tab-card-title"><i class="fa-solid fa-trophy"></i> Remedial PAS</h4>
+                        <p class="tab-card-desc">Penilaian Akhir Tahun / Kenaikan</p>
+                    </button>
+                </div>
+            </div>
         </section>
 
         <!-- 3 Primary Remedial Menus -->
@@ -297,6 +371,20 @@
                             </div>
                         </div>
 
+                        <!-- Banner Konfirmasi Periode & Tombol Cepat Ganti Periode -->
+                        <div class="exam-period-confirm-box" id="k4PeriodConfirmBanner">
+                            <div class="period-confirm-badge-wrap">
+                                <span class="period-confirm-badge-icon"><i class="fa-solid fa-calendar-check"></i></span>
+                                <div class="period-confirm-texts">
+                                    <span class="period-confirm-label">JENIS UJIAN REMEDIAL:</span>
+                                    <strong class="period-confirm-title" id="k4PeriodBadgeConfirm">Semester 1 • Remedial PTS (Mid)</strong>
+                                </div>
+                            </div>
+                            <span class="badge-locked-by-teacher" title="Periode ujian ini telah ditetapkan secara resmi oleh Guru dari Dashboard">
+                                <i class="fa-solid fa-shield-check"></i> Resmi Diatur Guru
+                            </span>
+                        </div>
+
                         <form id="k4IdentityForm" onsubmit="startExamK4(event)">
                             <div class="form-group">
                                 <label for="k4Name"><i class="fa-solid fa-user"></i> Nama Lengkap Siswa *</label>
@@ -343,8 +431,8 @@
                             <!-- Input Token Ujian dari Guru -->
                             <div class="student-token-box">
                                 <label for="k4ExamToken"><i class="fa-solid fa-key"></i> Token Ujian (Tanya Guru / Lihat di Papan Tulis) *</label>
-                                <input type="text" id="k4ExamToken" class="student-token-input" required placeholder="MASUKKAN TOKEN" maxlength="10" autocomplete="off">
-                                <small class="student-token-hint"><i class="fa-solid fa-circle-info"></i> Masukkan kode token yang diberikan oleh Guru di kelas untuk membuka soal.</small>
+                                <input type="text" id="k4ExamToken" class="student-token-input" required placeholder="MASUKKAN TOKEN" maxlength="10" autocomplete="off" oninput="this.value = this.value.toUpperCase().replace(/\s+/g, '')">
+                                <small class="student-token-hint"><i class="fa-solid fa-circle-info"></i> Masukkan kode token dari Guru di papan tulis (atau token cadangan resmi: <strong>TZU26</strong>).</small>
                             </div>
 
                             <!-- Petunjuk Umum & Kata Perenungan Master Cheng Yen -->
@@ -384,6 +472,10 @@
                             <span class="student-class-badge" id="barStudentClass">4A</span>
                         </div>
                         <div class="student-bar-item">
+                            <span class="bar-label">Periode:</span>
+                            <span class="student-period-pill" id="barExamPeriodTagK4">Remedial PTS</span>
+                        </div>
+                        <div class="student-bar-item">
                             <span class="bar-label">Nilai Awal:</span>
                             <strong id="barStudentInitialScore">0</strong>
                         </div>
@@ -392,6 +484,12 @@
                             <span class="exam-timer-tag live-timer" id="examCountdownTag">
                                 <i class="fa-solid fa-stopwatch"></i> <span id="timerText">60:00</span>
                             </span>
+                        </div>
+                        <div class="student-bar-item">
+                            <button type="button" class="btn-exit-exam-safeguard" onclick="confirmExitOrSwitchExam('k4')" title="Salah ujian? Keluar dan ganti periode">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                <span>Salah Ujian? Keluar</span>
+                            </button>
                         </div>
                     </div>
 
@@ -978,6 +1076,20 @@
                             </div>
                         </div>
 
+                        <!-- Banner Konfirmasi Periode & Tombol Cepat Ganti Periode -->
+                        <div class="exam-period-confirm-box" id="k5PeriodConfirmBanner">
+                            <div class="period-confirm-badge-wrap">
+                                <span class="period-confirm-badge-icon"><i class="fa-solid fa-calendar-check"></i></span>
+                                <div class="period-confirm-texts">
+                                    <span class="period-confirm-label">JENIS UJIAN REMEDIAL:</span>
+                                    <strong class="period-confirm-title" id="k5PeriodBadgeConfirm">Semester 1 • Remedial PTS (Mid)</strong>
+                                </div>
+                            </div>
+                            <span class="badge-locked-by-teacher" title="Periode ujian ini telah ditetapkan secara resmi oleh Guru dari Dashboard">
+                                <i class="fa-solid fa-shield-check"></i> Resmi Diatur Guru
+                            </span>
+                        </div>
+
                         <form id="k5IdentityForm" onsubmit="startExamK5(event)">
                             <div class="form-group">
                                 <label for="k5Name"><i class="fa-solid fa-user"></i> Nama Lengkap Siswa *</label>
@@ -1010,8 +1122,8 @@
                             <!-- Input Token Ujian dari Guru -->
                             <div class="student-token-box">
                                 <label for="k5ExamToken"><i class="fa-solid fa-key"></i> Token Ujian (Tanya Guru / Lihat di Papan Tulis) *</label>
-                                <input type="text" id="k5ExamToken" class="student-token-input" required placeholder="MASUKKAN TOKEN" maxlength="10" autocomplete="off">
-                                <small class="student-token-hint"><i class="fa-solid fa-circle-info"></i> Masukkan kode token yang diberikan oleh Guru di kelas untuk membuka soal.</small>
+                                <input type="text" id="k5ExamToken" class="student-token-input" required placeholder="MASUKKAN TOKEN" maxlength="10" autocomplete="off" oninput="this.value = this.value.toUpperCase().replace(/\s+/g, '')">
+                                <small class="student-token-hint"><i class="fa-solid fa-circle-info"></i> Masukkan kode token dari Guru di papan tulis (atau token cadangan resmi: <strong>TZU26</strong>).</small>
                             </div>
 
                             <!-- Petunjuk Umum & Kata Perenungan Master Cheng Yen -->
@@ -1051,6 +1163,10 @@
                             <span class="student-class-badge" id="barStudentClassK5" style="background: #e0f2fe; color: #0369a1;">5A</span>
                         </div>
                         <div class="student-bar-item">
+                            <span class="bar-label">Periode:</span>
+                            <span class="student-period-pill" id="barExamPeriodTagK5">Remedial PTS</span>
+                        </div>
+                        <div class="student-bar-item">
                             <span class="bar-label">Nilai Awal:</span>
                             <strong id="barStudentInitialScoreK5">0</strong>
                         </div>
@@ -1059,6 +1175,12 @@
                             <span class="exam-timer-tag live-timer" id="examCountdownTagK5">
                                 <i class="fa-solid fa-stopwatch"></i> <span id="timerTextK5">60:00</span>
                             </span>
+                        </div>
+                        <div class="student-bar-item">
+                            <button type="button" class="btn-exit-exam-safeguard" onclick="confirmExitOrSwitchExam('k5')" title="Salah ujian? Keluar dan ganti periode">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                <span>Salah Ujian? Keluar</span>
+                            </button>
                         </div>
                     </div>
 
@@ -1552,6 +1674,20 @@
                             </div>
                         </div>
 
+                        <!-- Banner Konfirmasi Periode & Tombol Cepat Ganti Periode -->
+                        <div class="exam-period-confirm-box" id="k6PeriodConfirmBanner">
+                            <div class="period-confirm-badge-wrap">
+                                <span class="period-confirm-badge-icon"><i class="fa-solid fa-calendar-check"></i></span>
+                                <div class="period-confirm-texts">
+                                    <span class="period-confirm-label">JENIS UJIAN REMEDIAL:</span>
+                                    <strong class="period-confirm-title" id="k6PeriodBadgeConfirm">Semester 1 • Remedial PTS (Mid)</strong>
+                                </div>
+                            </div>
+                            <span class="badge-locked-by-teacher" title="Periode ujian ini telah ditetapkan secara resmi oleh Guru dari Dashboard">
+                                <i class="fa-solid fa-shield-check"></i> Resmi Diatur Guru
+                            </span>
+                        </div>
+
                         <form id="k6IdentityForm" onsubmit="startExamK6(event)">
                             <div class="form-group">
                                 <label for="k6Name"><i class="fa-solid fa-user"></i> Nama Lengkap Siswa *</label>
@@ -1598,8 +1734,8 @@
                             <!-- Input Token Ujian dari Guru -->
                             <div class="student-token-box">
                                 <label for="k6ExamToken"><i class="fa-solid fa-key"></i> Token Ujian (Tanya Guru / Lihat di Papan Tulis) *</label>
-                                <input type="text" id="k6ExamToken" class="student-token-input" required placeholder="MASUKKAN TOKEN" maxlength="10" autocomplete="off">
-                                <small class="student-token-hint"><i class="fa-solid fa-circle-info"></i> Masukkan kode token yang diberikan oleh Guru di kelas untuk membuka soal.</small>
+                                <input type="text" id="k6ExamToken" class="student-token-input" required placeholder="MASUKKAN TOKEN" maxlength="10" autocomplete="off" oninput="this.value = this.value.toUpperCase().replace(/\s+/g, '')">
+                                <small class="student-token-hint"><i class="fa-solid fa-circle-info"></i> Masukkan kode token dari Guru di papan tulis (atau token cadangan resmi: <strong>TZU26</strong>).</small>
                             </div>
 
                             <!-- Petunjuk Umum & Kata Perenungan Master Cheng Yen -->
@@ -1639,6 +1775,10 @@
                             <span class="student-class-badge" id="barStudentClassK6" style="background: #f3e8ff; color: #7e22ce;">6A</span>
                         </div>
                         <div class="student-bar-item">
+                            <span class="bar-label">Periode:</span>
+                            <span class="student-period-pill" id="barExamPeriodTagK6">Remedial PTS</span>
+                        </div>
+                        <div class="student-bar-item">
                             <span class="bar-label">Nilai Awal:</span>
                             <strong id="barStudentInitialScoreK6">0</strong>
                         </div>
@@ -1647,6 +1787,12 @@
                             <span class="exam-timer-tag live-timer" id="examCountdownTagK6">
                                 <i class="fa-solid fa-stopwatch"></i> <span id="timerTextK6">60:00</span>
                             </span>
+                        </div>
+                        <div class="student-bar-item">
+                            <button type="button" class="btn-exit-exam-safeguard" onclick="confirmExitOrSwitchExam('k6')" title="Salah ujian? Keluar dan ganti periode">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                <span>Salah Ujian? Keluar</span>
+                            </button>
                         </div>
                     </div>
 
@@ -2235,6 +2381,42 @@
                     </button>
                 </div>
 
+                <!-- Kontrol Pengaturan Status Tombol Periode Siswa (Semester 1 & 2 • PTS / PAS) -->
+                <div class="teacher-period-control-card">
+                    <div class="teacher-period-left">
+                        <span class="t-period-icon">🎯</span>
+                        <div>
+                            <h4>Pengaturan Status Tombol Periode Remedial (Kontrol Akses Siswa)</h4>
+                            <p>Tentukan tombol periode mana yang <strong>AKTIF</strong> untuk siswa. Periode yang dipilih di sini akan menjadi satu-satunya yang aktif di beranda siswa, sedangkan 3 tombol lainnya otomatis <strong>DINONAKTIFKAN & TERKUNCI</strong> agar anak tidak salah klik.</p>
+                        </div>
+                    </div>
+                    <div class="teacher-period-pills">
+                        <button type="button" class="t-period-pill active" data-period="sem1_pts" onclick="selectRemedialPeriodTeacher('sem1_pts')" title="Aktifkan Semester 1 - Remedial PTS">
+                            <i class="fa-solid fa-file-signature"></i> Sem 1 - PTS
+                        </button>
+                        <button type="button" class="t-period-pill" data-period="sem1_pas" onclick="selectRemedialPeriodTeacher('sem1_pas')" title="Aktifkan Semester 1 - Remedial PAS">
+                            <i class="fa-solid fa-award"></i> Sem 1 - PAS
+                        </button>
+                        <button type="button" class="t-period-pill" data-period="sem2_pts" onclick="selectRemedialPeriodTeacher('sem2_pts')" title="Aktifkan Semester 2 - Remedial PTS">
+                            <i class="fa-solid fa-file-signature"></i> Sem 2 - PTS
+                        </button>
+                        <button type="button" class="t-period-pill" data-period="sem2_pas" onclick="selectRemedialPeriodTeacher('sem2_pas')" title="Aktifkan Semester 2 - Remedial PAS">
+                            <i class="fa-solid fa-trophy"></i> Sem 2 - PAS
+                        </button>
+                        <button type="button" class="t-period-pill t-period-lock-btn" id="tPeriodLockBtn" onclick="toggleExamSession()" title="Kunci / Tutup Seluruh Akses Ujian Siswa">
+                            <i class="fa-solid fa-lock"></i> Kunci Semua Ujian
+                        </button>
+                    </div>
+
+                    <!-- Live Status Info Tombol Siswa -->
+                    <div class="teacher-active-period-preview" style="width: 100%;">
+                        <div class="preview-status-dot"></div>
+                        <div class="preview-status-text">
+                            <strong>Status Tombol di Halaman Siswa:</strong> Hanya tombol <span id="teacherActivePeriodNameText" class="highlight-period-name">Semester 1 • Remedial PTS (Mid)</span> yang <strong>AKTIF</strong>. Tiga tombol lainnya otomatis <strong>DINONAKTIFKAN</strong> (Siswa dicegah dari salah klik ujian).
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Saklar Master Buka / Tutup Akses Ujian (Cegah Siswa Ujian Sendiri di Luar Jam Kelas) -->
                 <div class="teacher-exam-switch-card" id="teacherExamSwitchCard">
                     <div class="exam-switch-left">
@@ -2270,19 +2452,19 @@
                         </div>
                         <div class="token-info">
                             <h4>🔑 Token Ujian Remedial (Live Token Pengawas)</h4>
-                            <p>Tuliskan kode token ini di papan tulis kelas agar hanya siswa di kelas yang bisa membuka soal remedial.</p>
+                            <p>Tuliskan kode token ini di papan tulis kelas agar siswa di kelas dapat membuka soal remedial.</p>
+                            <small style="color: #0d9488; font-weight: 700; display: block; margin-top: 3px;">
+                                <i class="fa-solid fa-shield-halved"></i> Token cadangan universal: <strong>TZU26</strong> atau <strong>TZUCHI</strong> selalu aktif di seluruh laptop/HP siswa.
+                            </small>
                         </div>
                     </div>
                     <div class="token-display-wrap">
-                        <span style="font-size: 0.82rem; font-weight: 800; color: #047857;">TOKEN AKTIF:</span>
+                        <span style="font-size: 0.85rem; font-weight: 800; color: #047857;"><i class="fa-solid fa-key"></i> TOKEN AKTIF:</span>
                         <span class="token-active-badge" id="activeTokenDisplay">TZU26</span>
                     </div>
                     <div class="token-actions">
-                        <button type="button" class="btn-token-action" onclick="generateRandomExamToken()" title="Buat Token Acak Baru">
+                        <button type="button" class="btn-token-action btn-random-token-main" onclick="generateRandomExamToken()" title="Buat Token Acak Baru untuk Papan Tulis">
                             <i class="fa-solid fa-dice"></i> Acak Token
-                        </button>
-                        <button type="button" class="btn-token-action primary" onclick="editCustomExamToken()" title="Ubah Token Sesuai Keinginan Guru">
-                            <i class="fa-solid fa-pen-to-square"></i> Ubah Token
                         </button>
                     </div>
                 </div>
@@ -2329,6 +2511,21 @@
 
                 <!-- Filter & Search Toolbar -->
                 <div class="teacher-toolbar">
+                    <div class="teacher-period-filter-row" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; width: 100%; margin-bottom: 12px; padding: 8px 14px; background: #f0fdf4; border-radius: 12px; border: 1.5px solid #a7f3d0;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 0.85rem; font-weight: 800; color: #065f46;"><i class="fa-solid fa-calendar-check" style="color: #0d9488;"></i> Tabel Data Periode:</span>
+                            <span class="badge-period-name-highlight" id="tableCurrentPeriodBadge">Semester 1 • Remedial PTS (Mid)</span>
+                        </div>
+                        <div class="period-table-filter-pills" id="periodTableFilterPills">
+                            <button type="button" class="btn-period-filter-opt active" onclick="setTeacherTablePeriodFilter('AUTO')" id="pFilterOpt_AUTO" title="Tabel otomatis menampilkan data siswa sesuai tombol periode di atas yang sedang aktif">
+                                <i class="fa-solid fa-arrows-rotate"></i> Sesuai Tombol Aktif
+                            </button>
+                            <button type="button" class="btn-period-filter-opt" onclick="setTeacherTablePeriodFilter('SEMUA_PERIODE')" id="pFilterOpt_SEMUA" title="Tampilkan seluruh data siswa dari semua periode">
+                                Semua Periode
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="teacher-tabs-wrap">
                         <span class="toolbar-label"><i class="fa-solid fa-filter"></i> Filter Kelas:</span>
                         <div class="teacher-class-tabs" id="teacherClassTabs">
@@ -2399,7 +2596,9 @@
                                     <th style="width: 135px; cursor: pointer;" onclick="sortTeacherTableBy('nilaiAkhir')" title="Klik untuk mengurutkan nilai remedial">
                                         Nilai Akhir Remedial <span class="th-sort-icon" id="sortIcon-nilaiAkhir"><i class="fa-solid fa-sort"></i></span>
                                     </th>
-                                    <th style="width: 140px;">Waktu & Durasi</th>
+                                    <th style="width: 140px; cursor: pointer;" onclick="sortTeacherTableBy('date')" title="Klik untuk mengurutkan tanggal/waktu pengerjaan">
+                                        TGL/WAKTU <span class="th-sort-icon" id="sortIcon-date"><i class="fa-solid fa-sort"></i></span>
+                                    </th>
                                     <th style="width: 110px;">Status</th>
                                     <th style="width: 230px;" class="text-center">Unduhan & Lembar Jawaban</th>
                                 </tr>
@@ -2613,14 +2812,58 @@
                     <button class="btn-copy-script" onclick="copyGasCodeToClipboard()">
                         <i class="fa-regular fa-copy"></i> Salin Kode Script
                     </button>
-                    <pre id="gasScriptCodeSnippet" style="margin:0; white-space:pre-wrap;">// Google Apps Script untuk Remedial Serentak SDS Cinta Kasih Tzu Chi
+                    <pre id="gasScriptCodeSnippet" style="margin:0; white-space:pre-wrap;">// ==============================================================
+// Google Apps Script untuk Remedial Multi-Sheet SDS Cinta Kasih Tzu Chi
+// File Spreadsheet: "REMED"
+// Sheet: SEM 1-PTS | SEM 1-PAS | SEM 2-PTS | SEM 2-PAT
+// ==============================================================
+
+var SHEET_MAPPING = {
+  "sem1_pts": "SEM 1-PTS",
+  "sem1_pas": "SEM 1-PAS",
+  "sem2_pts": "SEM 2-PTS",
+  "sem2_pas": "SEM 2-PAT"
+};
+
+var HEADER_ROW = [
+  "Timestamp", "ID Siswa", "Nama Lengkap", "Kelas", "No Absen", 
+  "Nilai Awal", "Nilai Akhir", "Predikat", "Status", "Durasi", 
+  "Jawaban PG", "Jawaban Essay"
+];
+
+function getTargetSheet(ss, periodKey) {
+  var targetName = SHEET_MAPPING[periodKey] || "SEM 1-PTS";
+  var sheet = ss.getSheetByName(targetName);
+  if (!sheet && periodKey === "sem2_pas") {
+    sheet = ss.getSheetByName("SEM 2-PAS") || ss.getSheetByName("SEM 2-PAT");
+  }
+  if (!sheet) {
+    sheet = ss.insertSheet(targetName);
+  }
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(HEADER_ROW);
+  }
+  return sheet;
+}
+
+function normalizeSheetToPeriod(name) {
+  if (!name) return "sem1_pts";
+  var s = String(name).toUpperCase().replace(/\s+/g, "");
+  if (s.indexOf("1") !== -1 && s.indexOf("PTS") !== -1) return "sem1_pts";
+  if (s.indexOf("1") !== -1 && s.indexOf("PAS") !== -1) return "sem1_pas";
+  if (s.indexOf("2") !== -1 && s.indexOf("PTS") !== -1) return "sem2_pts";
+  if (s.indexOf("2") !== -1 && (s.indexOf("PAT") !== -1 || s.indexOf("PAS") !== -1)) return "sem2_pas";
+  return "sem1_pts";
+}
+
+// 1. POST: Menyimpan Hasil Siswa Otomatis ke Sheet yang Sesuai Periode
 function doPost(e) {
   try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow(["Timestamp", "ID Siswa", "Nama Lengkap", "Kelas", "No Absen", "Nilai Awal", "Nilai Akhir", "Predikat", "Status", "Durasi", "Jawaban PG", "Jawaban Essay"]);
-    }
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
     var data = JSON.parse(e.postData.contents);
+    var periodKey = data.period || "sem1_pts";
+    var sheet = getTargetSheet(ss, periodKey);
+
     sheet.appendRow([
       new Date(),
       data.studentId || "",
@@ -2635,72 +2878,115 @@ function doPost(e) {
       JSON.stringify(data.pgAnswers || {}),
       JSON.stringify(data.essayAnswers || {})
     ]);
-    return ContentService.createTextOutput(JSON.stringify({status: "success"}))
-      .setMimeType(ContentService.MimeType.JSON);
+
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "success", 
+      sheet: sheet.getName(), 
+      period: periodKey
+    })).setMimeType(ContentService.MimeType.JSON);
   } catch(err) {
     return ContentService.createTextOutput(JSON.stringify({status: "error", message: err.toString()}))
       .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
+// 2. GET: Mengambil Data Siswa per Sheet (SEM 1-PTS, SEM 1-PAS, SEM 2-PTS, SEM 2-PAT)
 function doGet(e) {
   try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var rows = sheet.getDataRange().getValues();
-    if (rows.length &lt;= 1) {
-      return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var paramPeriod = e && e.parameter && (e.parameter.period || e.parameter.sheet);
+    var sheetsToRead = [];
+
+    if (paramPeriod && paramPeriod !== "all") {
+      var periodKey = normalizeSheetToPeriod(paramPeriod);
+      var singleSheet = getTargetSheet(ss, periodKey);
+      sheetsToRead.push({ sheet: singleSheet, period: periodKey });
+    } else {
+      var targetNames = ["SEM 1-PTS", "SEM 1-PAS", "SEM 2-PTS", "SEM 2-PAT", "SEM 2-PAS"];
+      var readSet = {};
+      for (var k = 0; k < targetNames.length; k++) {
+        var sh = ss.getSheetByName(targetNames[k]);
+        if (sh && !readSet[sh.getName()]) {
+          readSet[sh.getName()] = true;
+          sheetsToRead.push({ sheet: sh, period: normalizeSheetToPeriod(sh.getName()) });
+        }
+      }
+      if (sheetsToRead.length === 0) {
+        var act = ss.getActiveSheet();
+        sheetsToRead.push({ sheet: act, period: normalizeSheetToPeriod(act.getName()) });
+      }
     }
-    var headers = rows[0].map(function(h){ return String(h).toLowerCase().trim(); });
-    var idxId = headers.indexOf("id siswa");
-    var idxName = headers.indexOf("nama lengkap");
-    var idxGrade = headers.indexOf("kelas");
-    var idxAbsen = headers.indexOf("no absen");
-    var idxAwal = headers.indexOf("nilai awal");
-    var idxScore = headers.indexOf("nilai akhir") !== -1 ? headers.indexOf("nilai akhir") : headers.indexOf("nilai");
-    var idxPred = headers.indexOf("predikat");
-    var idxStatus = headers.indexOf("status");
-    var idxDur = headers.indexOf("durasi");
-    var idxPg = headers.indexOf("jawaban pg");
-    var idxEssay = headers.indexOf("jawaban essay");
+
+    var allRecords = [];
 
     function safeParse(val) {
       if (!val) return [];
       try {
-        return typeof val === "string" &amp;&amp; (val.charAt(0) === "{" || val.charAt(0) === "[") ? JSON.parse(val) : [];
+        return typeof val === "string" && (val.charAt(0) === "{" || val.charAt(0) === "[") ? JSON.parse(val) : [];
       } catch (errParse) {
         return [];
       }
     }
 
-    var records = [];
-    for (var i = 1; i &lt; rows.length; i++) {
-      var r = rows[i];
-      var isNewFormat = (idxAwal !== -1 || r.length &gt;= 12);
-      var rAwal = idxAwal !== -1 ? r[idxAwal] : (isNewFormat ? r[5] : 0);
-      var rScore = idxScore !== -1 ? r[idxScore] : (isNewFormat ? r[6] : r[5]);
-      var rPred = idxPred !== -1 ? r[idxPred] : (isNewFormat ? r[7] : r[6]);
-      var rStatus = idxStatus !== -1 ? r[idxStatus] : (isNewFormat ? r[8] : r[7]);
-      if (!isNaN(Number(rPred)) && Number(rPred) > 0 && typeof rStatus === "string" && (rStatus.indexOf("BAIK") !== -1 || rStatus.indexOf("MEMUASKAN") !== -1)) {
-        rScore = Number(rPred);
-        rPred = rStatus;
-        rStatus = rScore >= 80 ? "Lulus" : "Tuntas";
+    for (var sIdx = 0; sIdx < sheetsToRead.length; sIdx++) {
+      var currentObj = sheetsToRead[sIdx];
+      var currentSheet = currentObj.sheet;
+      var curPeriod = currentObj.period;
+      var rows = currentSheet.getDataRange().getValues();
+      if (rows.length <= 1) continue;
+
+      var headers = rows[0].map(function(h){ return String(h).toLowerCase().trim(); });
+      var idxId = headers.indexOf("id siswa");
+      var idxName = headers.indexOf("nama lengkap");
+      var idxGrade = headers.indexOf("kelas");
+      var idxAbsen = headers.indexOf("no absen");
+      var idxAwal = headers.indexOf("nilai awal");
+      var idxScore = headers.indexOf("nilai akhir") !== -1 ? headers.indexOf("nilai akhir") : headers.indexOf("nilai");
+      var idxPred = headers.indexOf("predikat");
+      var idxStatus = headers.indexOf("status");
+      var idxDur = headers.indexOf("durasi");
+      var idxPg = headers.indexOf("jawaban pg");
+      var idxEssay = headers.indexOf("jawaban essay");
+
+      for (var i = 1; i < rows.length; i++) {
+        var r = rows[i];
+        if (!r || r.length === 0 || (!r[0] && !r[1] && !r[2])) continue;
+
+        var isNewFormat = (idxAwal !== -1 || r.length >= 12);
+        var rAwal = idxAwal !== -1 ? r[idxAwal] : (isNewFormat ? r[5] : 0);
+        var rScore = idxScore !== -1 ? r[idxScore] : (isNewFormat ? r[6] : r[5]);
+        var rPred = idxPred !== -1 ? r[idxPred] : (isNewFormat ? r[7] : r[6]);
+        var rStatus = idxStatus !== -1 ? r[idxStatus] : (isNewFormat ? r[8] : r[7]);
+
+        if (!isNaN(Number(rPred)) && Number(rPred) > 0 && typeof rStatus === "string" && (rStatus.indexOf("BAIK") !== -1 || rStatus.indexOf("MEMUASKAN") !== -1)) {
+          rScore = Number(rPred);
+          rPred = rStatus;
+          rStatus = rScore >= 80 ? "Lulus" : "Tuntas";
+        }
+
+        var sName = String(idxName !== -1 ? r[idxName] : r[2] || "").trim();
+        if (!sName || sName === "-" || sName.length < 2) continue;
+
+        allRecords.push({
+          date: r[0],
+          studentId: idxId !== -1 ? r[idxId] : r[1],
+          studentName: sName,
+          grade: idxGrade !== -1 ? r[idxGrade] : r[3],
+          absen: idxAbsen !== -1 ? r[idxAbsen] : (isNewFormat ? r[4] : "-"),
+          nilaiAwal: rAwal,
+          score: rScore,
+          predicate: rPred,
+          status: (rStatus === "Lulus" || rStatus === "Tuntas") ? rStatus : (Number(rScore) >= 80 ? "Lulus" : "Tuntas"),
+          duration: idxDur !== -1 ? r[idxDur] : (isNewFormat ? r[9] : "-"),
+          period: curPeriod,
+          sheetName: currentSheet.getName(),
+          pgAnswers: safeParse(idxPg !== -1 ? r[idxPg] : (isNewFormat ? r[10] : r[7])),
+          essayAnswers: safeParse(idxEssay !== -1 ? r[idxEssay] : (isNewFormat ? r[11] : r[8]))
+        });
       }
-      records.push({
-        date: r[0],
-        studentId: idxId !== -1 ? r[idxId] : r[1],
-        studentName: idxName !== -1 ? r[idxName] : r[2],
-        grade: idxGrade !== -1 ? r[idxGrade] : r[3],
-        absen: idxAbsen !== -1 ? r[idxAbsen] : (isNewFormat ? r[4] : "-"),
-        nilaiAwal: rAwal,
-        score: rScore,
-        predicate: rPred,
-        status: (rStatus === "Lulus" || rStatus === "Tuntas") ? rStatus : (Number(rScore) >= 80 ? "Lulus" : "Tuntas"),
-        duration: idxDur !== -1 ? r[idxDur] : (isNewFormat ? r[9] : "-"),
-        pgAnswers: safeParse(idxPg !== -1 ? r[idxPg] : (isNewFormat ? r[10] : r[7])),
-        essayAnswers: safeParse(idxEssay !== -1 ? r[idxEssay] : (isNewFormat ? r[11] : r[8]))
-      });
     }
-    return ContentService.createTextOutput(JSON.stringify(records))
+
+    return ContentService.createTextOutput(JSON.stringify(allRecords))
       .setMimeType(ContentService.MimeType.JSON);
   } catch(err) {
     return ContentService.createTextOutput(JSON.stringify({status: "error", message: err.toString()}))
@@ -2739,16 +3025,26 @@ function doGet(e) {
                 </button>
             </div>
             <div class="cloud-modal-body">
-                <p><strong>Cara super cepat & tanpa ribet:</strong></p>
+                <p><strong>Cara cepat salin & tempel per sheet:</strong></p>
                 <ol style="margin: 0 0 12px 18px; color: #334155; line-height: 1.6; font-size: 0.9rem;">
-                    <li>Buka tab Google Spreadsheet Anda (<strong>TP 2026-2027</strong>).</li>
-                    <li>Blok semua baris data siswa yang ada di tabel Spreadsheet, lalu tekan <strong>Ctrl + C</strong> (Copy).</li>
-                    <li>Kembali ke sini, klik di kotak bawah ini lalu tekan <strong>Ctrl + V</strong> (Paste / Tempel).</li>
-                    <li>Klik tombol biru <strong>"Impor Sekarang"</strong>. Seluruh siswa langsung muncul di tabel!</li>
+                    <li>Buka tab sheet yang diinginkan di file Google Spreadsheet <strong>REMED</strong> (contoh: <strong>SEM 1-PTS</strong>, <strong>SEM 1-PAS</strong>, <strong>SEM 2-PTS</strong>, atau <strong>SEM 2-PAT</strong>).</li>
+                    <li>Blok semua baris data siswa di sheet tersebut, lalu tekan <strong>Ctrl + C</strong> (Copy).</li>
+                    <li>Pilih sheet tujuan di bawah ini, lalu klik kotak teks dan tekan <strong>Ctrl + V</strong> (Paste).</li>
+                    <li>Klik tombol biru <strong>"Impor Sekarang"</strong>. Data langsung masuk ke periode tersebut!</li>
                 </ol>
 
+                <div class="cloud-input-group" style="margin-bottom: 12px;">
+                    <label for="importTargetPeriodSelect"><strong><i class="fa-solid fa-table-cells" style="color: #0284c7;"></i> Pilih Sheet / Periode Data yang Ditempel:</strong></label>
+                    <select id="importTargetPeriodSelect" class="cloud-input-field" style="width: 100%; padding: 8px 12px; font-weight: 700; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #f8fafc;">
+                        <option value="sem1_pts">Sheet "SEM 1-PTS" (Semester 1 • Remedial PTS)</option>
+                        <option value="sem1_pas">Sheet "SEM 1-PAS" (Semester 1 • Remedial PAS)</option>
+                        <option value="sem2_pts">Sheet "SEM 2-PTS" (Semester 2 • Remedial PTS)</option>
+                        <option value="sem2_pas">Sheet "SEM 2-PAT" (Semester 2 • Remedial PAS / PAT)</option>
+                    </select>
+                </div>
+
                 <div class="cloud-input-group">
-                    <label for="textareaSheetData"><strong>Tempel (Paste) data dari Google Sheets di sini:</strong></label>
+                    <label for="textareaSheetData"><strong>Tempel (Paste) data dari sheet di sini:</strong></label>
                     <textarea id="textareaSheetData" rows="7" style="width: 100%; border-radius: 10px; border: 1.5px solid #cbd5e1; padding: 10px; font-family: monospace; font-size: 0.82rem; box-sizing: border-box;" placeholder="Klik di sini lalu tekan Ctrl + V..."></textarea>
                 </div>
             </div>
@@ -2810,6 +3106,93 @@ function doGet(e) {
     <div class="toast" id="toast">
         <span class="toast-icon" id="toastIcon">🎉</span>
         <span class="toast-message" id="toastMsg">Pesan</span>
+    </div>
+
+
+    <!-- ============================================================== -->
+    <!-- 2. MODAL CEPAT GANTI PERIODE DARI DALAM FORMULIR SISWA (QUICK PICKER) -->
+    <!-- ============================================================== -->
+    <div class="modal-overlay" id="studentPeriodPickerModal">
+        <div class="modal-period-picker-card">
+            <div class="modal-warning-icon-badge info">
+                <i class="fa-solid fa-arrows-rotate"></i>
+            </div>
+            <h3 class="modal-dialog-title">Ganti Periode Ujian Remedial</h3>
+            <p class="modal-dialog-desc">Salah memilih jenis ujian? Silakan klik periode remedial yang sesuai ditugaskan oleh guru:</p>
+
+            <div class="student-period-modal-grid">
+                <!-- Option 1: Sem 1 PTS -->
+                <div class="student-period-opt-card" id="optPicker_sem1_pts" onclick="selectPeriodFromStudentModal('sem1_pts')">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="semester-tag sem1">Sem 1</span>
+                        <span class="period-official-badge" id="optPickerOfficial_sem1_pts"><i class="fa-solid fa-star"></i> Resmi</span>
+                    </div>
+                    <strong style="font-size: 0.95rem; color: #0f172a;"><i class="fa-solid fa-file-signature"></i> Remedial PTS</strong>
+                    <span style="font-size: 0.75rem; color: #64748b;">Penilaian Tengah Semester 1</span>
+                </div>
+
+                <!-- Option 2: Sem 1 PAS -->
+                <div class="student-period-opt-card" id="optPicker_sem1_pas" onclick="selectPeriodFromStudentModal('sem1_pas')">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="semester-tag sem1">Sem 1</span>
+                        <span class="period-official-badge" id="optPickerOfficial_sem1_pas"><i class="fa-solid fa-star"></i> Resmi</span>
+                    </div>
+                    <strong style="font-size: 0.95rem; color: #0f172a;"><i class="fa-solid fa-award"></i> Remedial PAS</strong>
+                    <span style="font-size: 0.75rem; color: #64748b;">Penilaian Akhir Semester 1</span>
+                </div>
+
+                <!-- Option 3: Sem 2 PTS -->
+                <div class="student-period-opt-card" id="optPicker_sem2_pts" onclick="selectPeriodFromStudentModal('sem2_pts')">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="semester-tag sem2">Sem 2</span>
+                        <span class="period-official-badge" id="optPickerOfficial_sem2_pts"><i class="fa-solid fa-star"></i> Resmi</span>
+                    </div>
+                    <strong style="font-size: 0.95rem; color: #0f172a;"><i class="fa-solid fa-file-signature"></i> Remedial PTS</strong>
+                    <span style="font-size: 0.75rem; color: #64748b;">Penilaian Tengah Semester 2</span>
+                </div>
+
+                <!-- Option 4: Sem 2 PAS -->
+                <div class="student-period-opt-card" id="optPicker_sem2_pas" onclick="selectPeriodFromStudentModal('sem2_pas')">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="semester-tag sem2">Sem 2</span>
+                        <span class="period-official-badge" id="optPickerOfficial_sem2_pas"><i class="fa-solid fa-star"></i> Resmi</span>
+                    </div>
+                    <strong style="font-size: 0.95rem; color: #0f172a;"><i class="fa-solid fa-trophy"></i> Remedial PAS</strong>
+                    <span style="font-size: 0.75rem; color: #64748b;">Penilaian Akhir Tahun (PAS)</span>
+                </div>
+            </div>
+
+            <div class="modal-dialog-actions">
+                <button type="button" class="btn-dialog-secondary" onclick="closeStudentPeriodModal()">
+                    <i class="fa-solid fa-xmark"></i> Tutup & Kembali
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- 3. MODAL PERINGATAN KELUAR UJIAN SAAT PENGERJAAN SOAL (EXIT SAFEGUARD) -->
+    <!-- ============================================================== -->
+    <div class="modal-overlay" id="examExitConfirmModal">
+        <div class="modal-exit-confirm-card">
+            <div class="modal-warning-icon-badge danger">
+                <i class="fa-solid fa-person-walking-arrow-right"></i>
+            </div>
+            <h3 class="modal-dialog-title">Kamu Akan Keluar dari Ujian</h3>
+            <p class="modal-dialog-desc">
+                Jawaban yang telah kamu pilih saat ini <strong>belum dikirim ke guru</strong>.<br>
+                Apakah kamu menyadari bahwa kamu <strong>salah memilih jenis remedial</strong> dan ingin keluar sekarang untuk mengganti periode yang benar?
+            </p>
+
+            <div class="modal-dialog-actions">
+                <button type="button" class="btn-dialog-secondary" onclick="cancelExitExamModal()">
+                    <i class="fa-solid fa-arrow-left"></i> Batal (Lanjut Ujian)
+                </button>
+                <button type="button" class="btn-dialog-danger" onclick="executeExitExamModal()">
+                    <i class="fa-solid fa-right-from-bracket"></i> Ya, Keluar & Ganti Periode
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -2941,6 +3324,10 @@ function doGet(e) {
         }
     };
     </script>
-    <script src="script.js?v=20261007_v7"></script>
+    <!-- Bank Soal Remedial Modular per Subfolder Kelas (Folder d:\Erapot\soal\) -->
+    <script src="soal/kelas_4/soal_k4.js?v=20261011_v7"></script>
+    <script src="soal/kelas_5/soal_k5.js?v=20261011_v7"></script>
+    <script src="soal/kelas_6/soal_k6.js?v=20261011_v7"></script>
+    <script src="script.js?v=20261011_v7"></script>
 </body>
 </html>

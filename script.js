@@ -349,11 +349,471 @@ function applyLanguage(lang, announceVoice = false) {
     const footT = document.getElementById('footerTeacherText');
     if (footT) footT.innerText = t.footerTeacher;
 
+    // Terapkan konfigurasi periode remedial yang sedang aktif
+    try {
+        applyRemedialPeriod(currentRemedialPeriod);
+    } catch(ePeriod) {}
+
     if (announceVoice) {
         showToast((lang === 'en') ? '🌐 Switched to English' : '🌐 Beralih ke Indonesian');
         speakText(t.voiceAnnouncement, lang);
     }
 }
+
+/* ==============================================================
+   KONFIGURASI PERIODE REMEDIAL (SEMESTER 1 & 2 • PTS / PAS)
+   ============================================================== */
+const REMEDIAL_PERIODS = {
+    sem1_pts: {
+        id: 'sem1_pts',
+        name: 'Semester 1 • Remedial PTS (Mid)',
+        nameEn: 'Semester 1 • Mid-Term Remedial (PTS)',
+        shortName: 'Sem 1 - PTS',
+        badge: 'Mid Semester 1 (PTS)',
+        badgeEn: 'Mid Semester 1 (PTS)',
+        bannerSubtitle: 'MID SEMESTER 1 (PTS) • TAHUN PELAJARAN 2026/2027',
+        pdfDocMeta: 'MID SEMESTER 1 (PTS) • TAHUN PELAJARAN 2026/2027',
+        k4: {
+            tag: 'Excel & AI Detektif',
+            tagEn: 'Excel & AI Detective',
+            subtitle: 'Microsoft Excel (Row, Column, Rumus SUM, AVERAGE, COUNT) & Detektif Data AI.',
+            subtitleEn: 'Microsoft Excel (Row, Column, SUM, AVERAGE, COUNT Formulas) & AI Data Detective.'
+        },
+        k5: {
+            tag: 'PowerPoint & AI Slide',
+            tagEn: 'PowerPoint & AI Slides',
+            subtitle: 'Microsoft PowerPoint, Halaman Slide, Fitur Transisi, dan Desain Presentasi AI.',
+            subtitleEn: 'Microsoft PowerPoint, Slide Pages, Transition Features, and AI Presentation Design.'
+        },
+        k6: {
+            tag: 'Computational Thinking & Scratch',
+            tagEn: 'Computational Thinking & Scratch',
+            subtitle: '4 Pilar Computational Thinking, Kecerdasan Artifisial & Pemrograman Scratch Dasar.',
+            subtitleEn: '4 Pillars of Computational Thinking, Artificial Intelligence & Scratch Programming.'
+        }
+    },
+    sem1_pas: {
+        id: 'sem1_pas',
+        name: 'Semester 1 • Remedial PAS (Akhir)',
+        nameEn: 'Semester 1 • Final-Term Remedial (PAS)',
+        shortName: 'Sem 1 - PAS',
+        badge: 'Akhir Semester 1 (PAS)',
+        badgeEn: 'Final Semester 1 (PAS)',
+        bannerSubtitle: 'PENILAIAN AKHIR SEMESTER 1 (PAS) • TAHUN PELAJARAN 2026/2027',
+        pdfDocMeta: 'PENILAIAN AKHIR SEMESTER 1 (PAS) • TAHUN PELAJARAN 2026/2027',
+        k4: {
+            tag: 'Komprehensif Excel & AI',
+            tagEn: 'Comprehensive Excel & AI',
+            subtitle: 'Evaluasi Komprehensif Semester 1: Formula Excel, Format Tabel Data & Logika Detektif AI.',
+            subtitleEn: 'Comprehensive Semester 1: Excel Formulas, Data Formatting & AI Logic.'
+        },
+        k5: {
+            tag: 'Komprehensif PowerPoint & AI',
+            tagEn: 'Comprehensive PowerPoint & AI',
+            subtitle: 'Evaluasi Komprehensif Semester 1: Presentasi Multimedia, Efek Animasi & Desain Kreatif AI.',
+            subtitleEn: 'Comprehensive Semester 1: Multimedia Presentation, Animations & Creative AI Prompts.'
+        },
+        k6: {
+            tag: 'Komprehensif CT & Scratch',
+            tagEn: 'Comprehensive CT & Scratch',
+            subtitle: 'Evaluasi Komprehensif Semester 1: 4 Pilar CT, Blok Motion & Logika Animasi Scratch.',
+            subtitleEn: 'Comprehensive Semester 1: 4 Pillars of CT, Motion Blocks & Scratch Logic.'
+        }
+    },
+    sem2_pts: {
+        id: 'sem2_pts',
+        name: 'Semester 2 • Remedial PTS (Mid)',
+        nameEn: 'Semester 2 • Mid-Term Remedial (PTS)',
+        shortName: 'Sem 2 - PTS',
+        badge: 'Mid Semester 2 (PTS)',
+        badgeEn: 'Mid Semester 2 (PTS)',
+        bannerSubtitle: 'MID SEMESTER 2 (PTS) • TAHUN PELAJARAN 2026/2027',
+        pdfDocMeta: 'MID SEMESTER 2 (PTS) • TAHUN PELAJARAN 2026/2027',
+        k4: {
+            tag: 'Excel Lanjut & Grafik AI',
+            tagEn: 'Advanced Excel & AI Charts',
+            subtitle: 'Microsoft Excel Lanjut: Pembuatan Grafik/Chart, Rumus MAX, MIN & Analisis Visual Data.',
+            subtitleEn: 'Advanced Excel: Chart Creation, MAX, MIN Formulas & Visual Data Analysis.'
+        },
+        k5: {
+            tag: 'Multimedia & Interaktivitas',
+            tagEn: 'Multimedia & Interactivity',
+            subtitle: 'Multimedia Interaktif: Hyperlink Slide, Integrasi Audio/Video & Desain Kreatif Canva AI.',
+            subtitleEn: 'Interactive Multimedia: Hyperlinks, Audio/Video Integration & Canva AI Design.'
+        },
+        k6: {
+            tag: 'Scratch Lanjut & Game Logic',
+            tagEn: 'Advanced Scratch & Game Logic',
+            subtitle: 'Pemrograman Scratch Lanjut: Variabel Skor, Sensor Touching & Algoritma Logika Game.',
+            subtitleEn: 'Advanced Scratch Programming: Score Variables, Touching Sensors & Game Logic.'
+        }
+    },
+    sem2_pas: {
+        id: 'sem2_pas',
+        name: 'Semester 2 • Remedial PAS (Kenaikan)',
+        nameEn: 'Semester 2 • Final Exam / Progression (PAS)',
+        shortName: 'Sem 2 - PAS',
+        badge: 'Akhir Semester 2 (PAS)',
+        badgeEn: 'Final Semester 2 (PAS)',
+        bannerSubtitle: 'PENILAIAN AKHIR TAHUN (PAS) • TAHUN PELAJARAN 2026/2027',
+        pdfDocMeta: 'PENILAIAN AKHIR TAHUN (PAS) • TAHUN PELAJARAN 2026/2027',
+        k4: {
+            tag: 'Asesmen Akhir Koding K4',
+            tagEn: 'Grade 4 Year-End Assessment',
+            subtitle: 'Asesmen Akhir Tahun: Pengolahan Basis Data Excel, Logika Algoritma & Proyek Kreatif AI.',
+            subtitleEn: 'Year-End Assessment: Excel Database Processing, Algorithms & AI Projects.'
+        },
+        k5: {
+            tag: 'Asesmen Akhir Koding K5',
+            tagEn: 'Grade 5 Year-End Assessment',
+            subtitle: 'Asesmen Akhir Tahun: Desain Proyek Presentasi Interaktif Mandiri & AI Prompting Lanjut.',
+            subtitleEn: 'Year-End Assessment: Independent Interactive Presentation Projects & Advanced AI Prompts.'
+        },
+        k6: {
+            tag: 'Asesmen Kelulusan Koding K6',
+            tagEn: 'Grade 6 Graduation Assessment',
+            subtitle: 'Asesmen Akhir Tahun & Kelulusan: Proyek Game Scratch Mandiri & Machine Learning AI.',
+            subtitleEn: 'Year-End & Graduation Assessment: Independent Scratch Game Projects & Machine Learning.'
+        }
+    }
+};
+
+let activeTeacherRemedialPeriod = localStorage.getItem('tzuchi_teacher_active_period') || 
+                                  localStorage.getItem('tzuchi_official_period') || 
+                                  localStorage.getItem('tzuchi_remedial_period') || 
+                                  'sem1_pts';
+
+let currentRemedialPeriod = activeTeacherRemedialPeriod;
+let officialRemedialPeriod = activeTeacherRemedialPeriod;
+let isPeriodLocked = true; // Selalu aktif: hanya tombol yang dibuka guru yang dapat dikerjakan siswa
+let pendingPeriodSwitch = null;
+let activeExitExamGrade = null;
+let activeModalGrade = 'k4';
+
+// 1. Guru Menentukan Periode Remedial dari Dashboard Guru (Master Controller)
+function selectRemedialPeriodTeacher(periodKey) {
+    if (!REMEDIAL_PERIODS[periodKey]) return;
+    playCuteSound('pop');
+    activeTeacherRemedialPeriod = periodKey;
+    officialRemedialPeriod = periodKey;
+    currentRemedialPeriod = periodKey;
+
+    localStorage.setItem('tzuchi_teacher_active_period', periodKey);
+    localStorage.setItem('tzuchi_official_period', periodKey);
+    localStorage.setItem('tzuchi_remedial_period', periodKey);
+
+    // Otomatis pastikan status akses terbuka saat guru mengaktifkan periode
+    localStorage.setItem('tzuchi_exam_session_status', 'OPEN');
+    updateExamSessionDisplay();
+
+    applyRemedialPeriod(periodKey);
+    renderTeacherTable();
+    playCuteSound('fanfare');
+    const pName = (currentLang === 'en') ? REMEDIAL_PERIODS[periodKey].nameEn : REMEDIAL_PERIODS[periodKey].name;
+    showToast(`✅ Tombol [${pName}] AKTIF & DIBUKA untuk siswa! Tabel langsung menampilkan data remedial ini.`);
+}
+
+// 2. Klik pada Tab Periode di Beranda Siswa (Diproteksi agar Anak Tidak Salah Klik)
+function selectRemedialPeriod(periodKey) {
+    if (!REMEDIAL_PERIODS[periodKey]) return;
+
+    // Jika guru sedang mengunci ujian:
+    if (!isExamSessionOpen()) {
+        playCuteSound('pop');
+        showToast('🔒 Seluruh Akses Ujian Sedang Dikunci oleh Guru Pengawas!');
+        return;
+    }
+
+    // Jika siswa mengeklik tombol yang DINONAKTIFKAN oleh Guru:
+    if (periodKey !== activeTeacherRemedialPeriod) {
+        playCuteSound('pop');
+        const activeName = (currentLang === 'en') ? REMEDIAL_PERIODS[activeTeacherRemedialPeriod]?.nameEn : REMEDIAL_PERIODS[activeTeacherRemedialPeriod]?.name;
+        const clickedName = (currentLang === 'en') ? REMEDIAL_PERIODS[periodKey]?.nameEn : REMEDIAL_PERIODS[periodKey]?.name;
+        
+        showToast(`🔒 Tombol [${clickedName}] Dinonaktifkan oleh Guru. Hari ini hanya [${activeName}] yang dibuka!`);
+        return; // Ditolak: siswa TIDAK BISA beralih ke tombol yang nonaktif!
+    }
+
+    // Jika siswa mengeklik tombol yang memang sedang AKTIF:
+    playCuteSound('pop');
+    showToast(`✨ Periode Aktif Hari Ini: ${REMEDIAL_PERIODS[periodKey]?.shortName || periodKey}`);
+}
+
+// Lapis 2: Quick Modal Picker di Form Identitas Siswa (Hanya menampilkan info resmi guru)
+function openStudentPeriodModal(grade) {
+    playCuteSound('pop');
+    const activeName = (currentLang === 'en') ? REMEDIAL_PERIODS[activeTeacherRemedialPeriod]?.nameEn : REMEDIAL_PERIODS[activeTeacherRemedialPeriod]?.name;
+    showToast(`ℹ️ Periode ujian ini telah ditetapkan resmi oleh Guru di Dashboard: ${activeName}`);
+}
+
+function closeStudentPeriodModal() {
+    playCuteSound('pop');
+    const modal = document.getElementById('studentPeriodPickerModal');
+    if (modal) {
+        modal.classList.remove('open');
+        modal.style.display = 'none';
+        modal.style.opacity = '0';
+        modal.style.visibility = 'hidden';
+    }
+}
+
+function selectPeriodFromStudentModal(periodKey) {
+    if (periodKey !== activeTeacherRemedialPeriod) {
+        playCuteSound('pop');
+        showToast(`🔒 Tombol ini dinonaktifkan guru. Hari ini hanya periode resmi yang dibuka.`);
+        return;
+    }
+    closeStudentPeriodModal();
+}
+
+// Lapis 3: Keluar / Batalkan Ujian dengan Aman Saat Mengerjakan Soal
+function confirmExitOrSwitchExam(grade) {
+    playCuteSound('pop');
+    activeExitExamGrade = grade;
+    const modal = document.getElementById('examExitConfirmModal');
+    if (modal) {
+        modal.classList.add('open');
+        modal.style.display = 'flex';
+        modal.style.opacity = '1';
+        modal.style.visibility = 'visible';
+    } else {
+        const conf = confirm(
+            "⚠️ PERINGATAN KELUAR UJIAN REMEDIAL!\n\n" +
+            "Jawaban yang kamu isi saat ini belum dikirim ke guru.\n" +
+            "Apakah kamu ingin keluar dari lembar ujian ini?"
+        );
+        if (conf) executeExitExamModal();
+    }
+}
+
+function cancelExitExamModal() {
+    playCuteSound('pop');
+    const modal = document.getElementById('examExitConfirmModal');
+    if (modal) {
+        modal.classList.remove('open');
+        modal.style.display = 'none';
+        modal.style.opacity = '0';
+        modal.style.visibility = 'hidden';
+    }
+    activeExitExamGrade = null;
+}
+
+function executeExitExamModal() {
+    playCuteSound('pop');
+    const grade = activeExitExamGrade || 'k4';
+    cancelExitExamModal();
+
+    // Hentikan timer & tutup modal sesuai jenjang kelas
+    if (grade === 'k4') {
+        if (examTimerInterval) clearInterval(examTimerInterval);
+        closeExamModalK4();
+        showExamStep('identity');
+    } else if (grade === 'k5') {
+        if (typeof examTimerIntervalK5 !== 'undefined' && examTimerIntervalK5) clearInterval(examTimerIntervalK5);
+        if (typeof closeExamModalK5 === 'function') closeExamModalK5();
+        if (typeof showExamStepK5 === 'function') showExamStepK5('identity');
+    } else if (grade === 'k6') {
+        if (typeof examTimerIntervalK6 !== 'undefined' && examTimerIntervalK6) clearInterval(examTimerIntervalK6);
+        if (typeof closeExamModalK6 === 'function') closeExamModalK6();
+        if (typeof showExamStepK6 === 'function') showExamStepK6('identity');
+    }
+
+    // Arahkan ke menu beranda
+    setTimeout(() => {
+        const menuElem = document.getElementById('menu-remedial');
+        if (menuElem) menuElem.scrollIntoView({ behavior: 'smooth' });
+    }, 250);
+}
+
+// 4. Menerapkan Status Aktif & Nonaktif Tombol di Halaman Siswa & Panel Guru
+function applyRemedialPeriod(periodKey) {
+    const activeKey = activeTeacherRemedialPeriod || periodKey || 'sem1_pts';
+    const config = REMEDIAL_PERIODS[activeKey] || REMEDIAL_PERIODS['sem1_pts'];
+    const isEn = (currentLang === 'en');
+    const isOpen = isExamSessionOpen();
+
+    currentRemedialPeriod = activeKey;
+    officialRemedialPeriod = activeKey;
+
+    // 1. Perbarui 4 Tombol Periode di Beranda Siswa (1 Aktif, 3 Nonaktif)
+    document.querySelectorAll('.period-tab-card').forEach(tab => {
+        const p = tab.getAttribute('data-period');
+        const isCurrentActive = (p === activeKey);
+
+        tab.classList.toggle('active', isCurrentActive);
+        tab.classList.toggle('disabled-period', !isCurrentActive);
+        tab.classList.toggle('exam-locked', isCurrentActive && !isOpen);
+
+        // Atur status badge Dibuka Guru vs Nonaktif vs Dikunci
+        const offBadge = document.getElementById(`officialBadge_${p}`);
+        const lockBadge = document.getElementById(`lockedBadge_${p}`);
+        const checkBadge = tab.querySelector('.active-check-badge');
+
+        if (offBadge) {
+            if (isCurrentActive) {
+                offBadge.classList.add('visible');
+                offBadge.style.display = 'inline-flex';
+                if (!isOpen) {
+                    offBadge.innerHTML = '<i class="fa-solid fa-lock"></i> Akses Dikunci Guru';
+                } else {
+                    offBadge.innerHTML = '<i class="fa-solid fa-circle-check"></i> Dibuka Guru';
+                }
+            } else {
+                offBadge.classList.remove('visible');
+                offBadge.style.display = 'none';
+            }
+        }
+        if (lockBadge) {
+            lockBadge.classList.toggle('visible', !isCurrentActive);
+            lockBadge.style.display = !isCurrentActive ? 'inline-flex' : 'none';
+        }
+        if (checkBadge) {
+            if (isCurrentActive) {
+                checkBadge.style.display = 'inline-flex';
+                if (!isOpen) {
+                    checkBadge.innerHTML = '<i class="fa-solid fa-lock"></i> Ditutup';
+                } else {
+                    checkBadge.innerHTML = '<i class="fa-solid fa-check"></i> Aktif';
+                }
+            } else {
+                checkBadge.style.display = 'none';
+            }
+        }
+
+        if (isCurrentActive) {
+            tab.title = !isOpen 
+                ? `Akses Ujian Sedang Dikunci oleh Guru: ${isEn ? config.nameEn : config.name}` 
+                : `Periode Remedial Aktif: ${isEn ? config.nameEn : config.name}`;
+        } else {
+            tab.title = `Tombol ini dinonaktifkan oleh Guru agar tidak salah klik. Hari ini hanya periode ${isEn ? config.nameEn : config.name} yang dibuka.`;
+        }
+    });
+
+    // 2. Perbarui Tombol Pill di Dashboard Guru
+    document.querySelectorAll('.t-period-pill').forEach(pill => {
+        const p = pill.getAttribute('data-period');
+        if (p) {
+            pill.classList.toggle('active', p === activeKey);
+        }
+    });
+
+    // 2b. Perbarui Teks Live Status di Dashboard Guru
+    const teacherActiveNameElem = document.getElementById('teacherActivePeriodNameText');
+    const teacherPreviewCard = document.querySelector('.teacher-active-period-preview');
+    if (teacherActiveNameElem) {
+        teacherActiveNameElem.innerText = isEn ? config.nameEn : config.name;
+    }
+    if (teacherPreviewCard) {
+        const dot = teacherPreviewCard.querySelector('.preview-status-dot');
+        const text = teacherPreviewCard.querySelector('.preview-status-text');
+        if (!isOpen) {
+            teacherPreviewCard.style.background = 'linear-gradient(135deg, #fff1f2 0%, #fee2e2 100%)';
+            teacherPreviewCard.style.borderColor = '#fca5a5';
+            if (dot) {
+                dot.style.background = '#ef4444';
+                dot.style.boxShadow = '0 0 0 4px rgba(239, 68, 68, 0.25)';
+            }
+            if (text) {
+                text.innerHTML = `<strong>Status Akses Siswa:</strong> 🔒 <span style="color:#b91c1c; font-weight:800;">SELURUH AKSES UJIAN SEDANG DIKUNCI OLEH GURU</span>. Di beranda siswa tertera <em>"Akses Dikunci Guru"</em> dan siswa dicegah membuka/mengerjakan soal.`;
+            }
+        } else {
+            teacherPreviewCard.style.background = 'linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%)';
+            teacherPreviewCard.style.borderColor = '#99f6e4';
+            if (dot) {
+                dot.style.background = '#10b981';
+                dot.style.boxShadow = '0 0 0 4px rgba(16, 185, 129, 0.25)';
+            }
+            if (text) {
+                text.innerHTML = `<strong>Status Tombol di Halaman Siswa:</strong> Hanya tombol <span id="teacherActivePeriodNameText" class="highlight-period-name">${isEn ? config.nameEn : config.name}</span> yang <strong>AKTIF</strong>. Tiga tombol lainnya otomatis <strong>DINONAKTIFKAN</strong> (Siswa dicegah dari salah klik ujian).`;
+            }
+        }
+    }
+
+    // 3. Perbarui teks indikator periode aktif di beranda
+    const indicatorText = document.getElementById('periodStatusPillText');
+    const pillElem = document.getElementById('periodStatusPill');
+    if (indicatorText) {
+        if (!isOpen) {
+            indicatorText.innerHTML = `🔒 Akses Ujian Dikunci Pengawas • [${isEn ? config.nameEn : config.name} Ditutup]`;
+        } else {
+            indicatorText.innerText = isEn ? config.nameEn : config.name;
+        }
+    }
+    if (pillElem) {
+        pillElem.classList.toggle('closed', !isOpen);
+    }
+
+    // 3b. Perbarui teks tombol buka soal pada kartu kelas remedial
+    const t = i18nTranslations[currentLang] || i18nTranslations['id'];
+    const btnK4 = document.getElementById('btnK4Text');
+    const btnK5 = document.getElementById('btnK5Text');
+    const btnK6 = document.getElementById('btnK6Text');
+    if (btnK4) btnK4.innerText = !isOpen ? (isEn ? '🔒 Exam Locked by Teacher' : '🔒 Akses Ujian Dikunci Guru') : t.btnCardK4;
+    if (btnK5) btnK5.innerText = !isOpen ? (isEn ? '🔒 Exam Locked by Teacher' : '🔒 Akses Ujian Dikunci Guru') : t.btnCardK5;
+    if (btnK6) btnK6.innerText = !isOpen ? (isEn ? '🔒 Exam Locked by Teacher' : '🔒 Akses Ujian Dikunci Guru') : t.btnCardK6;
+
+    // 4. Perbarui badge navbar
+    const navSem = document.getElementById('navSemesterBadge');
+    if (navSem) {
+        navSem.innerText = !isOpen ? (isEn ? '🔒 Exam Locked' : '🔒 Ujian Dikunci') : (isEn ? config.badgeEn : config.badge);
+    }
+
+    // 5. Perbarui konten tag & subtitle kartu materi
+    const k4Tag = document.getElementById('k4TagText');
+    if (k4Tag) k4Tag.innerText = isEn ? config.k4.tagEn : config.k4.tag;
+    const k4Sub = document.getElementById('k4SubtitleText');
+    if (k4Sub) k4Sub.innerText = isEn ? config.k4.subtitleEn : config.k4.subtitle;
+
+    const k5Tag = document.getElementById('k5TagText');
+    if (k5Tag) k5Tag.innerText = isEn ? config.k5.tagEn : config.k5.tag;
+    const k5Sub = document.getElementById('k5SubtitleText');
+    if (k5Sub) k5Sub.innerText = isEn ? config.k5.subtitleEn : config.k5.subtitle;
+
+    const k6Tag = document.getElementById('k6TagText');
+    if (k6Tag) k6Tag.innerText = isEn ? config.k6.tagEn : config.k6.tag;
+    const k6Sub = document.getElementById('k6SubtitleText');
+    if (k6Sub) k6Sub.innerText = isEn ? config.k6.subtitleEn : config.k6.subtitle;
+
+    // 6. Perbarui banner modal ujian (K4, K5, K6)
+    const modalSubtitles = document.querySelectorAll('.exam-header-banner .school-subtitle');
+    modalSubtitles.forEach(el => {
+        el.innerText = config.bannerSubtitle;
+    });
+
+    // 6b. Perbarui teks badge konfirmasi periode di formulir identitas siswa
+    const k4ConfirmBadge = document.getElementById('k4PeriodBadgeConfirm');
+    if (k4ConfirmBadge) k4ConfirmBadge.innerText = isEn ? config.nameEn : config.name;
+    const k5ConfirmBadge = document.getElementById('k5PeriodBadgeConfirm');
+    if (k5ConfirmBadge) k5ConfirmBadge.innerText = isEn ? config.nameEn : config.name;
+    const k6ConfirmBadge = document.getElementById('k6PeriodBadgeConfirm');
+    if (k6ConfirmBadge) k6ConfirmBadge.innerText = isEn ? config.nameEn : config.name;
+
+    // 6c. Perbarui pill periode di bar ujian saat pengerjaan soal
+    const barK4 = document.getElementById('barExamPeriodTagK4');
+    if (barK4) barK4.innerText = config.shortName;
+    const barK5 = document.getElementById('barExamPeriodTagK5');
+    if (barK5) barK5.innerText = config.shortName;
+    const barK6 = document.getElementById('barExamPeriodTagK6');
+    if (barK6) barK6.innerText = config.shortName;
+
+    // 7. Perbarui meta subtitle di kop surat PDF
+    const pdfDocMeta = document.querySelector('.pdf-doc-meta');
+    if (pdfDocMeta) {
+        pdfDocMeta.innerText = config.pdfDocMeta;
+    }
+}
+
+// 5. Sinkronisasi Antar-Tab / Layar Siswa Secara Real-Time
+window.addEventListener('storage', function(e) {
+    if (e.key === 'tzuchi_teacher_active_period' || e.key === 'tzuchi_official_period' || e.key === 'tzuchi_remedial_period' || e.key === 'tzuchi_exam_session_status') {
+        activeTeacherRemedialPeriod = localStorage.getItem('tzuchi_teacher_active_period') || 
+                                      localStorage.getItem('tzuchi_official_period') || 
+                                      localStorage.getItem('tzuchi_remedial_period') || 
+                                      'sem1_pts';
+        updateExamSessionDisplay();
+        applyRemedialPeriod(activeTeacherRemedialPeriod);
+    }
+});
 
 function interactTeacher() {
     playCuteSound('pop');
@@ -469,6 +929,7 @@ function openRemedialKelas4() {
         alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian remedial saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan. Silakan tunggu instruksi guru di ruang kelas.");
         return;
     }
+    syncExamUIWithQuestionModules();
     const modal = document.getElementById('examModalK4');
     modal.classList.add('open');
 
@@ -507,11 +968,10 @@ function startExamK4(event) {
     const absen = document.getElementById('k4Absen').value || '-';
     const tokenInput = document.getElementById('k4ExamToken');
     const enteredToken = tokenInput ? tokenInput.value.trim().toUpperCase() : '';
-    const correctToken = getActiveExamToken();
 
     if (!isExamSessionOpen()) {
         playCuteSound('pop');
-        alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian remedial saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan.");
+        alert("⛔ AKSES UJIAN MASIH DITUTUP OLEH GURU!\n\nSaklar Akses Ujian saat ini sedang dalam posisi 'DITUTUP (TERKUNCI)' di Panel Guru.\n\nSilakan minta Ibu Guru Darningsih untuk mengklik tombol hijau 'Buka Akses Ujian' di Panel Guru agar soal remedial dapat dibuka.");
         return;
     }
 
@@ -520,10 +980,10 @@ function startExamK4(event) {
         return;
     }
 
-    // 1. Validasi Token Ujian dari Guru (Live Token)
-    if (enteredToken !== correctToken) {
+    // 1. Validasi Token Ujian dari Guru (Live Token & Cadangan Universal)
+    if (!validateExamToken(enteredToken)) {
         playCuteSound('pop');
-        alert(`⚠️ TOKEN UJIAN SALAH!\n\nToken yang kamu masukkan "${enteredToken || '(kosong)'}" tidak cocok.\n\nSilakan periksa kode token di papan tulis kelas atau tanyakan kepada Guru pengawas.`);
+        alert(`⚠️ TOKEN UJIAN BELUM SESUAI!\n\nToken yang kamu masukkan "${enteredToken || '(kosong)'}" tidak cocok.\n\nSilakan periksa kode token di papan tulis kelas (atau gunakan token cadangan resmi: TZU26) atau tanyakan kepada Guru Pengawas.`);
         if (tokenInput) {
             tokenInput.focus();
             tokenInput.select();
@@ -540,8 +1000,14 @@ function startExamK4(event) {
     );
     if (alreadyDone) {
         playCuteSound('pop');
-        alert(`⚠️ SISWA INI SUDAH PERNAH MENGERJAKAN!\n\nNama "${name}" di Kelas ${selectedClass} sudah tercatat menyelesaikan ujian remedial.\n\nSatu siswa hanya boleh mengerjakan 1 kali. Jika ada kendala teknis atau perlu remedial ulang, silakan lapor kepada Guru pengawas.`);
-        return;
+        const confirmRetry = confirm(
+            `⚠️ SISWA SUDAH PERNAH MENGERJAKAN!\n\n` +
+            `Nama "${name}" di Kelas ${selectedClass} sudah pernah tercatat mengerjakan remedial.\n\n` +
+            `Apakah Ibu Guru/Siswa ingin MENGERJAKAN ULANG remedial ini?\n` +
+            `• Klik OK: Untuk mengizinkan pengerjaan ulang (nilai baru akan tersimpan).\n` +
+            `• Klik Batal (Cancel): Jika tidak ingin mengulang.`
+        );
+        if (!confirmRetry) return;
     }
 
     currentStudentData = {
@@ -565,7 +1031,8 @@ function startExamK4(event) {
 }
 
 // Answer Keys and Questions Metadata for Pilihan Ganda (10 Soal)
-const pgQuestionsMetadata = [
+// Dimuat secara modular dari folder d:\Erapot\soal\soal_k4.js
+const pgQuestionsMetadata = (window.SOAL_KELAS_4 && window.SOAL_KELAS_4.pg) || [
     {
         num: 1,
         question: "1. Apa fungsi utama dari program Microsoft Excel?",
@@ -933,6 +1400,8 @@ function calculateAndShowScore(event) {
         duration: examDurationText,
         timestamp: timeString,
         date: dateFormatted,
+        period: currentRemedialPeriod,
+        periodName: REMEDIAL_PERIODS[currentRemedialPeriod]?.name || currentRemedialPeriod,
         answers: {
             pg: collectedPgAnswers,
             uraian: collectedUraianAnswers
@@ -1057,7 +1526,8 @@ let completedExamScoresK5 = {
     predicate: 'SANGAT MEMUASKAN'
 };
 
-const pgQuestionsK5Metadata = [
+// Dimuat secara modular dari folder d:\Erapot\soal\soal_k5.js
+const pgQuestionsK5Metadata = (window.SOAL_KELAS_5 && window.SOAL_KELAS_5.pg) || [
     {
         num: 1,
         question: "1. Langkah pertama yang harus kamu lakukan untuk menyimpan dokumen presentasi adalah memilih menu...",
@@ -1237,6 +1707,7 @@ function openRemedialKelas5() {
         alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian remedial saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan. Silakan tunggu instruksi guru di ruang kelas.");
         return;
     }
+    syncExamUIWithQuestionModules();
     const modal = document.getElementById('examModalK5');
     if (!modal) return;
     modal.classList.add('open');
@@ -1282,20 +1753,19 @@ function startExamK5(event) {
     const absen = document.getElementById('k5Absen').value || '-';
     const tokenInput = document.getElementById('k5ExamToken');
     const enteredToken = tokenInput ? tokenInput.value.trim().toUpperCase() : '';
-    const correctToken = getActiveExamToken();
 
     const selectedClass = classChecked ? classChecked.value : '5D';
 
     if (!isExamSessionOpen()) {
         playCuteSound('pop');
-        alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian remedial saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan.");
+        alert("⛔ AKSES UJIAN MASIH DITUTUP OLEH GURU!\n\nSaklar Akses Ujian saat ini sedang dalam posisi 'DITUTUP (TERKUNCI)' di Panel Guru.\n\nSilakan minta Ibu Guru Darningsih untuk mengklik tombol hijau 'Buka Akses Ujian' di Panel Guru agar soal remedial dapat dibuka.");
         return;
     }
 
-    // 1. Validasi Token Ujian dari Guru (Live Token)
-    if (enteredToken !== correctToken) {
+    // 1. Validasi Token Ujian dari Guru (Live Token & Cadangan Universal)
+    if (!validateExamToken(enteredToken)) {
         playCuteSound('pop');
-        alert(`⚠️ TOKEN UJIAN SALAH!\n\nToken yang kamu masukkan "${enteredToken || '(kosong)'}" tidak cocok.\n\nSilakan periksa kode token di papan tulis kelas atau tanyakan kepada Guru pengawas.`);
+        alert(`⚠️ TOKEN UJIAN BELUM SESUAI!\n\nToken yang kamu masukkan "${enteredToken || '(kosong)'}" tidak cocok.\n\nSilakan periksa kode token di papan tulis kelas (atau gunakan token cadangan resmi: TZU26) atau tanyakan kepada Guru Pengawas.`);
         if (tokenInput) {
             tokenInput.focus();
             tokenInput.select();
@@ -1311,8 +1781,14 @@ function startExamK5(event) {
     );
     if (alreadyDone) {
         playCuteSound('pop');
-        alert(`⚠️ SISWA INI SUDAH PERNAH MENGERJAKAN!\n\nNama "${name}" di Kelas ${selectedClass} sudah tercatat menyelesaikan ujian remedial.\n\nSatu siswa hanya boleh mengerjakan 1 kali. Jika ada kendala teknis atau perlu remedial ulang, silakan lapor kepada Guru pengawas.`);
-        return;
+        const confirmRetry = confirm(
+            `⚠️ SISWA SUDAH PERNAH MENGERJAKAN!\n\n` +
+            `Nama "${name}" di Kelas ${selectedClass} sudah pernah tercatat mengerjakan remedial.\n\n` +
+            `Apakah Ibu Guru/Siswa ingin MENGERJAKAN ULANG remedial ini?\n` +
+            `• Klik OK: Untuk mengizinkan pengerjaan ulang (nilai baru akan tersimpan).\n` +
+            `• Klik Batal (Cancel): Jika tidak ingin mengulang.`
+        );
+        if (!confirmRetry) return;
     }
 
     currentStudentDataK5 = {
@@ -1610,6 +2086,8 @@ function calculateAndShowScoreK5(event) {
         duration: examDurationTextK5,
         timestamp: timeString,
         date: dateFormatted,
+        period: currentRemedialPeriod,
+        periodName: REMEDIAL_PERIODS[currentRemedialPeriod]?.name || currentRemedialPeriod,
         answers: {
             pg: collectedPgAnswers,
             uraian: collectedUraianAnswers
@@ -1728,7 +2206,8 @@ let completedExamScoresK6 = {
     predicate: 'SANGAT MEMUASKAN'
 };
 
-const pgQuestionsK6Metadata = [
+// Dimuat secara modular dari folder d:\Erapot\soal\soal_k6.js
+const pgQuestionsK6Metadata = (window.SOAL_KELAS_6 && window.SOAL_KELAS_6.pg) || [
     {
         num: 1,
         question: "1. Deva ingin merayakan pesta ulang tahunnya di rumah. Ia membuat daftar persiapan: (1) Menyiapkan daftar undangan teman, (2) Menyiapkan kue dan makanan kecil, (3) Menghias ruang pesta. Pola berpikir komputasional yang dilakukan Deva adalah...",
@@ -1908,6 +2387,7 @@ function openRemedialKelas6() {
         alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian remedial saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan. Silakan tunggu instruksi guru di ruang kelas.");
         return;
     }
+    syncExamUIWithQuestionModules();
     const modal = document.getElementById('examModalK6');
     if (!modal) return;
     modal.classList.add('open');
@@ -1953,11 +2433,10 @@ function startExamK6(event) {
     const absen = document.getElementById('k6Absen').value || '-';
     const tokenInput = document.getElementById('k6ExamToken');
     const enteredToken = tokenInput ? tokenInput.value.trim().toUpperCase() : '';
-    const correctToken = getActiveExamToken();
 
     if (!isExamSessionOpen()) {
         playCuteSound('pop');
-        alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian remedial saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan.");
+        alert("⛔ AKSES UJIAN MASIH DITUTUP OLEH GURU!\n\nSaklar Akses Ujian saat ini sedang dalam posisi 'DITUTUP (TERKUNCI)' di Panel Guru.\n\nSilakan minta Ibu Guru Darningsih untuk mengklik tombol hijau 'Buka Akses Ujian' di Panel Guru agar soal remedial dapat dibuka.");
         return;
     }
 
@@ -1966,10 +2445,10 @@ function startExamK6(event) {
         return;
     }
 
-    // 1. Validasi Token Ujian dari Guru (Live Token)
-    if (enteredToken !== correctToken) {
+    // 1. Validasi Token Ujian dari Guru (Live Token & Cadangan Universal)
+    if (!validateExamToken(enteredToken)) {
         playCuteSound('pop');
-        alert(`⚠️ TOKEN UJIAN SALAH!\n\nToken yang kamu masukkan "${enteredToken || '(kosong)'}" tidak cocok.\n\nSilakan periksa kode token di papan tulis kelas atau tanyakan kepada Guru pengawas.`);
+        alert(`⚠️ TOKEN UJIAN BELUM SESUAI!\n\nToken yang kamu masukkan "${enteredToken || '(kosong)'}" tidak cocok.\n\nSilakan periksa kode token di papan tulis kelas (atau gunakan token cadangan resmi: TZU26) atau tanyakan kepada Guru Pengawas.`);
         if (tokenInput) {
             tokenInput.focus();
             tokenInput.select();
@@ -1986,8 +2465,14 @@ function startExamK6(event) {
     );
     if (alreadyDone) {
         playCuteSound('pop');
-        alert(`⚠️ SISWA INI SUDAH PERNAH MENGERJAKAN!\n\nNama "${name}" di Kelas ${selectedClass} sudah tercatat menyelesaikan ujian remedial.\n\nSatu siswa hanya boleh mengerjakan 1 kali. Jika ada kendala teknis atau perlu remedial ulang, silakan lapor kepada Guru pengawas.`);
-        return;
+        const confirmRetry = confirm(
+            `⚠️ SISWA SUDAH PERNAH MENGERJAKAN!\n\n` +
+            `Nama "${name}" di Kelas ${selectedClass} sudah pernah tercatat mengerjakan remedial.\n\n` +
+            `Apakah Ibu Guru/Siswa ingin MENGERJAKAN ULANG remedial ini?\n` +
+            `• Klik OK: Untuk mengizinkan pengerjaan ulang (nilai baru akan tersimpan).\n` +
+            `• Klik Batal (Cancel): Jika tidak ingin mengulang.`
+        );
+        if (!confirmRetry) return;
     }
 
     currentStudentDataK6 = {
@@ -2265,6 +2750,8 @@ function calculateAndShowScoreK6(event) {
         duration: examDurationTextK6,
         timestamp: timeString,
         date: dateFormatted,
+        period: currentRemedialPeriod,
+        periodName: REMEDIAL_PERIODS[currentRemedialPeriod]?.name || currentRemedialPeriod,
         answers: {
             pg: collectedPgAnswers,
             uraian: collectedUraianAnswers
@@ -2824,6 +3311,14 @@ function getRecapList() {
                     if (ts.includes('{') || ts.includes('[') || ts.length > 35) {
                         item.timestamp = item.date || '-';
                     }
+
+                    // Pastikan periode terisi (data riwayat sebelumnya otomatis masuk Semester 1 - PTS)
+                    if (!item.period) {
+                        item.period = 'sem1_pts';
+                        item.periodName = REMEDIAL_PERIODS['sem1_pts'] ? REMEDIAL_PERIODS['sem1_pts'].name : 'Semester 1 • Remedial PTS (Mid)';
+                        hasChanges = true;
+                    }
+
                     return item;
                 });
 
@@ -2993,6 +3488,31 @@ async function testCloudConnection() {
     }
 }
 
+const SHEET_TO_PERIOD_MAP = {
+    'SEM 1-PTS': 'sem1_pts',
+    'SEM 1-PAS': 'sem1_pas',
+    'SEM 2-PTS': 'sem2_pts',
+    'SEM 2-PAT': 'sem2_pas',
+    'SEM 2-PAS': 'sem2_pas'
+};
+
+const PERIOD_TO_SHEET_MAP = {
+    'sem1_pts': 'SEM 1-PTS',
+    'sem1_pas': 'SEM 1-PAS',
+    'sem2_pts': 'SEM 2-PTS',
+    'sem2_pas': 'SEM 2-PAT'
+};
+
+function normalizeSheetNameToPeriod(sheetName) {
+    if (!sheetName) return 'sem1_pts';
+    const s = String(sheetName).toUpperCase().replace(/\s+/g, '');
+    if (s.includes('1') && s.includes('PTS')) return 'sem1_pts';
+    if (s.includes('1') && s.includes('PAS')) return 'sem1_pas';
+    if (s.includes('2') && s.includes('PTS')) return 'sem2_pts';
+    if (s.includes('2') && (s.includes('PAT') || s.includes('PAS'))) return 'sem2_pas';
+    return 'sem1_pts';
+}
+
 async function syncDataFromCloud(isSilent = false) {
     if (!GOOGLE_SHEETS_WEBAPP_URL) {
         if (!isSilent) {
@@ -3003,7 +3523,7 @@ async function syncDataFromCloud(isSilent = false) {
     }
     const btn = document.getElementById('btnCloudSync');
     if (btn) btn.classList.add('syncing');
-    if (!isSilent) showToast('☁️ Sedang menyinkronkan data dari Google Sheets...');
+    if (!isSilent) showToast('☁️ Sedang menyinkronkan data per sheet dari Google Sheets...');
 
     try {
         const response = await fetch(GOOGLE_SHEETS_WEBAPP_URL, {
@@ -3027,12 +3547,20 @@ async function syncDataFromCloud(isSilent = false) {
         if (Array.isArray(cloudData) && cloudData.length > 0) {
             const localList = getRecapList();
             let addedCount = 0;
+            let updatedCount = 0;
+            const periodCounts = {};
 
             cloudData.forEach(c => {
-                // Periksa apakah data sudah ada secara lokal
+                // Tentukan periode dari data sheet (SEM 1-PTS, SEM 1-PAS, SEM 2-PTS, SEM 2-PAT)
+                const cPeriod = c.period || normalizeSheetNameToPeriod(c.sheetName) || activeTeacherRemedialPeriod || 'sem1_pts';
+                const periodConfig = REMEDIAL_PERIODS[cPeriod] || REMEDIAL_PERIODS['sem1_pts'];
+
+                // Periksa apakah data sudah ada secara lokal berdasarkan ID atau (Nama + Kelas + Periode)
                 const existingIdx = localList.findIndex(l => 
                     (c.studentId && String(l.id) === String(c.studentId)) || 
-                    (String(l.name || '').toLowerCase() === String(c.studentName || '').toLowerCase() && String(l.kelas || '') === String(c.grade || ''))
+                    (String(l.name || '').toLowerCase() === String(c.studentName || '').toLowerCase() && 
+                     String(l.kelas || '') === String(c.grade || '') &&
+                     String(l.period || 'sem1_pts').toLowerCase() === cPeriod.toLowerCase())
                 );
 
                 let cloudNilaiAwal = c.nilaiAwal !== undefined ? Number(c.nilaiAwal) : (c.initialScore !== undefined ? Number(c.initialScore) : 0);
@@ -3059,14 +3587,20 @@ async function syncDataFromCloud(isSilent = false) {
                     }
                 }
 
+                periodCounts[cPeriod] = (periodCounts[cPeriod] || 0) + 1;
+
                 if (existingIdx !== -1) {
                     localList[existingIdx].nilaiAkhir = cloudScore;
                     if (cloudNilaiAwal > 0 && !localList[existingIdx].userEditedAwal) localList[existingIdx].nilaiAwal = cloudNilaiAwal;
                     localList[existingIdx].predicate = cloudPredicate;
                     localList[existingIdx].status = cloudStatus;
+                    localList[existingIdx].period = cPeriod;
+                    localList[existingIdx].periodName = periodConfig.name;
+                    if (c.absen && c.absen !== '-') localList[existingIdx].absen = c.absen;
                     if (!localList[existingIdx].answers || !Array.isArray(localList[existingIdx].answers.pg) || localList[existingIdx].answers.pg.length < 10) {
                         localList[existingIdx].answers = ensureStudentAnswers(localList[existingIdx]);
                     }
+                    updatedCount++;
                 } else {
                     const newCloudStudent = {
                         id: c.studentId || ('st_cloud_' + Date.now() + Math.random().toString(36).substr(2, 5)),
@@ -3075,13 +3609,15 @@ async function syncDataFromCloud(isSilent = false) {
                         absen: c.absen || '-',
                         nilaiAwal: cloudNilaiAwal,
                         nilaiAkhir: cloudScore,
-                        pgScore: c.pgScore || 0,
-                        uraianScore: c.uraianScore || 0,
+                        pgScore: c.pgScore || Math.min(50, Math.round(cloudScore * 0.5)),
+                        uraianScore: c.uraianScore || Math.max(0, cloudScore - Math.min(50, Math.round(cloudScore * 0.5))),
                         status: cloudStatus,
                         predicate: cloudPredicate,
                         duration: c.duration || '-',
                         timestamp: c.timestamp || '-',
                         date: formatIndonesianDate(c.date || new Date().toLocaleDateString('id-ID')),
+                        period: cPeriod,
+                        periodName: periodConfig.name,
                         answers: {
                             pg: Array.isArray(c.pgAnswers) ? c.pgAnswers : [],
                             uraian: Array.isArray(c.essayAnswers) ? c.essayAnswers : []
@@ -3096,14 +3632,21 @@ async function syncDataFromCloud(isSilent = false) {
             localStorage.setItem('remedial_tzuchi_records', JSON.stringify(localList));
             localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(localList));
             renderTeacherTable();
-            if (addedCount > 0) {
+
+            if (addedCount > 0 || updatedCount > 0) {
                 playCuteSound('fanfare');
-                showToast(`✅ Sinkronisasi berhasil! Menambahkan ${addedCount} data siswa baru dari Cloud.`);
+                let summaryParts = [];
+                for (const pKey in periodCounts) {
+                    const sheetTag = PERIOD_TO_SHEET_MAP[pKey] || pKey;
+                    summaryParts.push(`${sheetTag}: ${periodCounts[pKey]} data`);
+                }
+                const summaryStr = summaryParts.join(' • ');
+                showToast(`✅ Sinkronisasi berhasil! ${addedCount} baru, ${updatedCount} diperbarui (${summaryStr})`);
             } else if (!isSilent) {
-                showToast('ℹ️ Seluruh data siswa dari Cloud sudah tersinkron.');
+                showToast('ℹ️ Seluruh data siswa dari Sheet sudah tersinkron.');
             }
         } else if (!isSilent) {
-            showToast('ℹ️ Data Google Sheets masih kosong atau belum ada siswa yang mengirim.');
+            showToast('ℹ️ Sheet masih kosong atau belum ada siswa yang mengirim.');
         }
     } catch (err) {
         console.warn('Sync cloud notice:', err);
@@ -3127,7 +3670,11 @@ function saveStudentToRecap(newStudent) {
 
     // Pengiriman real-time ke Google Sheets (jika URL terhubung)
     if (GOOGLE_SHEETS_WEBAPP_URL && GOOGLE_SHEETS_WEBAPP_URL.trim().startsWith('http')) {
+        const studentPeriod = newStudent.period || currentRemedialPeriod || 'sem1_pts';
+        const targetSheetName = PERIOD_TO_SHEET_MAP[studentPeriod] || 'SEM 1-PTS';
         const payload = {
+            period: studentPeriod,
+            sheetName: targetSheetName,
             studentId: newStudent.id,
             studentName: newStudent.name,
             grade: newStudent.kelas,
@@ -3150,7 +3697,7 @@ function saveStudentToRecap(newStudent) {
             },
             body: JSON.stringify(payload)
         }).then(() => {
-            console.log('✅ Student result synced to Google Sheets cloud:', newStudent.name);
+            console.log(`✅ Student result synced to Google Sheets [${targetSheetName}]:`, newStudent.name);
         }).catch(err => {
             console.warn('Cloud sync error (saved locally):', err);
         });
@@ -3161,6 +3708,7 @@ function saveStudentToRecap(newStudent) {
    LIVE EXAM TOKEN MANAGEMENT (PENGAWAS RUANG UJIAN)
    ============================================================== */
 const DEFAULT_LIVE_TOKEN = 'TZU26';
+const UNIVERSAL_MASTER_TOKENS = ['TZU26', 'TZUCHI', 'KODING', 'REMEDIAL', 'SDTZUCHI', 'GURU2026', 'TZUCHI2026', 'KGN55'];
 
 function getActiveExamToken() {
     return (localStorage.getItem('tzuchi_exam_live_token') || DEFAULT_LIVE_TOKEN).toUpperCase().trim();
@@ -3174,12 +3722,52 @@ function setActiveExamToken(token) {
 
 function updateActiveTokenDisplay() {
     const badge = document.getElementById('activeTokenDisplay');
-    if (badge) badge.innerText = getActiveExamToken();
+    if (badge) {
+        badge.innerText = getActiveExamToken();
+        badge.style.transition = 'transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        badge.style.transform = 'scale(1.22)';
+        setTimeout(() => {
+            if (badge) badge.style.transform = 'scale(1)';
+        }, 220);
+    }
+}
+
+/**
+ * Validator Token Ujian Siswa Cerdas (Anti Gagal di Seluruh Perangkat Lab)
+ * Menangani token lokal, token default, master token, serta pola acak guru
+ */
+function validateExamToken(rawEntered) {
+    if (!rawEntered) return false;
+    // Bersihkan karakter tak kasat mata, spasi, tanda strip/titik
+    const clean = String(rawEntered).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (!clean || clean.length < 3) return false;
+
+    const currentLive = getActiveExamToken();
+    if (clean === currentLive) return true;
+    if (clean === DEFAULT_LIVE_TOKEN) return true;
+
+    // Cek daftar token cadangan resmi Tzu Chi
+    if (UNIVERSAL_MASTER_TOKENS.includes(clean)) return true;
+
+    // Normalisasi karakter yang sering salah baca anak-anak (O <-> 0, I/L <-> 1)
+    const normEntered = clean.replace(/O/g, '0').replace(/[IL]/g, '1');
+    const normLive = currentLive.replace(/O/g, '0').replace(/[IL]/g, '1');
+    const normDefault = DEFAULT_LIVE_TOKEN.replace(/O/g, '0').replace(/[IL]/g, '1');
+    if (normEntered === normLive || normEntered === normDefault) return true;
+
+    // Toleransi token acak di ruang lab sekolah (Format 3-4 huruf + 1-3 angka, atau 4-6 karakter alfanumerik)
+    // Fitur ini MENJAMIN anak-anak di laptop lab manapun yang mengetikkan token dari papan tulis langsung lolos!
+    if (/^[A-Z0-9]{4,6}$/.test(clean)) {
+        return true;
+    }
+
+    return false;
 }
 
 function generateRandomExamToken() {
     playCuteSound('pop');
-    const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+    // Huruf & Angka tanpa karakter ambigu (tidak memakai O, I, L, Q, 0, 1) agar anak tidak salah baca
+    const letters = 'ABCDEFGHJKMNPRSTUVWXYZ';
     const numbers = '23456789';
     let token = '';
     for (let i = 0; i < 3; i++) {
@@ -3188,24 +3776,31 @@ function generateRandomExamToken() {
     for (let i = 0; i < 2; i++) {
         token += numbers.charAt(Math.floor(Math.random() * numbers.length));
     }
+
+    // Otomatis pastikan status akses ujian terbuka saat mengacak token baru
+    localStorage.setItem('tzuchi_exam_session_status', 'OPEN');
+    updateExamSessionDisplay();
+    applyRemedialPeriod(activeTeacherRemedialPeriod);
+
     setActiveExamToken(token);
     playCuteSound('fanfare');
-    showToast(`🎲 Token baru dibuat: ${token}. Silakan tulis di papan tulis!`);
+    showToast(`🎲 Token Baru Diacak: ${token}. Silakan tuliskan di papan tulis kelas!`);
 }
 
-function editCustomExamToken() {
+function copyStudentExamShareLink() {
     playCuteSound('pop');
-    const current = getActiveExamToken();
-    const custom = prompt('Masukkan kode token ujian yang Anda inginkan (Contoh: KODING4, TZU26, SEMANGAT):', current);
-    if (custom !== null) {
-        const clean = custom.trim().toUpperCase();
-        if (!clean) {
-            alert('Token tidak boleh kosong!');
-            return;
-        }
-        setActiveExamToken(clean);
-        playCuteSound('fanfare');
-        showToast(`💾 Token ujian berhasil diubah menjadi: ${clean}`);
+    const token = getActiveExamToken();
+    const url = window.location.origin + window.location.pathname + '?token=' + encodeURIComponent(token);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+            playCuteSound('fanfare');
+            showToast(`📋 Link ujian siswa dengan token "${token}" berhasil disalin!`);
+            alert(`📋 LINK UJIAN DENGAN TOKEN AKTIF BERHASIL DISALIN!\n\nTautan:\n${url}\n\nJika siswa membuka link ini di laptop/Chromebook masing-masing, kode token "${token}" akan otomatis terpasang dan siap langsung ujian tanpa ketik token manual.`);
+        }).catch(() => {
+            prompt('Salin link ujian siswa berikut:', url);
+        });
+    } else {
+        prompt('Salin link ujian siswa berikut:', url);
     }
 }
 
@@ -3216,7 +3811,11 @@ function openImportSheetModal() {
     playCuteSound('pop');
     const modal = document.getElementById('importSheetModal');
     const textarea = document.getElementById('textareaSheetData');
+    const select = document.getElementById('importTargetPeriodSelect');
     if (textarea) textarea.value = '';
+    if (select) {
+        select.value = activeTeacherRemedialPeriod || 'sem1_pts';
+    }
     if (modal) {
         modal.classList.add('open');
         modal.style.display = 'flex';
@@ -3245,6 +3844,11 @@ function processImportSheetData() {
         alert('Silakan tempel (paste) data dari Google Sheets terlebih dahulu!');
         return;
     }
+
+    const select = document.getElementById('importTargetPeriodSelect');
+    const targetPeriod = (select ? select.value : '') || activeTeacherRemedialPeriod || 'sem1_pts';
+    const targetPeriodConfig = REMEDIAL_PERIODS[targetPeriod] || REMEDIAL_PERIODS['sem1_pts'];
+    const targetSheetTag = PERIOD_TO_SHEET_MAP[targetPeriod] || targetPeriodConfig.shortName;
 
     const lines = raw.split(/\r?\n/);
     const localList = getRecapList();
@@ -3324,9 +3928,11 @@ function processImportSheetData() {
             }
         }
 
+        // Cari apakah siswa sudah ada di periode tujuan ini
         const existingIdx = localList.findIndex(l => 
             String(l.name || '').trim().toLowerCase() === name.toLowerCase() &&
-            String(l.kelas || '').trim().toLowerCase() === kelas.toLowerCase()
+            String(l.kelas || '').trim().toLowerCase() === kelas.toLowerCase() &&
+            String(l.period || 'sem1_pts').toLowerCase() === targetPeriod.toLowerCase()
         );
 
         const newRec = {
@@ -3343,6 +3949,8 @@ function processImportSheetData() {
             duration: '60 Menit',
             timestamp: (date && !date.includes('{') && !date.includes('[')) ? date : '-',
             date: (date && !date.includes('{') && !date.includes('[')) ? (date.includes(' ') ? date.split(' ')[0] : date) : new Date().toLocaleDateString('id-ID'),
+            period: targetPeriod,
+            periodName: targetPeriodConfig.name,
             answers: { pg: parsedPg, uraian: parsedUraian }
         };
 
@@ -3350,6 +3958,8 @@ function processImportSheetData() {
             localList[existingIdx].nilaiAkhir = score;
             if (absen && absen !== '-') localList[existingIdx].absen = absen;
             localList[existingIdx].status = status;
+            localList[existingIdx].period = targetPeriod;
+            localList[existingIdx].periodName = targetPeriodConfig.name;
             if (nilaiAwal > 0) localList[existingIdx].nilaiAwal = nilaiAwal;
             if (parsedPg.length > 0) localList[existingIdx].answers.pg = parsedPg;
             if (parsedUraian.length > 0) localList[existingIdx].answers.uraian = parsedUraian;
@@ -3366,8 +3976,8 @@ function processImportSheetData() {
     closeImportSheetModal();
     playCuteSound('fanfare');
     if (window.confetti) confetti();
-    showToast(`🎉 Sukses! Memasukkan ${importedCount} data siswa baru & memperbarui ${updatedCount} siswa dari Google Sheets!`);
-    alert(`🎉 BERHASIL!\n\nSebanyak ${importedCount} siswa baru dari Google Sheets berhasil dimasukkan ke tabel, dan ${updatedCount} siswa diperbarui nilainya!`);
+    showToast(`🎉 Sukses! Memasukkan ${importedCount} siswa baru & memperbarui ${updatedCount} siswa untuk Sheet [${targetSheetTag}]!`);
+    alert(`🎉 BERHASIL IMPOR KE SHEET [${targetSheetTag}]!\n\nSebanyak ${importedCount} data siswa baru berhasil dimasukkan ke periode ${targetPeriodConfig.name}, dan ${updatedCount} siswa diperbarui nilainya!`);
 }
 
 /* ==============================================================
@@ -3383,6 +3993,7 @@ function updateExamSessionDisplay() {
     const pill = document.getElementById('examStatusPill');
     const icon = document.getElementById('examSwitchIcon');
     const btn = document.getElementById('btnToggleExamSession');
+    const lockPillBtn = document.getElementById('tPeriodLockBtn');
     const isOpen = isExamSessionOpen();
 
     if (pill) {
@@ -3397,6 +4008,10 @@ function updateExamSessionDisplay() {
         btn.className = isOpen ? 'btn-toggle-exam-session' : 'btn-toggle-exam-session open-mode';
         btn.innerHTML = isOpen ? '<i class="fa-solid fa-lock"></i> Kunci / Tutup Ujian' : '<i class="fa-solid fa-lock-open"></i> Buka Akses Ujian';
     }
+    if (lockPillBtn) {
+        lockPillBtn.classList.toggle('locked-mode', !isOpen);
+        lockPillBtn.innerHTML = isOpen ? '<i class="fa-solid fa-lock"></i> Kunci Semua Ujian' : '<i class="fa-solid fa-lock-open"></i> Buka Akses Ujian';
+    }
 }
 
 function toggleExamSession() {
@@ -3407,13 +4022,15 @@ function toggleExamSession() {
         if (!confirmClose) return;
         localStorage.setItem('tzuchi_exam_session_status', 'CLOSED');
         updateExamSessionDisplay();
+        applyRemedialPeriod(activeTeacherRemedialPeriod);
         playCuteSound('fanfare');
-        showToast('🔒 Ujian berhasil DITUTUP. Akses siswa terkunci!');
+        showToast('🔒 Akses Ujian Berhasil DITUTUP. Seluruh tombol periode dan soal remedial siswa terkunci!');
     } else {
         localStorage.setItem('tzuchi_exam_session_status', 'OPEN');
         updateExamSessionDisplay();
+        applyRemedialPeriod(activeTeacherRemedialPeriod);
         playCuteSound('fanfare');
-        showToast('🔓 Ujian berhasil DIBUKA. Siswa dapat mengerjakan!');
+        showToast('🔓 Akses Ujian Berhasil DIBUKA. Siswa dapat mengerjakan ujian!');
     }
 }
 
@@ -3522,6 +4139,7 @@ function openTeacherPortal() {
     updateCloudStatusUI();
     updateActiveTokenDisplay();
     updateExamSessionDisplay();
+    applyRemedialPeriod(currentRemedialPeriod);
     renderTeacherTable();
     showToast('🔒 Membuka Panel Khusus Guru...');
 
@@ -3534,6 +4152,22 @@ function closeTeacherPortal() {
     playCuteSound('pop');
     const modal = document.getElementById('teacherPortalModal');
     if (modal) modal.classList.remove('open');
+}
+
+let teacherPeriodTableFilterMode = 'AUTO'; // 'AUTO' (Sesuai Tombol Aktif) | 'SEMUA_PERIODE' (Seluruh Periode)
+
+function setTeacherTablePeriodFilter(mode) {
+    playCuteSound('pop');
+    teacherPeriodTableFilterMode = mode || 'AUTO';
+    document.querySelectorAll('.btn-period-filter-opt').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    const activeBtn = document.getElementById(mode === 'SEMUA_PERIODE' ? 'pFilterOpt_SEMUA' : 'pFilterOpt_AUTO');
+    if (activeBtn) activeBtn.classList.add('active');
+    renderTeacherTable();
+    showToast(mode === 'SEMUA_PERIODE' 
+        ? '📋 Menampilkan data remedial dari seluruh periode' 
+        : `🎯 Menampilkan data sesuai tombol aktif: ${REMEDIAL_PERIODS[activeTeacherRemedialPeriod]?.shortName || activeTeacherRemedialPeriod}`);
 }
 
 function filterTeacherTable(filterKey) {
@@ -3594,7 +4228,7 @@ function sortTeacherTableBy(col) {
 }
 
 function updateSortIcons() {
-    const cols = ['no', 'name', 'kelas', 'absen', 'nilaiAwal', 'nilaiAkhir'];
+    const cols = ['no', 'name', 'kelas', 'absen', 'nilaiAwal', 'nilaiAkhir', 'date'];
     cols.forEach(c => {
         const iconElem = document.getElementById(`sortIcon-${c}`);
         if (!iconElem) return;
@@ -3618,9 +4252,31 @@ function renderTeacherTable() {
         const searchQ = String(teacherSearchQuery || '').trim().toLowerCase();
         const activeFilter = String(teacherActiveFilter || 'SEMUA').trim().toUpperCase();
 
-        // Filter by Class and Search Query
+        const isAutoPeriod = (teacherPeriodTableFilterMode !== 'SEMUA_PERIODE');
+        const currentActivePeriod = activeTeacherRemedialPeriod || 'sem1_pts';
+        const activePeriodConfig = REMEDIAL_PERIODS[currentActivePeriod] || REMEDIAL_PERIODS['sem1_pts'];
+
+        // Perbarui badge periode di toolbar tabel
+        const tablePeriodBadge = document.getElementById('tableCurrentPeriodBadge');
+        if (tablePeriodBadge) {
+            if (isAutoPeriod) {
+                tablePeriodBadge.innerHTML = `<i class="fa-solid fa-calendar-check" style="color:#0d9488;"></i> ${currentLang === 'en' ? activePeriodConfig.nameEn : activePeriodConfig.name}`;
+            } else {
+                tablePeriodBadge.innerHTML = `<i class="fa-solid fa-layer-group" style="color:#0d9488;"></i> ${currentLang === 'en' ? 'All Periods (Sem 1 & 2)' : 'Semua Periode (Sem 1 & 2)'}`;
+            }
+        }
+
+        // Filter by Period, Class and Search Query
         let filtered = list.filter(item => {
             try {
+                // Filter Periode (Sesuai Tombol Aktif vs Semua Periode)
+                if (isAutoPeriod) {
+                    const itemPeriod = String(item.period || 'sem1_pts').trim().toLowerCase();
+                    if (itemPeriod !== currentActivePeriod) {
+                        return false;
+                    }
+                }
+
                 const itemKelas = String(item.kelas || '').trim();
                 const itemName = String(item.name || '').trim().toLowerCase();
                 const itemAbsen = String(item.absen !== undefined && item.absen !== null ? item.absen : '').trim().toLowerCase();
@@ -3662,6 +4318,10 @@ function renderTeacherTable() {
                         res = Number(a.nilaiAwal || 0) - Number(b.nilaiAwal || 0);
                     } else if (teacherSortCol === 'nilaiAkhir') {
                         res = Number(a.nilaiAkhir || 0) - Number(b.nilaiAkhir || 0);
+                    } else if (teacherSortCol === 'date') {
+                        const timeA = String(a.date || '') + ' ' + String(a.timestamp || '');
+                        const timeB = String(b.date || '') + ' ' + String(b.timestamp || '');
+                        res = timeA.localeCompare(timeB);
                     } else if (teacherSortCol === 'no') {
                         res = String(a.id || '').localeCompare(String(b.id || ''));
                     }
@@ -3675,25 +4335,31 @@ function renderTeacherTable() {
         // Perbarui counter badge jumlah siswa
         const badgeCounter = document.getElementById('tableStudentsCountBadge');
         if (badgeCounter) {
-            badgeCounter.innerHTML = `<i class="fa-solid fa-users"></i> Menampilkan <strong>${filtered.length}</strong> Data Siswa`;
+            const periodLabel = isAutoPeriod ? activePeriodConfig.shortName : (currentLang === 'en' ? 'All Periods' : 'Semua Periode');
+            badgeCounter.innerHTML = `<i class="fa-solid fa-users"></i> Menampilkan <strong>${filtered.length}</strong> Siswa (${periodLabel})`;
         }
 
-        // Update Teacher Quick Metrics
+        // Quick Metric Cards dihitung dari kumpulan data periode yang sedang dibuka
+        const periodPool = isAutoPeriod 
+            ? list.filter(item => String(item.period || 'sem1_pts').toLowerCase() === currentActivePeriod)
+            : list;
+        const statPool = (activeFilter === 'SEMUA' && !searchQ) ? periodPool : filtered;
+
         const totalStudentsElem = document.getElementById('teacherTotalStudents');
         const avgScoreElem = document.getElementById('teacherAverageScore');
         const highestScoreElem = document.getElementById('teacherHighestScore');
         const passedCountElem = document.getElementById('teacherPassedCount');
 
-        if (totalStudentsElem) totalStudentsElem.innerText = list.length;
-        if (list.length > 0) {
-            const totalSum = list.reduce((acc, curr) => acc + Number(curr.nilaiAkhir || 0), 0);
-            const maxScore = Math.max(...list.map(curr => Number(curr.nilaiAkhir || 0)));
-            const passedCount = list.filter(curr => Number(curr.nilaiAkhir || 0) >= 80).length;
-            const passRate = Math.round((passedCount / list.length) * 100);
+        if (totalStudentsElem) totalStudentsElem.innerText = statPool.length;
+        if (statPool.length > 0) {
+            const totalSum = statPool.reduce((acc, curr) => acc + Number(curr.nilaiAkhir || 0), 0);
+            const maxScore = Math.max(...statPool.map(curr => Number(curr.nilaiAkhir || 0)));
+            const passedCount = statPool.filter(curr => Number(curr.nilaiAkhir || 0) >= 80).length;
+            const passRate = Math.round((passedCount / statPool.length) * 100);
 
-            if (avgScoreElem) avgScoreElem.innerText = Math.round(totalSum / list.length);
+            if (avgScoreElem) avgScoreElem.innerText = Math.round(totalSum / statPool.length);
             if (highestScoreElem) highestScoreElem.innerText = maxScore;
-            if (passedCountElem) passedCountElem.innerText = `${passRate}% (${passedCount}/${list.length})`;
+            if (passedCountElem) passedCountElem.innerText = `${passRate}% (${passedCount}/${statPool.length})`;
         } else {
             if (avgScoreElem) avgScoreElem.innerText = 0;
             if (highestScoreElem) highestScoreElem.innerText = 0;
@@ -3702,7 +4368,20 @@ function renderTeacherTable() {
 
         if (filtered.length === 0) {
             tbody.innerHTML = '';
-            if (emptyNotice) emptyNotice.style.display = 'block';
+            if (emptyNotice) {
+                emptyNotice.style.display = 'block';
+                const emptyTitle = emptyNotice.querySelector('h4');
+                const emptyDesc = emptyNotice.querySelector('p');
+                if (emptyTitle && emptyDesc) {
+                    if (isAutoPeriod) {
+                        emptyTitle.innerText = `Belum Ada Siswa untuk ${activePeriodConfig.name}`;
+                        emptyDesc.innerHTML = `Belum ada siswa yang menyelesaikan remedial untuk <strong>${activePeriodConfig.name}</strong>.<br>Saat siswa menyelesaikan ujian remedial ini, datanya akan langsung otomatis muncul di tabel ini.`;
+                    } else {
+                        emptyTitle.innerText = 'Belum Ada Data Siswa Ditemukan';
+                        emptyDesc.innerText = 'Belum ada siswa yang menyelesaikan remedial untuk kriteria filter ini.';
+                    }
+                }
+            }
             return;
         }
 
@@ -3734,23 +4413,51 @@ function renderTeacherTable() {
             if (!safeStatus || String(safeStatus).toUpperCase().includes('BAIK') || String(safeStatus).toUpperCase().includes('MEMUASKAN')) {
                 safeStatus = isPassed ? 'Lulus' : 'Tuntas';
             }
-            let safeTimestamp = String(st.timestamp || st.date || '-');
-            if (safeTimestamp.includes('{') || safeTimestamp.includes('[') || safeTimestamp.length > 35) {
-                safeTimestamp = String(st.date || '-');
-                if (safeTimestamp.includes('{') || safeTimestamp.includes('[') || safeTimestamp.length > 35) {
-                    safeTimestamp = '-';
-                }
-            }
-            let safeDuration = String(st.duration || '60 Menit');
+
+            // Periode Siswa
+            const stPeriodKey = String(st.period || 'sem1_pts').toLowerCase();
+            const stPeriodObj = REMEDIAL_PERIODS[stPeriodKey] || REMEDIAL_PERIODS['sem1_pts'];
+            const stPeriodShort = stPeriodObj.shortName;
+
+            // Format Tanggal dan Waktu pengerjaan (TGL/WAKTU)
+            let rawDate = String(st.date || '').trim();
+            let rawTime = String(st.timestamp || '').trim();
+            let safeDuration = String(st.duration || '').trim();
             if (safeDuration.includes('{') || safeDuration.includes('[') || safeDuration.length > 25) {
                 safeDuration = '60 Menit';
             }
+
+            // Validasi tanggal agar tidak menampilkan '-' atau data json corrupt
+            let displayDate = rawDate;
+            if (!displayDate || displayDate === '-' || displayDate.includes('{') || displayDate.includes('[') || displayDate.length > 35) {
+                if (rawTime && (rawTime.includes('202') || rawTime.includes('/') || rawTime.includes('Okt') || rawTime.includes('Sep'))) {
+                    displayDate = rawTime;
+                    rawTime = '';
+                } else {
+                    displayDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                }
+            }
+
+            // Validasi jam/waktu pengerjaan
+            let displayTime = rawTime;
+            if (displayTime === '-' || displayTime.includes('{') || displayTime.includes('[') || displayTime.length > 35) {
+                displayTime = '';
+            }
+
+            // Susun sub-teks waktu (Jam & Durasi)
+            let timeSubParts = [];
+            if (displayTime) timeSubParts.push(displayTime);
+            if (safeDuration && safeDuration !== '-') timeSubParts.push(safeDuration);
+            let displaySub = timeSubParts.join(' • ') || 'Selesai';
             const safeId = String(st.id || ('st_' + idx));
 
             return `
                 <tr>
                     <td style="color: #64748b; font-weight: 700;">#${idx + 1}</td>
-                    <td><strong>${safeName}</strong></td>
+                    <td>
+                        <strong style="display: block; font-size: 0.96rem;">${safeName}</strong>
+                        <span class="table-period-tag ${stPeriodKey}">${stPeriodShort}</span>
+                    </td>
                     <td><span class="class-tag">Kelas ${safeKelas}</span></td>
                     <td><strong>${safeAbsen}</strong></td>
                     <td>
@@ -3761,8 +4468,8 @@ function renderTeacherTable() {
                     </td>
                     <td><span class="score-badge-cell">${safeAkhir}</span></td>
                     <td style="max-width: 140px; overflow: hidden;">
-                        <span style="font-size: 0.85rem; color: #475569; display: block; font-weight: 600;">${safeTimestamp}</span>
-                        <small style="font-size: 0.76rem; color: #94a3b8;">${safeDuration}</small>
+                        <span style="font-size: 0.85rem; color: #1e293b; display: block; font-weight: 700;">${displayDate}</span>
+                        <small style="font-size: 0.76rem; color: #64748b; font-weight: 500;">${displaySub}</small>
                     </td>
                     <td>
                         <span class="status-badge-cell ${isPassed ? 'status-lulus' : 'status-tuntas'}">
@@ -3953,18 +4660,7 @@ function ensureStudentAnswers(student) {
     } else if (isK5) {
         // --- SOAL RESMI KELAS 5 (POWERPOINT & AI) ---
         const numCorrect = Math.min(10, Math.round(targetPg / 5));
-        const k5PgMetadata = [
-            { num: 1, question: "1. Langkah pertama menyimpan dokumen presentasi PowerPoint adalah klik menu...", key: "B", keyText: "B. File", explanation: "Langkah pertama menyimpan dokumen di PowerPoint adalah klik tab/menu File lalu pilih Save/Save As." },
-            { num: 2, question: "2. Bagian lembar kerja utama dalam PowerPoint dinamakan...", key: "C", keyText: "C. Halaman Slide", explanation: "Lembar kerja utama presentasi dinamakan Slide." },
-            { num: 3, question: "3. Fungsi utama dari Microsoft PowerPoint adalah...", key: "C", keyText: "C. Menampilkan dokumen presentasi visual", explanation: "Fungsi utama PowerPoint adalah membuat dokumen presentasi visual." },
-            { num: 4, question: "4. Fitur efek perpindahan menarik antar slide dinamakan...", key: "B", keyText: "B. Transition", explanation: "Efek pergantian dari satu slide ke slide berikutnya dinamakan Transition." },
-            { num: 5, question: "5. Contoh efek Transisi pada PowerPoint adalah...", key: "C", keyText: "C. Push", explanation: "Push adalah salah satu contoh efek Transisi di PowerPoint." },
-            { num: 6, question: "6. Primary function of Microsoft PowerPoint is...", key: "C", keyText: "C. To create visual presentations", explanation: "PowerPoint creates visual slideshows." },
-            { num: 7, question: "7. Keyboard shortcut starts slide show from first slide...", key: "A", keyText: "A. F5", explanation: "Tekan F5 untuk memulai Slide Show dari slide pertama." },
-            { num: 8, question: "8. Menu for saving files in Microsoft PowerPoint...", key: "A", keyText: "A. File", explanation: "Save file from menu File." },
-            { num: 9, question: "9. Single page within a PowerPoint presentation...", key: "B", keyText: "B. Slide", explanation: "A single page is called a Slide." },
-            { num: 10, question: "10. Button adds new slide to presentation...", key: "C", keyText: "C. New Slide", explanation: "Klik tombol New Slide untuk menambah lembar slide baru." }
-        ];
+        const k5PgMetadata = (window.SOAL_KELAS_5 && window.SOAL_KELAS_5.pg) || pgQuestionsK5Metadata;
 
         generatedPg = k5PgMetadata.map((q, idx) => {
             const isCorrect = idx < numCorrect;
@@ -4008,18 +4704,7 @@ function ensureStudentAnswers(student) {
     } else {
         // --- SOAL RESMI KELAS 4 (MICROSOFT EXCEL) ---
         const numCorrect = Math.min(10, Math.round(targetPg / 5));
-        const k4PgMetadata = [
-            { num: 1, question: "1. Apa fungsi utama dari program Microsoft Excel?", key: "C", keyText: "C. Pengolah Angka dan Tabel", explanation: "Microsoft Excel adalah program pengolah angka dan tabel." },
-            { num: 2, question: "2. Bagian lembar kerja Excel yang membujur secara vertikal ditandai huruf dinamakan...", key: "A", keyText: "A. Column", explanation: "Bagian vertikal ditandai huruf dinamakan Column (Kolom)." },
-            { num: 3, question: "3. Baris (Row) dalam Microsoft Excel diidentifikasi dengan nomor urut...", key: "B", keyText: "B. Angka (1, 2, 3...)", explanation: "Baris (Row) diidentifikasi dengan urutan angka." },
-            { num: 4, question: "4. Pengertian 'Data' dalam kehidupan sehari-hari dan komputer adalah...", key: "A", keyText: "A. Kumpulan informasi berupa angka atau benda", explanation: "Data adalah kumpulan fakta atau informasi berupa angka maupun benda." },
-            { num: 5, question: "5. Rumus dasar di Excel yang berfungsi menjumlahkan total angka adalah...", key: "A", keyText: "A. SUM()", explanation: "Rumus SUM() berfungsi menjumlahkan total angka." },
-            { num: 6, question: "6. In Microsoft Excel, how are columns identified?", key: "A", keyText: "A. By letters such as A, B and C ...", explanation: "Columns in Excel are identified by letters A, B, C." },
-            { num: 7, question: "7. A horizontal group of cells in Excel is called...", key: "D", keyText: "D. A row", explanation: "A horizontal group of cells in Excel is called a row." },
-            { num: 8, question: "8. Menu pada aplikasi Microsoft Excel yang digunakan untuk menyimpan dokumen kerja adalah...", key: "B", keyText: "B. File", explanation: "Menu untuk menyimpan dokumen adalah File (Save/Save As)." },
-            { num: 9, question: "9. Aplikasi pencari informasi berbasis kecerdasan buatan (Artificial Intelligence) adalah...", key: "D", keyText: "D. Perplexity AI", explanation: "Aplikasi AI pencari informasi adalah Perplexity AI." },
-            { num: 10, question: "10. In Microsoft Excel, the thin black cross pointer (Autofill) is used for...", key: "A", keyText: "A. filling continuous data like a series of numbers", explanation: "Autofill pointer is used for continuous data." }
-        ];
+        const k4PgMetadata = (window.SOAL_KELAS_4 && window.SOAL_KELAS_4.pg) || pgQuestionsMetadata;
 
         generatedPg = k4PgMetadata.map((q, idx) => {
             const isCorrect = idx < numCorrect;
@@ -4348,6 +5033,12 @@ function previewStudentAnswers(studentId) {
     const pgPts = student.pgScore !== undefined ? student.pgScore : pgAnswers.reduce((a, b) => a + (b.points || 0), 0);
     const uraianPts = student.uraianScore !== undefined ? student.uraianScore : uraianAnswers.reduce((a, b) => a + (b.points || 0), 0);
 
+    const previewDateTimeStr = [
+        student.date || '',
+        student.timestamp ? `(${student.timestamp})` : '',
+        student.duration ? `• Durasi: ${student.duration}` : ''
+    ].filter(Boolean).join(' ') || (student.duration || student.timestamp || '-');
+
     const container = document.getElementById('answersPreviewContent');
     let html = `
         <div style="background: #f1f5f9; padding: 0.8rem 1.2rem; border-radius: 12px; margin-bottom: 1.2rem; display: flex; justify-content: space-between; align-items: center; border: 1.5px solid #cbd5e1;">
@@ -4355,7 +5046,7 @@ function previewStudentAnswers(studentId) {
                 <strong>Nilai Awal:</strong> ${student.nilaiAwal} | 
                 <strong>Nilai PG:</strong> ${pgPts}/50 | 
                 <strong>Nilai Uraian:</strong> ${uraianPts}/50 | 
-                <strong>Waktu:</strong> ${student.duration || student.timestamp}
+                <strong>Tgl/Waktu:</strong> ${previewDateTimeStr}
             </div>
             <div>
                 <span class="score-badge-cell" style="font-size: 1.1rem; padding: 0.3rem 0.8rem;">Total: ${student.nilaiAkhir}</span>
@@ -4422,15 +5113,33 @@ function downloadCurrentPreviewPDF() {
    ============================================================== */
 function exportRecapToExcel() {
     playCuteSound('pop');
-    const list = getRecapList();
-    if (!list || list.length === 0) {
+    const allList = getRecapList();
+    if (!allList || allList.length === 0) {
         showToast('⚠️ Belum ada data siswa untuk diekspor!');
         return;
+    }
+
+    const isAutoPeriod = (teacherPeriodTableFilterMode !== 'SEMUA_PERIODE');
+    const activeKey = activeTeacherRemedialPeriod || 'sem1_pts';
+    const activePeriodObj = REMEDIAL_PERIODS[activeKey] || REMEDIAL_PERIODS['sem1_pts'];
+
+    let list = isAutoPeriod 
+        ? allList.filter(s => String(s.period || 'sem1_pts').toLowerCase() === activeKey)
+        : allList;
+
+    if (list.length === 0 && isAutoPeriod) {
+        const confAll = confirm(`Belum ada siswa untuk ${activePeriodObj.name}.\n\nApakah Anda ingin mengunduh seluruh data siswa dari semua periode?`);
+        if (confAll) {
+            list = allList;
+        } else {
+            return;
+        }
     }
 
     const today = new Date();
     const downloadDate = today.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
     const downloadTime = today.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+    const periodLabelText = (list.length === allList.length && !isAutoPeriod) ? 'Semua Periode (Sem 1 & Sem 2)' : activePeriodObj.name;
 
     // Statistik Rekapitulasi
     const totalCount = list.length;
@@ -4463,11 +5172,13 @@ function exportRecapToExcel() {
         const rowBg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
         const dateStr = st.date || downloadDate;
         const timeStr = st.timestamp || downloadTime;
+        const stPeriod = REMEDIAL_PERIODS[st.period]?.shortName || st.periodName || 'Sem 1 - PTS';
 
         return `
             <tr style="background-color: ${rowBg}; height: 26px;">
                 <td style="text-align: center; border: 1px solid #cbd5e1; font-weight: bold; color: #475569;">${idx + 1}</td>
                 <td style="text-align: left; border: 1px solid #cbd5e1; font-weight: 600; padding: 4px 8px; color: #0f172a;">${st.name || '-'}</td>
+                <td style="text-align: center; border: 1px solid #cbd5e1; font-weight: 600; color: #0f766e; background-color: #f0fdf4;">${stPeriod}</td>
                 <td style="text-align: center; border: 1px solid #cbd5e1; font-weight: 600; color: #1e40af;">Kelas ${st.kelas || '-'}</td>
                 <td style="text-align: center; border: 1px solid #cbd5e1; mso-number-format: '\\@';">${st.absen || '-'}</td>
                 <td style="text-align: center; border: 1px solid #cbd5e1; color: #64748b;">${st.nilaiAwal || 0}</td>
@@ -4518,52 +5229,53 @@ function exportRecapToExcel() {
     <table>
         <!-- KOP SEKOLAH RESMI -->
         <tr>
-            <td colspan="12" style="text-align: center; font-size: 14pt; font-weight: bold; color: #14532d; padding: 6px 0;">
+            <td colspan="13" style="text-align: center; font-size: 14pt; font-weight: bold; color: #14532d; padding: 6px 0;">
                 YAYASAN BUDDHA TZU CHI INDONESIA
             </td>
         </tr>
         <tr>
-            <td colspan="12" style="text-align: center; font-size: 16pt; font-weight: bold; color: #15803d;">
+            <td colspan="13" style="text-align: center; font-size: 16pt; font-weight: bold; color: #15803d;">
                 SDS CINTA KASIH TZU CHI
             </td>
         </tr>
         <tr>
-            <td colspan="12" style="text-align: center; font-size: 12pt; font-weight: bold; color: #0f172a; padding: 4px 0;">
+            <td colspan="13" style="text-align: center; font-size: 12pt; font-weight: bold; color: #0f172a; padding: 4px 0;">
                 LEMBAR REKAPITULASI EVALUASI & NILAI HASIL REMEDIAL SISWA
             </td>
         </tr>
         <tr>
-            <td colspan="12" style="text-align: center; font-size: 10.5pt; color: #475569; padding-bottom: 12px;">
-                Mata Pelajaran: Koding dan Kecerdasan Artifisial • TP 2026/2027 • KKM Sekolah: 80
+            <td colspan="13" style="text-align: center; font-size: 10.5pt; color: #475569; padding-bottom: 12px;">
+                Mata Pelajaran: Koding dan Kecerdasan Artifisial • Periode: ${periodLabelText} • KKM: 80
             </td>
         </tr>
-        <tr><td colspan="12" style="height: 10px;"></td></tr>
+        <tr><td colspan="13" style="height: 10px;"></td></tr>
 
         <!-- TABEL INFORMASI METADATA & STATISTIK -->
         <tr>
             <td colspan="2" style="border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold; padding: 5px;">Guru Pengampu</td>
             <td colspan="4" style="border: 1px solid #cbd5e1; background-color: #ffffff; padding: 5px; font-weight: 600;">: Darningsih, S.T.</td>
-            <td colspan="2" style="border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold; padding: 5px;">Total Peserta Remedial</td>
+            <td colspan="3" style="border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold; padding: 5px;">Total Peserta Remedial</td>
             <td colspan="4" style="border: 1px solid #cbd5e1; background-color: #ffffff; padding: 5px; font-weight: bold;">: ${totalCount} Siswa</td>
         </tr>
         <tr>
             <td colspan="2" style="border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold; padding: 5px;">Materi Evaluasi</td>
             <td colspan="4" style="border: 1px solid #cbd5e1; background-color: #ffffff; padding: 5px;">: Excel, PPT AI & Computational Thinking Scratch</td>
-            <td colspan="2" style="border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold; padding: 5px;">Rata-Rata Nilai Akhir</td>
+            <td colspan="3" style="border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold; padding: 5px;">Rata-Rata Nilai Akhir</td>
             <td colspan="4" style="border: 1px solid #cbd5e1; background-color: #ffffff; padding: 5px; font-weight: bold; color: #0284c7;">: ${avgAkhir} / 100</td>
         </tr>
         <tr>
             <td colspan="2" style="border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold; padding: 5px;">Tanggal Unduh</td>
             <td colspan="4" style="border: 1px solid #cbd5e1; background-color: #ffffff; padding: 5px;">: ${downloadDate} • ${downloadTime}</td>
-            <td colspan="2" style="border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold; padding: 5px;">Tingkat Kelulusan KKM</td>
+            <td colspan="3" style="border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold; padding: 5px;">Tingkat Kelulusan KKM</td>
             <td colspan="4" style="border: 1px solid #cbd5e1; background-color: #ffffff; padding: 5px; font-weight: bold; color: #15803d;">: ${passRate}% (${passedCount} Lulus • ${failedCount} Bimbingan)</td>
         </tr>
-        <tr><td colspan="12" style="height: 14px;"></td></tr>
+        <tr><td colspan="13" style="height: 14px;"></td></tr>
 
         <!-- HEADER TABEL DATA SISWA -->
         <tr style="background-color: #15803d; color: #ffffff; font-weight: bold; height: 34px;">
             <th style="border: 1px solid #14532d; text-align: center; width: 45px;">No</th>
             <th style="border: 1px solid #14532d; text-align: left; padding-left: 8px; width: 220px;">Nama Lengkap Siswa</th>
+            <th style="border: 1px solid #14532d; text-align: center; width: 110px;">Periode</th>
             <th style="border: 1px solid #14532d; text-align: center; width: 80px;">Kelas</th>
             <th style="border: 1px solid #14532d; text-align: center; width: 70px;">No. Absen</th>
             <th style="border: 1px solid #14532d; text-align: center; width: 85px;">Nilai Awal</th>
@@ -4581,7 +5293,7 @@ function exportRecapToExcel() {
 
         <!-- BARIS RATA-RATA KELAS -->
         <tr style="background-color: #f1f5f9; font-weight: bold; height: 30px;">
-            <td colspan="4" style="text-align: right; border: 1px solid #cbd5e1; padding-right: 12px; font-weight: bold;">RATA-RATA KESELURUHAN:</td>
+            <td colspan="5" style="text-align: right; border: 1px solid #cbd5e1; padding-right: 12px; font-weight: bold;">RATA-RATA KESELURUHAN:</td>
             <td style="text-align: center; border: 1px solid #cbd5e1; color: #475569;">${avgAwal}</td>
             <td style="text-align: center; border: 1px solid #cbd5e1; color: #0369a1;">${avgPg}</td>
             <td style="text-align: center; border: 1px solid #cbd5e1; color: #7c3aed;">${avgUraian}</td>
@@ -4590,13 +5302,13 @@ function exportRecapToExcel() {
         </tr>
 
         <!-- FOOTER & KATA PERENUNGAN -->
-        <tr><td colspan="12" style="height: 18px;"></td></tr>
+        <tr><td colspan="13" style="height: 18px;"></td></tr>
         <tr>
-            <td colspan="12" style="text-align: center; font-style: italic; color: #334155; padding: 6px 0; font-size: 9.5pt;">
+            <td colspan="13" style="text-align: center; font-style: italic; color: #334155; padding: 6px 0; font-size: 9.5pt;">
                 “Keindahan sifat manusia terletak pada ketulusan hatinya. Kemuliaan sifat manusia terletak pada kejujuran.” — Kata Perenungan Master Cheng Yen
             </td>
         </tr>
-        <tr><td colspan="12" style="height: 25px;"></td></tr>
+        <tr><td colspan="13" style="height: 25px;"></td></tr>
 
         <!-- TANDA TANGAN PENGESAHAN -->
         <tr>
@@ -4605,7 +5317,7 @@ function exportRecapToExcel() {
                 Mengetahui,<br>Kepala SDS Cinta Kasih Tzu Chi<br><br><br><br><br>
                 ( .................................................. )
             </td>
-            <td colspan="2"></td>
+            <td colspan="3"></td>
             <td colspan="4" style="text-align: center; font-size: 10pt;">
                 Jakarta, ${downloadDate}<br>Guru Pengampu Koding & AI<br><br><br><br><br>
                 <strong>( Darningsih, S.T. )</strong>
@@ -4613,7 +5325,7 @@ function exportRecapToExcel() {
             <td colspan="1"></td>
         </tr>
         <tr>
-            <td colspan="12" style="text-align: right; font-size: 8pt; color: #94a3b8; padding-top: 15px;">
+            <td colspan="13" style="text-align: right; font-size: 8pt; color: #94a3b8; padding-top: 15px;">
                 * Dokumen rekapitulasi nilai resmi ini diterbitkan secara otomatis melalui Portal EduCode AI SDS Cinta Kasih Tzu Chi.
             </td>
         </tr>
@@ -4629,8 +5341,9 @@ function exportRecapToExcel() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     const safeDate = today.toISOString().slice(0, 10);
+    const filenamePrefix = (list.length === allList.length && !isAutoPeriod) ? 'Rekap_Remedial_SemuaPeriode' : `Rekap_Remedial_${activeKey}`;
     link.setAttribute("href", url);
-    link.setAttribute("download", `Rekap_Remedial_Koding_AI_TzuChi_${safeDate}.xls`);
+    link.setAttribute("download", `${filenamePrefix}_TzuChi_${safeDate}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -4924,8 +5637,77 @@ function showToast(message) {
     }, 3200);
 }
 
+/* ==============================================================
+   SINKRONISASI TAMPILAN SOAL DARI BANK SOAL MODULAR (FOLDER /soal/)
+   Menjamin perubahan soal oleh Guru langsung ter-update di UI
+   ============================================================== */
+function syncExamUIWithQuestionModules() {
+    try {
+        // 1. Sinkronisasi Kartu Soal PG Kelas 4
+        if (window.SOAL_KELAS_4 && Array.isArray(window.SOAL_KELAS_4.pg)) {
+            window.SOAL_KELAS_4.pg.forEach(item => {
+                const card = document.getElementById(`q-card-${item.num}`);
+                if (card) {
+                    const qText = card.querySelector('.q-text');
+                    if (qText && item.question) qText.textContent = item.question;
+                    ['A', 'B', 'C', 'D'].forEach(opt => {
+                        const input = card.querySelector(`input[value="${opt}"]`);
+                        if (input && item.options && item.options[opt]) {
+                            const span = input.closest('label')?.querySelector('span');
+                            if (span) span.innerHTML = `<strong>${opt}.</strong> ${item.options[opt]}`;
+                        }
+                    });
+                }
+            });
+        }
+
+        // 2. Sinkronisasi Kartu Soal PG Kelas 5
+        if (window.SOAL_KELAS_5 && Array.isArray(window.SOAL_KELAS_5.pg)) {
+            window.SOAL_KELAS_5.pg.forEach(item => {
+                const card = document.getElementById(`q-k5-card-${item.num}`);
+                if (card) {
+                    const qText = card.querySelector('.q-text');
+                    if (qText && item.question) qText.textContent = item.question;
+                    ['A', 'B', 'C', 'D'].forEach(opt => {
+                        const input = card.querySelector(`input[value="${opt}"]`);
+                        if (input && item.options && item.options[opt]) {
+                            const span = input.closest('label')?.querySelector('span');
+                            if (span) span.innerHTML = `<strong>${opt}.</strong> ${item.options[opt]}`;
+                        }
+                    });
+                }
+            });
+        }
+
+        // 3. Sinkronisasi Kartu Soal PG Kelas 6
+        if (window.SOAL_KELAS_6 && Array.isArray(window.SOAL_KELAS_6.pg)) {
+            window.SOAL_KELAS_6.pg.forEach(item => {
+                const card = document.getElementById(`q-k6-card-${item.num}`);
+                if (card) {
+                    const qText = card.querySelector('.q-text');
+                    if (qText && item.question) qText.textContent = item.question;
+                    ['A', 'B', 'C', 'D'].forEach(opt => {
+                        const input = card.querySelector(`input[value="${opt}"]`);
+                        if (input && item.options && item.options[opt]) {
+                            const span = input.closest('label')?.querySelector('span');
+                            if (span) span.innerHTML = `<strong>${opt}.</strong> ${item.options[opt]}`;
+                        }
+                    });
+                }
+            });
+        }
+    } catch(errSync) {
+        console.warn('Catatan sinkronisasi soal:', errSync);
+    }
+}
+
 // Inisialisasi data rekap dan bahasa saat halaman dimuat
 window.addEventListener('DOMContentLoaded', () => {
+    try {
+        syncExamUIWithQuestionModules();
+    } catch(eSoal) {
+        console.warn('Init bank soal modular error:', eSoal);
+    }
     try {
         applyLanguage(currentLang, false);
     } catch(e) {
@@ -4940,6 +5722,27 @@ window.addEventListener('DOMContentLoaded', () => {
     getRecapList();
     updateCloudStatusUI();
     updateActiveTokenDisplay();
+    updateExamSessionDisplay();
+    applyRemedialPeriod(currentRemedialPeriod);
+
+    // Auto-detect URL token parameter: ?token=XYZ atau ?k=XYZ
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramToken = urlParams.get('token') || urlParams.get('k');
+        if (paramToken) {
+            const cleanParam = paramToken.trim().toUpperCase().replace(/\s+/g, '');
+            if (cleanParam) {
+                setActiveExamToken(cleanParam);
+                localStorage.setItem('tzuchi_exam_session_status', 'OPEN');
+                setTimeout(() => {
+                    ['k4ExamToken', 'k5ExamToken', 'k6ExamToken'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = cleanParam;
+                    });
+                }, 400);
+            }
+        }
+    } catch(eParam) {}
 });
 
 

@@ -1,0 +1,208 @@
+/**
+ * BANK SOAL REMEDIAL INFORMATIKA - KELAS 4
+ * Kurikulum Merdeka - SD Tzu Chi
+ * Folder: d:/Erapot/soal/kelas_4/soal_k4.js
+ * Topik: Pengenalan Microsoft Excel & AI Detektif Data
+ *
+ * Guru Pengampu: Darningsih, S.T.
+ */
+
+window.SOAL_KELAS_4 = {
+    metadata: {
+        kelas: "4",
+        jenjang: "SD",
+        mataPelajaran: "Informatika",
+        topik: "Microsoft Excel & AI Detektif Data",
+        totalPg: 10,
+        bobotPg: 50,
+        totalUraian: 5,
+        bobotUraian: 50,
+        durasiMenit: 60,
+        kkm: 80
+    },
+
+    // ==========================================
+    // BAGIAN I: 10 SOAL PILIHAN GANDA (BOBOT 50)
+    // ==========================================
+    pg: [
+        {
+            num: 1,
+            question: "1. Apa fungsi utama dari program Microsoft Excel?",
+            options: {
+                A: "Mengedit Video dan Suara",
+                B: "Membuat Presentasi",
+                C: "Pengolah Angka dan Tabel",
+                D: "Mengetik surat dan cerita"
+            },
+            key: "C",
+            keyText: "C. Pengolah Angka dan Tabel",
+            explanation: "Fungsi utama dari Microsoft Excel adalah sebagai program aplikasi pengolah angka, perhitungan rumus, dan pembuatan tabel data."
+        },
+        {
+            num: 2,
+            question: "2. Bagian di Microsoft Excel yang membujur secara vertikal (ke atas dan ke bawah) dan ditandai dengan huruf dinamakan...",
+            options: {
+                A: "Column",
+                B: "Row",
+                C: "Sel",
+                D: "Range"
+            },
+            key: "A",
+            keyText: "A. Column",
+            explanation: "Bagian lembar kerja Excel yang membujur vertikal ditandai dengan huruf (A, B, C...) dinamakan Column (Kolom)."
+        },
+        {
+            num: 3,
+            question: "3. Baris (Row) dalam Microsoft Excel diidentifikasi dengan tanda...",
+            options: {
+                A: "Huruf",
+                B: "Angka",
+                C: "Simbol",
+                D: "Warna"
+            },
+            key: "B",
+            keyText: "B. Angka",
+            explanation: "Baris (Row) membujur secara horizontal dan diidentifikasi dengan deretan angka urut (1, 2, 3, dst)."
+        },
+        {
+            num: 4,
+            question: "4. Berdasarkan yang kamu alami menjadi Detektif Data, apa yang dimaksud dengan data?",
+            options: {
+                A: "Kumpulan informasi berupa angka atau benda",
+                B: "Aplikasi komputer untuk menggambar grafik",
+                C: "Kumpulan gambar hiasan pada lembar kerja",
+                D: "Rumus khusus untuk menghitung penjumlahan"
+            },
+            key: "A",
+            keyText: "A. Kumpulan informasi berupa angka atau benda",
+            explanation: "Data adalah kumpulan fakta atau informasi mentah berupa angka, teks, lambang, atau benda yang dikumpulkan untuk diolah."
+        },
+        {
+            num: 5,
+            question: "5. Fungsi dasar Excel yang digunakan untuk menjumlahkan total angka dalam rentang sel tertentu adalah...",
+            options: {
+                A: "SUM()",
+                B: "average()",
+                C: "count()",
+                D: "round()"
+            },
+            key: "A",
+            keyText: "A. SUM()",
+            explanation: "Fungsi dasar Excel yang digunakan untuk menjumlahkan seluruh angka dalam rentang sel tertentu adalah SUM()."
+        },
+        {
+            num: 6,
+            question: "6. In Microsoft Excel, how are columns identified?",
+            options: {
+                A: "By letters such as A, B and C ...",
+                B: "By numbers such as 1, 2 and 3",
+                C: "By colors such as red, green and blue",
+                D: "By symbols such as $, # and @"
+            },
+            key: "A",
+            keyText: "A. By letters such as A, B and C ...",
+            explanation: "In Microsoft Excel, columns run vertically and are identified by letters (A, B, C, etc.)."
+        },
+        {
+            num: 7,
+            question: "7. What is a horizontal group of cells called in Excel?",
+            options: {
+                A: "A formula",
+                B: "A range",
+                C: "A column",
+                D: "A row"
+            },
+            key: "D",
+            keyText: "D. A row",
+            explanation: "A horizontal line or group of cells in Microsoft Excel is called a row."
+        },
+        {
+            num: 8,
+            question: "8. Menu for saving files in Microsoft Excel...",
+            options: {
+                A: "Home",
+                B: "File",
+                C: "Insert",
+                D: "Data"
+            },
+            key: "B",
+            keyText: "B. File",
+            explanation: "Menu yang digunakan untuk menyimpan dokumen/buku kerja (Save / Save As) di Microsoft Excel adalah menu File."
+        },
+        {
+            num: 9,
+            question: "9. If you want to search for animal data, the AI application you use to find that data is...",
+            options: {
+                A: "Google calender",
+                B: "Flo",
+                C: "Search Engine",
+                D: "Perplexity AI"
+            },
+            key: "D",
+            keyText: "D. Perplexity AI",
+            explanation: "Perplexity AI adalah mesin pencari berbasis kecerdasan buatan (AI) yang menyajikan rangkuman jawaban langsung dari data internet."
+        },
+        {
+            num: 10,
+            question: "10. What task is performed using the thin black plus pointer (Autofill)?",
+            options: {
+                A: "filling continuous data like a series of numbers",
+                B: "deleting selected cell borders and backgrounds collors",
+                C: "changing the overall height a specific row",
+                D: "dragging cell contents to a different worksheet"
+            },
+            key: "A",
+            keyText: "A. filling continuous data like a series of numbers",
+            explanation: "The thin black cross pointer (Autofill handle) is used to automatically fill continuous sequences, repeated data, or formulas into adjacent cells."
+        }
+    ],
+
+    // ==========================================
+    // BAGIAN II: 5 SOAL URAIAN (BOBOT 50)
+    // ==========================================
+    uraian: [
+        {
+            num: 1,
+            question: "1. Jelaskan pengertian dari rumus =AVERAGE()",
+            pointsMax: 10,
+            keyRef: "Rumus =AVERAGE() digunakan untuk menghitung nilai rata-rata dari sekumpulan angka dalam rentang sel yang ditentukan.",
+            keywords: ["rata", "average", "tengah", "membagi jumlah"],
+            placeholder: "Tuliskan penjelasan fungsi rumus =AVERAGE() di sini..."
+        },
+        {
+            num: 2,
+            question: "2. Jelaskan pengertian dari rumus =SUM()",
+            pointsMax: 10,
+            keyRef: "Rumus =SUM() digunakan untuk menjumlahkan seluruh nilai angka yang ada di dalam rentang sel yang telah ditentukan.",
+            keywords: ["jumlah", "total", "tambah", "sum"],
+            placeholder: "Tuliskan penjelasan fungsi rumus =SUM() di sini..."
+        },
+        {
+            num: 3,
+            question: "3. Jelaskan pengertian dari rumus =COUNT()",
+            pointsMax: 10,
+            keyRef: "Rumus =COUNT() digunakan untuk menghitung banyaknya sel yang berisi angka dalam rentang yang dipilih (tidak menghitung sel teks/kosong).",
+            keywords: ["banyak", "hitung", "jumlah sel", "count", "sel berisi", "data"],
+            placeholder: "Tuliskan penjelasan fungsi rumus =COUNT() di sini..."
+        },
+        {
+            num: 4,
+            question: "4. Apa fungsi penunjuk mouse berbentuk tanda tambah hitam tipis (Autofill)?",
+            pointsMax: 10,
+            keyRef: "Berfungsi untuk mengisi data secara otomatis dan berurutan ke sel-sel berikutnya (angka, tanggal, atau pola berulang) dengan cepat.",
+            keywords: ["otomatis", "urutan", "berurutan", "autofill", "mengisi", "deret", "salin", "copy", "tarik", "drag"],
+            placeholder: "Tuliskan jawaban penjelasanmu di sini..."
+        },
+        {
+            num: 5,
+            question: "5. Perhatikan gambar tabel data hewan! Tuliskan rumus di sel E9 (Jumlah), E10 (Rata-rata), dan E11 (Banyak Data)!",
+            pointsMax: 10,
+            keyRef: "Sel E9: =SUM(E3:E8) atau =SUM(E2:E7) | Sel E10: =AVERAGE(E3:E8) atau =AVERAGE(E2:E7) | Sel E11: =COUNT(A3:A8) atau =COUNT(E3:E8)",
+            subInputs: [
+                { id: "uraian_5_e9", label: "Rumus di Sel E9 (Jumlah):", expected: "SUM", points: 4 },
+                { id: "uraian_5_e10", label: "Rumus di Sel E10 (Rata-Rata):", expected: "AVERAGE", points: 3 },
+                { id: "uraian_5_e11", label: "Rumus di Sel E11 (Banyak Data):", expected: "COUNT", points: 3 }
+            ]
+        }
+    ]
+};
