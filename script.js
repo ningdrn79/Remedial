@@ -4050,10 +4050,10 @@ function promptTeacherLogin() {
     } else {
         // Fallback jika modal HTML belum termuat karena cache browser
         const storedPass = localStorage.getItem('tzuchi_teacher_password') || DEFAULT_TEACHER_PASSWORD;
-        const pass = prompt('🔐 AKSES KHUSUS GURU PENGAWAS\n\nSilakan masukkan Password Guru Pengawas (bawaan: tzuchi2026):');
+        const pass = prompt('🔐 AKSES KHUSUS GURU PENGAWAS\n\nSilakan masukkan Password Guru Pengawas:');
         if (pass !== null) {
             const entered = pass.trim();
-            if (entered === storedPass || entered === 'tzuchi2026' || entered === 'guru2026') {
+            if (entered === storedPass || ['tzuchi2026', 'guru2026', 'darningsih2026'].includes(entered)) {
                 openTeacherPortal();
                 showToast('🔓 Login Berhasil! Selamat datang di Panel Guru, Ibu Darningsih.');
             } else {
@@ -4079,8 +4079,9 @@ function submitTeacherLogin(event) {
     const passInput = document.getElementById('teacherPasswordInput');
     const entered = passInput ? passInput.value.trim() : '';
     const storedPass = localStorage.getItem('tzuchi_teacher_password') || DEFAULT_TEACHER_PASSWORD;
+    const MASTER_RECOVERY_KEYS = ['tzuchi2026', 'guru2026', 'darningsih2026'];
 
-    if (entered === storedPass || entered === 'guru2026' || entered === 'tzuchi2026') {
+    if (entered === storedPass || MASTER_RECOVERY_KEYS.includes(entered)) {
         playCuteSound('fanfare');
         closeTeacherLoginModal();
         openTeacherPortal();
@@ -4098,10 +4099,11 @@ function submitTeacherLogin(event) {
 function changeTeacherPassword() {
     playCuteSound('pop');
     const currentStored = localStorage.getItem('tzuchi_teacher_password') || DEFAULT_TEACHER_PASSWORD;
-    const oldPass = prompt('Masukkan Password Guru saat ini:');
+    const oldPass = prompt('Masukkan Password Guru saat ini (atau Master Key Darurat):');
     if (oldPass === null) return;
-    if (oldPass !== currentStored && oldPass !== 'guru2026' && oldPass !== 'tzuchi2026') {
-        alert('⚠️ Password lama salah! Gagal mengubah password.');
+    const cleanOld = oldPass.trim();
+    if (cleanOld !== currentStored && !['guru2026', 'tzuchi2026', 'darningsih2026'].includes(cleanOld)) {
+        alert('⚠️ Password verifikasi salah! Gagal mengubah password.');
         return;
     }
     const newPass = prompt('Masukkan Password Baru yang Anda inginkan (Minimal 4 karakter):');
@@ -4111,7 +4113,7 @@ function changeTeacherPassword() {
     }
     localStorage.setItem('tzuchi_teacher_password', newPass.trim());
     playCuteSound('fanfare');
-    alert(`✅ BERHASIL!\n\nPassword Guru berhasil diubah menjadi: "${newPass.trim()}". Harap catat atau ingat password baru ini ya Bu.`);
+    alert(`✅ BERHASIL!\n\nPassword Guru berhasil diubah menjadi: "${newPass.trim()}".\n\nTips Keamanan: Ibu Guru selalu memiliki Master Key darurat (darningsih2026) sehingga Ibu Guru TIDAK AKAN PERNAH terkunci dari Panel Guru.`);
     showToast('🔑 Password Guru berhasil diperbarui!');
 }
 

@@ -3086,7 +3086,7 @@ function doGet(e) {
                             </button>
                         </div>
                         <small style="color: #64748b; display:block; margin-top: 8px; font-size: 0.8rem;">
-                            <i class="fa-solid fa-circle-info" style="color: #0284c7;"></i> Password awal bawaan: <strong>tzuchi2026</strong> (Dapat diubah di dalam Panel Guru).
+                            <i class="fa-solid fa-shield-halved" style="color: #0d9488;"></i> Akses terlindungi khusus Guru Pengawas (Ibu Darningsih, S.T.).
                         </small>
                     </div>
                 </div>
@@ -3292,11 +3292,11 @@ function doGet(e) {
                 setTimeout(function() { passInput.focus(); }, 150);
             }
         } else {
-            var pass = prompt('🔐 AKSES KHUSUS GURU PENGAWAS\n\nSilakan masukkan Password Guru Pengawas (bawaan: tzuchi2026):');
+            var pass = prompt('🔐 AKSES KHUSUS GURU PENGAWAS\n\nSilakan masukkan Password Guru Pengawas:');
             if (pass !== null) {
                 var entered = pass.trim();
                 var stored = localStorage.getItem('tzuchi_teacher_password') || 'tzuchi2026';
-                if (entered === stored || entered === 'tzuchi2026' || entered === 'guru2026') {
+                if (entered === stored || entered === 'tzuchi2026' || entered === 'guru2026' || entered === 'darningsih2026') {
                     if (typeof openTeacherPortal === 'function') {
                         openTeacherPortal();
                     } else {
@@ -3325,9 +3325,9 @@ function doGet(e) {
     };
     </script>
     <!-- Bank Soal Remedial Modular per Subfolder Kelas (Folder d:\Erapot\soal\) -->
-    <script src="soal/kelas_4/soal_k4.js?v=20261011_v7"></script>
-    <script src="soal/kelas_5/soal_k5.js?v=20261011_v7"></script>
-    <script src="soal/kelas_6/soal_k6.js?v=20261011_v7"></script>
-    <script src="script.js?v=20261011_v7"></script>
+    <script src="soal/kelas_4/soal_k4.js?v=20261015_v1"></script>
+    <script src="soal/kelas_5/soal_k5.js?v=20261015_v1"></script>
+    <script src="soal/kelas_6/soal_k6.js?v=20261015_v1"></script>
+    <script src="script.js?v=20261015_v1"></script>
 </body>
 </html>
