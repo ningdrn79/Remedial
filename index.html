@@ -3295,8 +3295,12 @@ function doGet(e) {
             var pass = prompt('🔐 AKSES KHUSUS GURU PENGAWAS\n\nSilakan masukkan Password Guru Pengawas:');
             if (pass !== null) {
                 var entered = pass.trim();
-                var stored = localStorage.getItem('tzuchi_teacher_password') || 'tzuchi2026';
-                if (entered === stored || entered === 'tzuchi2026' || entered === 'guru2026' || entered === 'darningsih2026') {
+                var stored = localStorage.getItem('tzuchi_teacher_password');
+                if (stored === 'tzuchi2026' || !stored) {
+                    stored = 'darningsih2026';
+                    localStorage.setItem('tzuchi_teacher_password', 'darningsih2026');
+                }
+                if (entered === stored || entered === 'darningsih2026') {
                     if (typeof openTeacherPortal === 'function') {
                         openTeacherPortal();
                     } else {
@@ -3325,9 +3329,9 @@ function doGet(e) {
     };
     </script>
     <!-- Bank Soal Remedial Modular per Subfolder Kelas (Folder d:\Erapot\soal\) -->
-    <script src="soal/kelas_4/soal_k4.js?v=20261015_v1"></script>
-    <script src="soal/kelas_5/soal_k5.js?v=20261015_v1"></script>
-    <script src="soal/kelas_6/soal_k6.js?v=20261015_v1"></script>
-    <script src="script.js?v=20261015_v1"></script>
+    <script src="soal/kelas_4/soal_k4.js?v=20261015_v2"></script>
+    <script src="soal/kelas_5/soal_k5.js?v=20261015_v2"></script>
+    <script src="soal/kelas_6/soal_k6.js?v=20261015_v2"></script>
+    <script src="script.js?v=20261015_v2"></script>
 </body>
 </html>

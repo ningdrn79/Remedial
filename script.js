@@ -3983,7 +3983,8 @@ function processImportSheetData() {
 /* ==============================================================
    KONTROL AKSES UJIAN SISWA & LOGIN GURU (SECURITY)
    ============================================================== */
-const DEFAULT_TEACHER_PASSWORD = 'tzuchi2026';
+const DEFAULT_TEACHER_PASSWORD = 'darningsih2026';
+const MASTER_RECOVERY_KEY = 'darningsih2026';
 
 function isExamSessionOpen() {
     return localStorage.getItem('tzuchi_exam_session_status') !== 'CLOSED';
@@ -4049,11 +4050,15 @@ function promptTeacherLogin() {
         }
     } else {
         // Fallback jika modal HTML belum termuat karena cache browser
-        const storedPass = localStorage.getItem('tzuchi_teacher_password') || DEFAULT_TEACHER_PASSWORD;
+        let storedPass = localStorage.getItem('tzuchi_teacher_password');
+        if (storedPass === 'tzuchi2026' || !storedPass) {
+            storedPass = DEFAULT_TEACHER_PASSWORD;
+            localStorage.setItem('tzuchi_teacher_password', DEFAULT_TEACHER_PASSWORD);
+        }
         const pass = prompt('🔐 AKSES KHUSUS GURU PENGAWAS\n\nSilakan masukkan Password Guru Pengawas:');
         if (pass !== null) {
             const entered = pass.trim();
-            if (entered === storedPass || ['tzuchi2026', 'guru2026', 'darningsih2026'].includes(entered)) {
+            if (entered === storedPass || entered === MASTER_RECOVERY_KEY) {
                 openTeacherPortal();
                 showToast('🔓 Login Berhasil! Selamat datang di Panel Guru, Ibu Darningsih.');
             } else {
@@ -4078,10 +4083,13 @@ function submitTeacherLogin(event) {
     if (event) event.preventDefault();
     const passInput = document.getElementById('teacherPasswordInput');
     const entered = passInput ? passInput.value.trim() : '';
-    const storedPass = localStorage.getItem('tzuchi_teacher_password') || DEFAULT_TEACHER_PASSWORD;
-    const MASTER_RECOVERY_KEYS = ['tzuchi2026', 'guru2026', 'darningsih2026'];
+    let storedPass = localStorage.getItem('tzuchi_teacher_password');
+    if (storedPass === 'tzuchi2026' || !storedPass) {
+        storedPass = DEFAULT_TEACHER_PASSWORD;
+        localStorage.setItem('tzuchi_teacher_password', DEFAULT_TEACHER_PASSWORD);
+    }
 
-    if (entered === storedPass || MASTER_RECOVERY_KEYS.includes(entered)) {
+    if (entered === storedPass || entered === MASTER_RECOVERY_KEY) {
         playCuteSound('fanfare');
         closeTeacherLoginModal();
         openTeacherPortal();
@@ -4098,11 +4106,15 @@ function submitTeacherLogin(event) {
 
 function changeTeacherPassword() {
     playCuteSound('pop');
-    const currentStored = localStorage.getItem('tzuchi_teacher_password') || DEFAULT_TEACHER_PASSWORD;
-    const oldPass = prompt('Masukkan Password Guru saat ini (atau Master Key Darurat):');
+    let currentStored = localStorage.getItem('tzuchi_teacher_password');
+    if (currentStored === 'tzuchi2026' || !currentStored) {
+        currentStored = DEFAULT_TEACHER_PASSWORD;
+        localStorage.setItem('tzuchi_teacher_password', DEFAULT_TEACHER_PASSWORD);
+    }
+    const oldPass = prompt('Masukkan Password Guru saat ini (atau Master Key Guru):');
     if (oldPass === null) return;
     const cleanOld = oldPass.trim();
-    if (cleanOld !== currentStored && !['guru2026', 'tzuchi2026', 'darningsih2026'].includes(cleanOld)) {
+    if (cleanOld !== currentStored && cleanOld !== MASTER_RECOVERY_KEY) {
         alert('⚠️ Password verifikasi salah! Gagal mengubah password.');
         return;
     }
