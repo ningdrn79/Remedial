@@ -983,7 +983,7 @@ function startExamK4(event) {
     // 1. Validasi Token Ujian dari Guru (Live Token & Cadangan Universal)
     if (!validateExamToken(enteredToken)) {
         playCuteSound('pop');
-        alert(`⚠️ TOKEN UJIAN BELUM SESUAI!\n\nToken yang kamu masukkan "${enteredToken || '(kosong)'}" tidak cocok.\n\nSilakan periksa kode token di papan tulis kelas (atau gunakan token cadangan resmi: TZU26) atau tanyakan kepada Guru Pengawas.`);
+        alert(`⚠️ TOKEN UJIAN BELUM SESUAI!\n\nToken yang kamu masukkan "${enteredToken || '(kosong)'}" tidak cocok.\n\nSilakan periksa kode token yang ditulis oleh Guru di papan tulis kelas atau tanyakan kepada Guru Pengawas.`);
         if (tokenInput) {
             tokenInput.focus();
             tokenInput.select();
@@ -1765,7 +1765,7 @@ function startExamK5(event) {
     // 1. Validasi Token Ujian dari Guru (Live Token & Cadangan Universal)
     if (!validateExamToken(enteredToken)) {
         playCuteSound('pop');
-        alert(`⚠️ TOKEN UJIAN BELUM SESUAI!\n\nToken yang kamu masukkan "${enteredToken || '(kosong)'}" tidak cocok.\n\nSilakan periksa kode token di papan tulis kelas (atau gunakan token cadangan resmi: TZU26) atau tanyakan kepada Guru Pengawas.`);
+        alert(`⚠️ TOKEN UJIAN BELUM SESUAI!\n\nToken yang kamu masukkan "${enteredToken || '(kosong)'}" tidak cocok.\n\nSilakan periksa kode token yang ditulis oleh Guru di papan tulis kelas atau tanyakan kepada Guru Pengawas.`);
         if (tokenInput) {
             tokenInput.focus();
             tokenInput.select();
@@ -2448,7 +2448,7 @@ function startExamK6(event) {
     // 1. Validasi Token Ujian dari Guru (Live Token & Cadangan Universal)
     if (!validateExamToken(enteredToken)) {
         playCuteSound('pop');
-        alert(`⚠️ TOKEN UJIAN BELUM SESUAI!\n\nToken yang kamu masukkan "${enteredToken || '(kosong)'}" tidak cocok.\n\nSilakan periksa kode token di papan tulis kelas (atau gunakan token cadangan resmi: TZU26) atau tanyakan kepada Guru Pengawas.`);
+        alert(`⚠️ TOKEN UJIAN BELUM SESUAI!\n\nToken yang kamu masukkan "${enteredToken || '(kosong)'}" tidak cocok.\n\nSilakan periksa kode token yang ditulis oleh Guru di papan tulis kelas atau tanyakan kepada Guru Pengawas.`);
         if (tokenInput) {
             tokenInput.focus();
             tokenInput.select();
@@ -3755,9 +3755,8 @@ function validateExamToken(rawEntered) {
     const normDefault = DEFAULT_LIVE_TOKEN.replace(/O/g, '0').replace(/[IL]/g, '1');
     if (normEntered === normLive || normEntered === normDefault) return true;
 
-    // Toleransi token acak di ruang lab sekolah (Format 3-4 huruf + 1-3 angka, atau 4-6 karakter alfanumerik)
-    // Fitur ini MENJAMIN anak-anak di laptop lab manapun yang mengetikkan token dari papan tulis langsung lolos!
-    if (/^[A-Z0-9]{4,6}$/.test(clean)) {
+    // Pola token acak papan tulis guru (Format 3 huruf + 2 angka dari fitur Acak Token, contoh: KGN55)
+    if (/^[A-Z]{3}[2-9]{2}$/.test(clean)) {
         return true;
     }
 
