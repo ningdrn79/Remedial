@@ -109,8 +109,11 @@
                             Portal Pembelajaran & Ujian Remedial Interaktif <strong>SDS Cinta Kasih Tzu Chi</strong>. Asah logika koding, kuasai Microsoft Excel & PowerPoint, dan raih prestasi terbaik dengan jujur dan gembira! 🚀🌟
                         </p>
                         <div class="hero-quick-actions">
+                            <a href="#menu-ujian" class="btn-hero-explore" style="background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);">
+                                <i class="fa-solid fa-graduation-cap"></i> <span id="btnChooseExamText">Pilih Ujian Utama</span>
+                            </a>
                             <a href="#menu-remedial" class="btn-hero-explore">
-                                <i class="fa-solid fa-gamepad"></i> <span id="btnChooseClassText" data-i18n="btnChooseClass">Pilih Kelas Remedial</span>
+                                <i class="fa-solid fa-rotate-left"></i> <span id="btnChooseClassText" data-i18n="btnChooseClass">Pilih Kelas Remedial</span>
                             </a>
                             <button type="button" class="btn-hero-cheer" onclick="cheerUp()">
                                 <i class="fa-solid fa-wand-magic-sparkles"></i> <span id="btnCheerText" data-i18n="btnCheer">Semangat Belajar! 🎉</span>
@@ -122,8 +125,105 @@
             </div>
         </section>
 
-        <!-- Menu Section Header -->
+        <!-- ============================================================== -->
+        <!-- MENU 1: UJIAN UTAMA (ASESMEN REGULER)                         -->
+        <!-- ============================================================== -->
+        <section class="menu-intro" id="menu-ujian">
+            <div class="menu-type-badge ujian-badge">
+                <i class="fa-solid fa-graduation-cap"></i> UJIAN UTAMA RESMI
+            </div>
+            <h2 class="section-title">
+                Menu Ujian Utama:
+            </h2>
+            <p class="section-desc">Pilih periode asesmen utama di bawah ini untuk memulai pengerjaan Ujian PTS atau Ujian PAS:</p>
+
+            <!-- Interactive Exam Period Selector: Semester 1 & Semester 2 (PTS / PAS) -->
+            <div class="period-selector-wrapper period-selector-exam">
+                <div class="period-selector-topbar">
+                    <span class="period-control-label">
+                        <i class="fa-solid fa-calendar-check" style="color: #2563eb;"></i> Status Periode Ujian Utama:
+                        <small style="display: block; font-size: 0.76rem; color: #64748b; font-weight: normal; margin-top: 2px;">
+                            (Diatur dari Dashboard Guru Pengawas • Hanya ujian aktif yang dapat dibuka siswa)
+                        </small>
+                    </span>
+                    <span class="period-status-pill pill-exam" id="examPeriodStatusPill">
+                        <span class="status-pulse-dot dot-blue"></span>
+                        <span id="examPeriodStatusPillText">Semester 1 • Ujian PTS Semester 1</span>
+                    </span>
+                </div>
+                
+                <div class="period-tabs-grid" id="examPeriodTabsGrid">
+                    <!-- Tab 1: Ujian PTS Semester 1 -->
+                    <button type="button" class="period-tab-card period-exam-card active" data-period="sem1_pts" onclick="selectExamPeriod('sem1_pts')" id="examTab_sem1_pts" title="Ujian Aktif">
+                        <div class="tab-card-header">
+                            <span class="semester-tag sem1">Semester 1</span>
+                            <div style="display: flex; gap: 4px; align-items: center;">
+                                <span class="period-official-badge visible"><i class="fa-solid fa-circle-check"></i> Dibuka Guru</span>
+                                <span class="period-locked-badge"><i class="fa-solid fa-lock"></i> Nonaktif</span>
+                                <span class="active-check-badge"><i class="fa-solid fa-check"></i> Aktif</span>
+                            </div>
+                        </div>
+                        <h4 class="tab-card-title"><i class="fa-solid fa-file-pen" style="color: #2563eb;"></i> Ujian PTS Semester 1</h4>
+                        <p class="tab-card-desc">Penilaian Tengah Semester 1</p>
+                    </button>
+
+                    <!-- Tab 2: Ujian PAS Semester 1 -->
+                    <button type="button" class="period-tab-card period-exam-card disabled-period" data-period="sem1_pas" onclick="selectExamPeriod('sem1_pas')" id="examTab_sem1_pas" title="Dinonaktifkan oleh Guru">
+                        <div class="tab-card-header">
+                            <span class="semester-tag sem1">Semester 1</span>
+                            <div style="display: flex; gap: 4px; align-items: center;">
+                                <span class="period-official-badge"><i class="fa-solid fa-circle-check"></i> Dibuka Guru</span>
+                                <span class="period-locked-badge visible"><i class="fa-solid fa-lock"></i> Nonaktif</span>
+                                <span class="active-check-badge"><i class="fa-solid fa-check"></i> Aktif</span>
+                            </div>
+                        </div>
+                        <h4 class="tab-card-title"><i class="fa-solid fa-award" style="color: #2563eb;"></i> Ujian PAS Semester 1</h4>
+                        <p class="tab-card-desc">Penilaian Akhir Semester 1</p>
+                    </button>
+
+                    <!-- Tab 3: Ujian PTS Semester 2 -->
+                    <button type="button" class="period-tab-card period-exam-card disabled-period" data-period="sem2_pts" onclick="selectExamPeriod('sem2_pts')" id="examTab_sem2_pts" title="Dinonaktifkan oleh Guru">
+                        <div class="tab-card-header">
+                            <span class="semester-tag sem2">Semester 2</span>
+                            <div style="display: flex; gap: 4px; align-items: center;">
+                                <span class="period-official-badge"><i class="fa-solid fa-circle-check"></i> Dibuka Guru</span>
+                                <span class="period-locked-badge visible"><i class="fa-solid fa-lock"></i> Nonaktif</span>
+                                <span class="active-check-badge"><i class="fa-solid fa-check"></i> Aktif</span>
+                            </div>
+                        </div>
+                        <h4 class="tab-card-title"><i class="fa-solid fa-file-signature" style="color: #2563eb;"></i> Ujian PTS Semester 2</h4>
+                        <p class="tab-card-desc">Penilaian Tengah Semester 2</p>
+                    </button>
+
+                    <!-- Tab 4: Ujian PAS Semester 2 -->
+                    <button type="button" class="period-tab-card period-exam-card disabled-period" data-period="sem2_pas" onclick="selectExamPeriod('sem2_pas')" id="examTab_sem2_pas" title="Dinonaktifkan oleh Guru">
+                        <div class="tab-card-header">
+                            <span class="semester-tag sem2">Semester 2</span>
+                            <div style="display: flex; gap: 4px; align-items: center;">
+                                <span class="period-official-badge"><i class="fa-solid fa-circle-check"></i> Dibuka Guru</span>
+                                <span class="period-locked-badge visible"><i class="fa-solid fa-lock"></i> Nonaktif</span>
+                                <span class="active-check-badge"><i class="fa-solid fa-check"></i> Aktif</span>
+                            </div>
+                        </div>
+                        <h4 class="tab-card-title"><i class="fa-solid fa-trophy" style="color: #2563eb;"></i> Ujian PAS Semester 2</h4>
+                        <p class="tab-card-desc">Penilaian Akhir Tahun / Kenaikan</p>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Garis Pemisah Menu -->
+        <div class="menu-section-divider">
+            <span class="divider-badge"><i class="fa-solid fa-arrow-down"></i> Atau Program Remedial di Bawah <i class="fa-solid fa-arrow-down"></i></span>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- MENU 2: REMEDIAL (PERBAIKAN NILAI)                            -->
+        <!-- ============================================================== -->
         <section class="menu-intro" id="menu-remedial">
+            <div class="menu-type-badge remedial-badge">
+                <i class="fa-solid fa-rotate-left"></i> PROGRAM REMEDIAL SISWA
+            </div>
             <h2 class="section-title" id="menuTitleText" data-i18n="menuTitle">Menu Remedial:</h2>
             <p class="section-desc" id="menuDescText" data-i18n="menuDesc">Pilih periode penilaian dan menu kelas remedial di bawah ini untuk mengerjakan soal interaktif:</p>
 
@@ -3332,6 +3432,6 @@ function doGet(e) {
     <script src="soal/kelas_4/soal_k4.js?v=20261015_v2"></script>
     <script src="soal/kelas_5/soal_k5.js?v=20261015_v2"></script>
     <script src="soal/kelas_6/soal_k6.js?v=20261015_v2"></script>
-    <script src="script.js?v=20261019_v1"></script>
+    <script src="script.js?v=20261119_v1"></script>
 </body>
 </html>

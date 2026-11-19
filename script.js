@@ -539,6 +539,46 @@ function selectRemedialPeriod(periodKey) {
     showToast(`✨ Periode Aktif Hari Ini: ${REMEDIAL_PERIODS[periodKey]?.shortName || periodKey}`);
 }
 
+// 2b. Klik pada Tab Periode Ujian Utama di Beranda Siswa
+function selectExamPeriod(periodKey) {
+    if (!REMEDIAL_PERIODS[periodKey]) return;
+
+    // Jika guru sedang mengunci ujian:
+    if (!isExamSessionOpen()) {
+        playCuteSound('pop');
+        showToast('🔒 Seluruh Akses Ujian Sedang Dikunci oleh Guru Pengawas!');
+        return;
+    }
+
+    const periodTitleMap = {
+        sem1_pts: 'Ujian PTS Semester 1',
+        sem1_pas: 'Ujian PAS Semester 1',
+        sem2_pts: 'Ujian PTS Semester 2',
+        sem2_pas: 'Ujian PAS Semester 2'
+    };
+
+    // Jika siswa mengeklik tombol yang DINONAKTIFKAN oleh Guru:
+    if (periodKey !== activeTeacherRemedialPeriod) {
+        playCuteSound('pop');
+        const activeTitle = periodTitleMap[activeTeacherRemedialPeriod] || activeTeacherRemedialPeriod;
+        const clickedTitle = periodTitleMap[periodKey] || periodKey;
+        
+        showToast(`🔒 ${clickedTitle} dinonaktifkan Guru. Hari ini hanya [${activeTitle}] yang dibuka!`);
+        return;
+    }
+
+    // Jika siswa mengeklik tombol yang memang sedang AKTIF:
+    playCuteSound('fanfare');
+    const title = periodTitleMap[periodKey] || periodKey;
+    showToast(`✨ Periode Ujian Utama Aktif: ${title}! Silakan pilih kelasmu di bawah.`);
+
+    // Gulir halus ke pilihan kelas
+    setTimeout(() => {
+        const classMenu = document.querySelector('.menu-container');
+        if (classMenu) classMenu.scrollIntoView({ behavior: 'smooth' });
+    }, 280);
+}
+
 // Lapis 2: Quick Modal Picker di Form Identitas Siswa (Hanya menampilkan info resmi guru)
 function openStudentPeriodModal(grade) {
     playCuteSound('pop');
@@ -645,8 +685,8 @@ function applyRemedialPeriod(periodKey) {
         tab.classList.toggle('exam-locked', isCurrentActive && !isOpen);
 
         // Atur status badge Dibuka Guru vs Nonaktif vs Dikunci
-        const offBadge = document.getElementById(`officialBadge_${p}`);
-        const lockBadge = document.getElementById(`lockedBadge_${p}`);
+        const offBadge = tab.querySelector('.period-official-badge');
+        const lockBadge = tab.querySelector('.period-locked-badge');
         const checkBadge = tab.querySelector('.active-check-badge');
 
         if (offBadge) {
@@ -683,7 +723,7 @@ function applyRemedialPeriod(periodKey) {
         if (isCurrentActive) {
             tab.title = !isOpen 
                 ? `Akses Ujian Sedang Dikunci oleh Guru: ${isEn ? config.nameEn : config.name}` 
-                : `Periode Remedial Aktif: ${isEn ? config.nameEn : config.name}`;
+                : `Periode Aktif: ${isEn ? config.nameEn : config.name}`;
         } else {
             tab.title = `Tombol ini dinonaktifkan oleh Guru agar tidak salah klik. Hari ini hanya periode ${isEn ? config.nameEn : config.name} yang dibuka.`;
         }
@@ -729,7 +769,7 @@ function applyRemedialPeriod(periodKey) {
         }
     }
 
-    // 3. Perbarui teks indikator periode aktif di beranda
+    // 3. Perbarui teks indikator periode aktif di beranda (Menu Remedial)
     const indicatorText = document.getElementById('periodStatusPillText');
     const pillElem = document.getElementById('periodStatusPill');
     if (indicatorText) {
@@ -741,6 +781,27 @@ function applyRemedialPeriod(periodKey) {
     }
     if (pillElem) {
         pillElem.classList.toggle('closed', !isOpen);
+    }
+
+    // 3b. Perbarui teks indikator periode aktif di Menu Ujian Utama
+    const examIndicatorText = document.getElementById('examPeriodStatusPillText');
+    const examPillElem = document.getElementById('examPeriodStatusPill');
+    if (examIndicatorText) {
+        const periodTitleMap = {
+            sem1_pts: 'Semester 1 • Ujian PTS Semester 1',
+            sem1_pas: 'Semester 1 • Ujian PAS Semester 1',
+            sem2_pts: 'Semester 2 • Ujian PTS Semester 2',
+            sem2_pas: 'Semester 2 • Ujian PAS Semester 2'
+        };
+        const titleText = periodTitleMap[activeKey] || config.name;
+        if (!isOpen) {
+            examIndicatorText.innerHTML = `🔒 Akses Ujian Dikunci Pengawas • [${titleText} Ditutup]`;
+        } else {
+            examIndicatorText.innerText = titleText;
+        }
+    }
+    if (examPillElem) {
+        examPillElem.classList.toggle('closed', !isOpen);
     }
 
     // 3b. Perbarui teks tombol buka soal pada kartu kelas remedial
