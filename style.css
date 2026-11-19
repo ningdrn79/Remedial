@@ -4932,6 +4932,44 @@ body {
     box-shadow: 0 8px 20px -3px rgba(37, 99, 235, 0.15);
 }
 
+/* ==============================================================
+   KARTU PENGERJAAN UJIAN UTAMA (KELAS 4, 5, 6)
+   ============================================================== */
+.menu-exam-container {
+    margin-top: 1.5rem;
+    margin-bottom: 2.2rem;
+}
+
+.card-exam-style {
+    border-radius: 26px;
+    box-shadow: 0 10px 25px -4px rgba(37, 99, 235, 0.08);
+}
+
+.card-exam-style:hover {
+    box-shadow: 0 20px 35px -5px rgba(37, 99, 235, 0.22);
+}
+
+.card-ribbon.exam-ribbon {
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    color: #ffffff;
+}
+
+.icon-tag.icon-tag-exam {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #93c5fd;
+}
+
+.btn-exam-action {
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%) !important;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35) !important;
+}
+
+.btn-exam-action:hover {
+    background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%) !important;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.45) !important;
+}
+
 /* Pemisah Antara Menu Ujian dan Menu Remedial */
 .menu-section-divider {
     max-width: 1140px;

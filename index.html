@@ -210,6 +210,115 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Header Pilihan Kelas untuk Ujian Utama -->
+            <div style="margin-top: 1.8rem; margin-bottom: 0.9rem;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; color: #1e3a8a; font-weight: 800; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-pen-to-square" style="color: #2563eb;"></i> Pilih Kelas untuk Mengerjakan Ujian:
+                </h3>
+                <p style="font-size: 0.9rem; color: #64748b; margin: 4px 0 0 0;">Klik tombol kelas di bawah ini untuk langsung membuka dan mengerjakan lembar soal ujian:</p>
+            </div>
+
+            <!-- 3 Kartu Menu Pengerjaan Ujian Utama (Kelas 4, 5, 6) -->
+            <div class="menu-container menu-exam-container" id="menuExamClassesContainer">
+                
+                <!-- Menu Ujian Kelas 4 -->
+                <div class="card-class card-k4 card-exam-style" onclick="openRemedialKelas4('ujian')">
+                    <div class="card-ribbon exam-ribbon">Ujian Resmi</div>
+                    <div class="card-icon-bubble">
+                        <img src="student_k4.png" alt="Siswa Kelas 4" class="card-student-avatar">
+                        <div class="icon-tag icon-tag-exam" id="k4ExamTagText">Excel & AI Detektif</div>
+                    </div>
+                    <div class="card-body">
+                        <span class="class-badge k4-badge">SD Kelas 4 (4A - 4E)</span>
+                        <h3 class="card-title" id="k4ExamTitleText">Ujian Utama Kelas 4</h3>
+                        
+                        <div class="card-materi-info">
+                            <img src="student_k4.png" alt="Icon Materi Siswa" class="materi-badge-icon">
+                            <div class="materi-text-wrap">
+                                <span class="materi-label-tag"><i class="fa-solid fa-graduation-cap"></i> Materi Ujian:</span>
+                                <p class="card-subtitle" id="k4ExamSubtitleText">Microsoft Excel & Detektif Data AI (Penilaian Resmi Semester).</p>
+                            </div>
+                        </div>
+                        
+                        <ul class="feature-list">
+                            <li><i class="fa-solid fa-check-circle"></i> Input Nama Lengkap, Absen & Pilih Kelas (4A - 4E)</li>
+                            <li><i class="fa-solid fa-check-circle"></i> 10 Soal Pilihan Ganda Resmi (A, B, C, D)</li>
+                            <li><i class="fa-solid fa-check-circle"></i> 5 Soal Uraian Mandiri & Skoring Otomatis</li>
+                        </ul>
+
+                        <button class="btn-enter btn-k4 btn-exam-action">
+                            <span id="btnK4ExamText">Buka Soal Ujian Kelas 4</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Menu Ujian Kelas 5 -->
+                <div class="card-class card-k5 card-exam-style" onclick="openRemedialKelas5('ujian')">
+                    <div class="card-ribbon exam-ribbon">Ujian Resmi</div>
+                    <div class="card-icon-bubble">
+                        <img src="student_k5.png" alt="Siswa Kelas 5" class="card-student-avatar">
+                        <div class="icon-tag icon-tag-exam" id="k5ExamTagText">PowerPoint & AI Slide</div>
+                    </div>
+                    <div class="card-body">
+                        <span class="class-badge k5-badge">SD Kelas 5D</span>
+                        <h3 class="card-title" id="k5ExamTitleText">Ujian Utama Kelas 5</h3>
+                        
+                        <div class="card-materi-info">
+                            <img src="student_k5.png" alt="Icon Materi Siswa" class="materi-badge-icon">
+                            <div class="materi-text-wrap">
+                                <span class="materi-label-tag"><i class="fa-solid fa-graduation-cap"></i> Materi Ujian:</span>
+                                <p class="card-subtitle" id="k5ExamSubtitleText">Microsoft PowerPoint, Desain Slide Presentasi & Kreativitas AI.</p>
+                            </div>
+                        </div>
+                        
+                        <ul class="feature-list">
+                            <li><i class="fa-solid fa-check-circle"></i> Input Identitas Siswa & Kelas 5D</li>
+                            <li><i class="fa-solid fa-check-circle"></i> 10 Soal Pilihan Ganda Resmi (A, B, C, D)</li>
+                            <li><i class="fa-solid fa-check-circle"></i> 5 Soal Uraian Presentasi PowerPoint</li>
+                        </ul>
+
+                        <button class="btn-enter btn-k5 btn-exam-action">
+                            <span id="btnK5ExamText">Buka Soal Ujian Kelas 5</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Menu Ujian Kelas 6 -->
+                <div class="card-class card-k6 card-exam-style" onclick="openRemedialKelas6('ujian')">
+                    <div class="card-ribbon exam-ribbon">Ujian Resmi</div>
+                    <div class="card-icon-bubble">
+                        <img src="student_k6.png" alt="Siswa Kelas 6" class="card-student-avatar">
+                        <div class="icon-tag icon-tag-exam" id="k6ExamTagText">CT & Scratch Logic</div>
+                    </div>
+                    <div class="card-body">
+                        <span class="class-badge k6-badge">SD Kelas 6 (6A - 6E)</span>
+                        <h3 class="card-title" id="k6ExamTitleText">Ujian Utama Kelas 6</h3>
+                        
+                        <div class="card-materi-info">
+                            <img src="student_k6.png" alt="Icon Materi Siswa" class="materi-badge-icon">
+                            <div class="materi-text-wrap">
+                                <span class="materi-label-tag"><i class="fa-solid fa-graduation-cap"></i> Materi Ujian:</span>
+                                <p class="card-subtitle" id="k6ExamSubtitleText">4 Pilar Computational Thinking & Pemrograman Scratch Dasar.</p>
+                            </div>
+                        </div>
+                        
+                        <ul class="feature-list">
+                            <li><i class="fa-solid fa-check-circle"></i> Input Identitas & Pilih Kelas (6A - 6E)</li>
+                            <li><i class="fa-solid fa-check-circle"></i> 10 Soal Pilihan Ganda Resmi (A, B, C, D)</li>
+                            <li><i class="fa-solid fa-check-circle"></i> 5 Soal Uraian Logika Koding Scratch</li>
+                        </ul>
+
+                        <button class="btn-enter btn-k6 btn-exam-action">
+                            <span id="btnK6ExamText">Buka Soal Ujian Kelas 6</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
         </section>
 
         <!-- Garis Pemisah Menu -->
@@ -3432,6 +3541,6 @@ function doGet(e) {
     <script src="soal/kelas_4/soal_k4.js?v=20261015_v2"></script>
     <script src="soal/kelas_5/soal_k5.js?v=20261015_v2"></script>
     <script src="soal/kelas_6/soal_k6.js?v=20261015_v2"></script>
-    <script src="script.js?v=20261119_v1"></script>
+    <script src="script.js?v=20261119_v2"></script>
 </body>
 </html>

@@ -922,6 +922,8 @@ function cheerUp() {
 /* ==============================================================
    REMEDIAL KELAS 4 - EXAM SYSTEM LOGIC
    ============================================================== */
+let currentExamMode = 'remedial'; // 'ujian' atau 'remedial'
+
 let currentStudentData = {
     name: '',
     kelas: '',
@@ -982,23 +984,67 @@ function updateCountdownUI() {
     }
 }
 
-// Open Kelas 4 Dedicated Exam Modal
-function openRemedialKelas4() {
+// Open Kelas 4 Dedicated Exam Modal (Ujian Utama / Remedial)
+function openRemedialKelas4(mode) {
+    currentExamMode = mode || 'remedial';
     playCuteSound('pop');
     if (!isExamSessionOpen()) {
         playCuteSound('pop');
-        alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian remedial saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan. Silakan tunggu instruksi guru di ruang kelas.");
+        alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan. Silakan tunggu instruksi guru di ruang kelas.");
         return;
     }
     syncExamUIWithQuestionModules();
     const modal = document.getElementById('examModalK4');
-    modal.classList.add('open');
+    if (modal) modal.classList.add('open');
+
+    // Adaptasi teks banner konfirmasi periode di modal
+    const periodBadge = document.getElementById('k4PeriodBadgeConfirm');
+    const periodLabel = document.querySelector('#k4PeriodConfirmBanner .period-confirm-label');
+    const pConfig = REMEDIAL_PERIODS[activeTeacherRemedialPeriod] || REMEDIAL_PERIODS['sem1_pts'];
+    if (periodBadge) {
+        if (currentExamMode === 'ujian') {
+            const periodTitleMap = {
+                sem1_pts: 'Semester 1 • Ujian PTS Semester 1',
+                sem1_pas: 'Semester 1 • Ujian PAS Semester 1',
+                sem2_pts: 'Semester 2 • Ujian PTS Semester 2',
+                sem2_pas: 'Semester 2 • Ujian PAS Semester 2'
+            };
+            periodBadge.innerText = periodTitleMap[activeTeacherRemedialPeriod] || pConfig.name;
+            if (periodLabel) periodLabel.innerText = 'JENIS ASESMEN RESMI:';
+        } else {
+            periodBadge.innerText = pConfig.name;
+            if (periodLabel) periodLabel.innerText = 'JENIS UJIAN REMEDIAL:';
+        }
+    }
+
+    // Sembunyikan input Nilai Awal jika Ujian Utama (karena Ujian Utama bukan remedial)
+    const nilaiAwalInput = document.getElementById('k4NilaiAwal');
+    const nilaiAwalWrap = nilaiAwalInput ? nilaiAwalInput.closest('.form-group') : null;
+    if (nilaiAwalWrap && nilaiAwalInput) {
+        if (currentExamMode === 'ujian') {
+            nilaiAwalWrap.style.display = 'none';
+            nilaiAwalInput.required = false;
+            nilaiAwalInput.value = '0';
+        } else {
+            nilaiAwalWrap.style.display = 'block';
+            nilaiAwalInput.required = true;
+            if (nilaiAwalInput.value === '0') nilaiAwalInput.value = '';
+        }
+    }
 
     // Always start at identity step
     showExamStep('identity');
 
-    document.getElementById('mascotBubble').innerHTML = `<span>Silakan isi nama, nilai awal, dan pilih kelasmu (4A-4E) untuk memulai remedial! Waktu pengerjaan: 60 Menit ⏰</span>`;
+    const bubble = document.getElementById('mascotBubble');
+    if (bubble) {
+        if (currentExamMode === 'ujian') {
+            bubble.innerHTML = `<span>Selamat datang di Ujian Utama Kelas 4! Silakan isi nama, nomor absen, dan pilih kelasmu (4A-4E). Waktu: 60 Menit ⏰</span>`;
+        } else {
+            bubble.innerHTML = `<span>Silakan isi nama, nilai awal, dan pilih kelasmu (4A-4E) untuk memulai remedial! Waktu pengerjaan: 60 Menit ⏰</span>`;
+        }
+    }
 }
+const openExamKelas4 = () => openRemedialKelas4('ujian');
 
 function closeExamModalK4() {
     playCuteSound('pop');
@@ -1761,11 +1807,12 @@ function updateCountdownUIK5() {
     }
 }
 
-function openRemedialKelas5() {
+function openRemedialKelas5(mode) {
+    currentExamMode = mode || 'remedial';
     playCuteSound('pop');
     if (!isExamSessionOpen()) {
         playCuteSound('pop');
-        alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian remedial saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan. Silakan tunggu instruksi guru di ruang kelas.");
+        alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan. Silakan tunggu instruksi guru di ruang kelas.");
         return;
     }
     syncExamUIWithQuestionModules();
@@ -1773,13 +1820,33 @@ function openRemedialKelas5() {
     if (!modal) return;
     modal.classList.add('open');
 
+    // Sembunyikan input Nilai Awal jika Ujian Utama
+    const nilaiAwalInput = document.getElementById('k5NilaiAwal');
+    const nilaiAwalWrap = nilaiAwalInput ? nilaiAwalInput.closest('.form-group') : null;
+    if (nilaiAwalWrap && nilaiAwalInput) {
+        if (currentExamMode === 'ujian') {
+            nilaiAwalWrap.style.display = 'none';
+            nilaiAwalInput.required = false;
+            nilaiAwalInput.value = '0';
+        } else {
+            nilaiAwalWrap.style.display = 'block';
+            nilaiAwalInput.required = true;
+            if (nilaiAwalInput.value === '0') nilaiAwalInput.value = '';
+        }
+    }
+
     showExamStepK5('identity');
 
     const bubble = document.getElementById('mascotBubble');
     if (bubble) {
-        bubble.innerHTML = `<span>Selamat datang di Remedial Kelas 5D! Masukkan nama, nilai awal, dan nomor absenmu. Waktu: 60 Menit ⏰</span>`;
+        if (currentExamMode === 'ujian') {
+            bubble.innerHTML = `<span>Selamat datang di Ujian Utama Kelas 5D! Masukkan nama lengkap dan nomor absenmu. Waktu: 60 Menit ⏰</span>`;
+        } else {
+            bubble.innerHTML = `<span>Selamat datang di Remedial Kelas 5D! Masukkan nama, nilai awal, dan nomor absenmu. Waktu: 60 Menit ⏰</span>`;
+        }
     }
 }
+const openExamKelas5 = () => openRemedialKelas5('ujian');
 
 function closeExamModalK5() {
     playCuteSound('pop');
@@ -2441,11 +2508,12 @@ function updateCountdownUIK6() {
     }
 }
 
-function openRemedialKelas6() {
+function openRemedialKelas6(mode) {
+    currentExamMode = mode || 'remedial';
     playCuteSound('pop');
     if (!isExamSessionOpen()) {
         playCuteSound('pop');
-        alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian remedial saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan. Silakan tunggu instruksi guru di ruang kelas.");
+        alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan. Silakan tunggu instruksi guru di ruang kelas.");
         return;
     }
     syncExamUIWithQuestionModules();
@@ -2453,13 +2521,33 @@ function openRemedialKelas6() {
     if (!modal) return;
     modal.classList.add('open');
 
+    // Sembunyikan input Nilai Awal jika Ujian Utama
+    const nilaiAwalInput = document.getElementById('k6NilaiAwal');
+    const nilaiAwalWrap = nilaiAwalInput ? nilaiAwalInput.closest('.form-group') : null;
+    if (nilaiAwalWrap && nilaiAwalInput) {
+        if (currentExamMode === 'ujian') {
+            nilaiAwalWrap.style.display = 'none';
+            nilaiAwalInput.required = false;
+            nilaiAwalInput.value = '0';
+        } else {
+            nilaiAwalWrap.style.display = 'block';
+            nilaiAwalInput.required = true;
+            if (nilaiAwalInput.value === '0') nilaiAwalInput.value = '';
+        }
+    }
+
     showExamStepK6('identity');
 
     const bubble = document.getElementById('mascotBubble');
     if (bubble) {
-        bubble.innerHTML = `<span>Selamat datang di Remedial Kelas 6! Masukkan nama, nilai awal, dan pilih kelasmu (6A-6E). Waktu: 60 Menit ⏰</span>`;
+        if (currentExamMode === 'ujian') {
+            bubble.innerHTML = `<span>Selamat datang di Ujian Utama Kelas 6! Masukkan nama lengkap dan pilih kelasmu (6A-6E). Waktu: 60 Menit ⏰</span>`;
+        } else {
+            bubble.innerHTML = `<span>Selamat datang di Remedial Kelas 6! Masukkan nama, nilai awal, dan pilih kelasmu (6A-6E). Waktu: 60 Menit ⏰</span>`;
+        }
     }
 }
+const openExamKelas6 = () => openRemedialKelas6('ujian');
 
 function closeExamModalK6() {
     playCuteSound('pop');
