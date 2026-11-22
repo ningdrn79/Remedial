@@ -984,6 +984,132 @@ function updateCountdownUI() {
     }
 }
 
+// Helper Sinkronisasi UI Form Ujian Utama vs Form Remedial
+function updateExamModalModeUI(grade, mode) {
+    const isUjian = (mode === 'ujian');
+    const pConfig = REMEDIAL_PERIODS[activeTeacherRemedialPeriod] || REMEDIAL_PERIODS['sem1_pts'];
+    const periodTitleMap = {
+        sem1_pts: 'Semester 1 • Ujian PTS Semester 1',
+        sem1_pas: 'Semester 1 • Ujian PAS Semester 1',
+        sem2_pts: 'Semester 2 • Ujian PTS Semester 2',
+        sem2_pas: 'Semester 2 • Ujian PAS Semester 2'
+    };
+    const periodTitleMapShort = {
+        sem1_pts: 'Ujian PTS 1',
+        sem1_pas: 'Ujian PAS 1',
+        sem2_pts: 'Ujian PTS 2',
+        sem2_pas: 'Ujian PAS 2'
+    };
+    const officialTitle = isUjian ? (periodTitleMap[activeTeacherRemedialPeriod] || pConfig.name) : pConfig.name;
+    const gradeLabel = (grade === 'k4') ? 'Kelas 4' : (grade === 'k5' ? 'Kelas 5D' : 'Kelas 6');
+    const classChoiceHint = (grade === 'k4') ? 'pilih kelasmu (4A-4E)' : (grade === 'k5' ? 'kelas 5D' : 'pilih kelasmu (6A-6E)');
+
+    // 1. Header Banner Modal (Subtitle)
+    const modalId = (grade === 'k4') ? 'examModalK4' : (grade === 'k5' ? 'examModalK5' : 'examModalK6');
+    const modalElem = document.getElementById(modalId);
+    if (modalElem) {
+        const subtitleElem = modalElem.querySelector('.school-subtitle');
+        if (subtitleElem && pConfig.bannerSubtitle) {
+            subtitleElem.innerText = pConfig.bannerSubtitle;
+        }
+
+        // Tombol submit pada lembar soal
+        const submitScoreBtnSpan = modalElem.querySelector('.exam-submit-bar .btn-calculate-score span');
+        if (submitScoreBtnSpan) {
+            submitScoreBtnSpan.innerText = isUjian ? `Kirim Lembar Jawaban Ujian ${gradeLabel}` : `Kirim Jawaban & Dapatkan Score Remedial ${gradeLabel}`;
+        }
+
+        // Tag Nilai Akhir pada layar hasil
+        const hugeScoreTag = modalElem.querySelector('.huge-score-tag');
+        if (hugeScoreTag) {
+            hugeScoreTag.innerText = isUjian ? `NILAI AKHIR ASESMEN UJIAN ${gradeLabel.toUpperCase()}` : `NILAI AKHIR REMEDIAL ${gradeLabel.toUpperCase()}`;
+        }
+
+        // Tombol keluar pengaman
+        const exitBtnSpan = modalElem.querySelector('.btn-exit-exam-safeguard span');
+        if (exitBtnSpan) {
+            exitBtnSpan.innerText = isUjian ? 'Salah Ujian? Keluar' : 'Salah Remedial? Keluar';
+        }
+    }
+
+    // 2. Banner Konfirmasi Periode
+    const badgeId = (grade === 'k4') ? 'k4PeriodBadgeConfirm' : (grade === 'k5') ? 'k5PeriodBadgeConfirm' : 'k6PeriodBadgeConfirm';
+    const boxId = (grade === 'k4') ? 'k4PeriodConfirmBanner' : (grade === 'k5') ? 'k5PeriodConfirmBanner' : 'k6PeriodConfirmBanner';
+    const badgeEl = document.getElementById(badgeId);
+    const bannerBox = document.getElementById(boxId);
+    const labelEl = bannerBox ? bannerBox.querySelector('.period-confirm-label') : null;
+    if (badgeEl) badgeEl.innerText = officialTitle;
+    if (labelEl) labelEl.innerText = isUjian ? 'JENIS UJIAN UTAMA RESMI:' : 'JENIS UJIAN REMEDIAL:';
+
+    // 3. Judul & Subtitle Form Identitas Siswa
+    const stepIdentity = document.getElementById(`${grade}-step-identity`);
+    if (stepIdentity) {
+        const titleEl = stepIdentity.querySelector('.step-title');
+        const subtitleEl = stepIdentity.querySelector('.step-subtitle');
+
+        if (titleEl) {
+            titleEl.innerText = isUjian ? `Pengisian Identitas Peserta Ujian - ${gradeLabel}` : `Pengisian Identitas Remedial Siswa - ${gradeLabel}`;
+        }
+        if (subtitleEl) {
+            subtitleEl.innerText = isUjian 
+                ? `Silakan isi nama lengkap, nomor absen, ${classChoiceHint}, dan token ujian dari guru pengawas.` 
+                : `Silakan isi nama lengkap, ${classChoiceHint}, dan masukkan nilai awalmu sebelum mengerjakan remedial.`;
+        }
+
+        const startBtnSpan = stepIdentity.querySelector('.btn-start-exam span');
+        if (startBtnSpan) {
+            startBtnSpan.innerText = isUjian ? `Mulai Kerjakan Ujian Utama ${gradeLabel}` : `Mulai Kerjakan Soal Remedial ${gradeLabel}`;
+        }
+    }
+
+    // 4. Sembunyikan Input Nilai Awal jika Ujian Utama
+    const nilaiAwalInput = document.getElementById(`${grade}NilaiAwal`);
+    const nilaiAwalWrap = nilaiAwalInput ? nilaiAwalInput.closest('.form-group') : null;
+    if (nilaiAwalWrap && nilaiAwalInput) {
+        if (isUjian) {
+            nilaiAwalWrap.style.display = 'none';
+            nilaiAwalInput.required = false;
+            nilaiAwalInput.value = '0';
+        } else {
+            nilaiAwalWrap.style.display = 'block';
+            nilaiAwalInput.required = true;
+            if (nilaiAwalInput.value === '0') nilaiAwalInput.value = '';
+        }
+    }
+
+    // 5. Template PDF Sinkronisasi Header Dokumen
+    const pdfId = (grade === 'k4') ? 'pdfDocumentElement' : (grade === 'k5' ? 'pdfDocumentElementK5' : 'pdfDocumentElementK6');
+    const pdfCard = document.getElementById(pdfId);
+    if (pdfCard) {
+        const titleH4 = pdfCard.querySelector('.pdf-title-block h4');
+        if (titleH4) {
+            titleH4.innerText = isUjian ? 'SURAT KETERANGAN HASIL ASESMEN UJIAN' : 'SURAT KETERANGAN HASIL EVALUASI REMEDIAL';
+        }
+        const initialScoreRow = pdfCard.querySelector('.pdf-grades-table tbody tr:first-child td:nth-child(2)');
+        if (initialScoreRow) {
+            initialScoreRow.innerText = isUjian ? 'Standar Kelulusan (KKM)' : 'Nilai Awal (Sebelum Remedial)';
+        }
+        const totalRowLabel = pdfCard.querySelector('.pdf-grade-total-row td strong');
+        if (totalRowLabel) {
+            totalRowLabel.innerText = isUjian ? 'NILAI AKHIR ASESMEN UJIAN' : 'NILAI AKHIR EVALUASI REMEDIAL';
+        }
+        const footerNote = pdfCard.querySelector('.pdf-official-note small');
+        if (footerNote) {
+            footerNote.innerText = isUjian 
+                ? '* Dokumen laporan hasil asesmen ujian resmi diterbitkan melalui Portal EduCode AI SDS Cinta Kasih Tzu Chi.'
+                : '* Dokumen laporan hasil remedial resmi diterbitkan melalui Portal EduCode AI SDS Cinta Kasih Tzu Chi.';
+        }
+    }
+
+    // 6. Mascot Bubble
+    const bubble = document.getElementById('mascotBubble');
+    if (bubble) {
+        bubble.innerHTML = isUjian
+            ? `<span>Selamat datang di Ujian Utama ${gradeLabel}! Kerjakan soal dengan jujur, teliti, dan mandiri. Waktu: 60 Menit ⏰</span>`
+            : `<span>Silakan isi identitas dan nilai awalmu untuk memulai remedial ${gradeLabel}! Waktu pengerjaan: 60 Menit ⏰</span>`;
+    }
+}
+
 // Open Kelas 4 Dedicated Exam Modal (Ujian Utama / Remedial)
 function openRemedialKelas4(mode) {
     currentExamMode = mode || 'remedial';
@@ -997,52 +1123,8 @@ function openRemedialKelas4(mode) {
     const modal = document.getElementById('examModalK4');
     if (modal) modal.classList.add('open');
 
-    // Adaptasi teks banner konfirmasi periode di modal
-    const periodBadge = document.getElementById('k4PeriodBadgeConfirm');
-    const periodLabel = document.querySelector('#k4PeriodConfirmBanner .period-confirm-label');
-    const pConfig = REMEDIAL_PERIODS[activeTeacherRemedialPeriod] || REMEDIAL_PERIODS['sem1_pts'];
-    if (periodBadge) {
-        if (currentExamMode === 'ujian') {
-            const periodTitleMap = {
-                sem1_pts: 'Semester 1 • Ujian PTS Semester 1',
-                sem1_pas: 'Semester 1 • Ujian PAS Semester 1',
-                sem2_pts: 'Semester 2 • Ujian PTS Semester 2',
-                sem2_pas: 'Semester 2 • Ujian PAS Semester 2'
-            };
-            periodBadge.innerText = periodTitleMap[activeTeacherRemedialPeriod] || pConfig.name;
-            if (periodLabel) periodLabel.innerText = 'JENIS ASESMEN RESMI:';
-        } else {
-            periodBadge.innerText = pConfig.name;
-            if (periodLabel) periodLabel.innerText = 'JENIS UJIAN REMEDIAL:';
-        }
-    }
-
-    // Sembunyikan input Nilai Awal jika Ujian Utama (karena Ujian Utama bukan remedial)
-    const nilaiAwalInput = document.getElementById('k4NilaiAwal');
-    const nilaiAwalWrap = nilaiAwalInput ? nilaiAwalInput.closest('.form-group') : null;
-    if (nilaiAwalWrap && nilaiAwalInput) {
-        if (currentExamMode === 'ujian') {
-            nilaiAwalWrap.style.display = 'none';
-            nilaiAwalInput.required = false;
-            nilaiAwalInput.value = '0';
-        } else {
-            nilaiAwalWrap.style.display = 'block';
-            nilaiAwalInput.required = true;
-            if (nilaiAwalInput.value === '0') nilaiAwalInput.value = '';
-        }
-    }
-
-    // Always start at identity step
+    updateExamModalModeUI('k4', currentExamMode);
     showExamStep('identity');
-
-    const bubble = document.getElementById('mascotBubble');
-    if (bubble) {
-        if (currentExamMode === 'ujian') {
-            bubble.innerHTML = `<span>Selamat datang di Ujian Utama Kelas 4! Silakan isi nama, nomor absen, dan pilih kelasmu (4A-4E). Waktu: 60 Menit ⏰</span>`;
-        } else {
-            bubble.innerHTML = `<span>Silakan isi nama, nilai awal, dan pilih kelasmu (4A-4E) untuk memulai remedial! Waktu pengerjaan: 60 Menit ⏰</span>`;
-        }
-    }
 }
 const openExamKelas4 = () => openRemedialKelas4('ujian');
 
@@ -1107,10 +1189,11 @@ function startExamK4(event) {
     );
     if (alreadyDone) {
         playCuteSound('pop');
+        const examLabel = (currentExamMode === 'ujian') ? 'ujian utama' : 'remedial';
         const confirmRetry = confirm(
             `⚠️ SISWA SUDAH PERNAH MENGERJAKAN!\n\n` +
-            `Nama "${name}" di Kelas ${selectedClass} sudah pernah tercatat mengerjakan remedial.\n\n` +
-            `Apakah Ibu Guru/Siswa ingin MENGERJAKAN ULANG remedial ini?\n` +
+            `Nama "${name}" di Kelas ${selectedClass} sudah pernah tercatat mengerjakan ${examLabel}.\n\n` +
+            `Apakah Ibu Guru/Siswa ingin MENGERJAKAN ULANG ${examLabel} ini?\n` +
             `• Klik OK: Untuk mengizinkan pengerjaan ulang (nilai baru akan tersimpan).\n` +
             `• Klik Batal (Cancel): Jika tidak ingin mengulang.`
         );
@@ -1127,14 +1210,38 @@ function startExamK4(event) {
     // Update sticky exam bar
     document.getElementById('barStudentName').innerText = currentStudentData.name;
     document.getElementById('barStudentClass').innerText = `Kelas ${currentStudentData.kelas}`;
-    document.getElementById('barStudentInitialScore').innerText = currentStudentData.nilaiAwal;
+    const barTag = document.getElementById('barExamPeriodTag');
+    if (barTag) {
+        const periodTitleMapShort = {
+            sem1_pts: 'Ujian PTS 1',
+            sem1_pas: 'Ujian PAS 1',
+            sem2_pts: 'Ujian PTS 2',
+            sem2_pas: 'Ujian PAS 2'
+        };
+        barTag.innerText = (currentExamMode === 'ujian')
+            ? (periodTitleMapShort[activeTeacherRemedialPeriod] || 'Ujian Utama')
+            : (REMEDIAL_PERIODS[activeTeacherRemedialPeriod]?.shortName || 'Remedial');
+    }
+    const initialScoreElem = document.getElementById('barStudentInitialScore');
+    if (initialScoreElem) {
+        if (currentExamMode === 'ujian') {
+            initialScoreElem.innerText = '80 (KKM)';
+            const lbl = initialScoreElem.previousElementSibling;
+            if (lbl) lbl.innerText = 'Standar Kelulusan:';
+        } else {
+            initialScoreElem.innerText = currentStudentData.nilaiAwal;
+            const lbl = initialScoreElem.previousElementSibling;
+            if (lbl) lbl.innerText = 'Nilai Awal:';
+        }
+    }
 
     // Start 60 minutes timer
     startCountdownTimer();
 
     // Show Questions
     showExamStep('questions');
-    showToast(`Selamat mengerjakan, ${name}! Waktu: 60 Menit ⏰`);
+    const examGreeting = (currentExamMode === 'ujian') ? 'Ujian Utama' : 'Remedial';
+    showToast(`Selamat mengerjakan ${examGreeting}, ${name}! Waktu: 60 Menit ⏰`);
 }
 
 // Answer Keys and Questions Metadata for Pilihan Ganda (10 Soal)
@@ -1436,6 +1543,7 @@ function calculateAndShowScore(event) {
     const totalScore = pgScore + uraianScore;
     const studentName = currentStudentData.name || 'Sahabat Pintar';
     const studentClass = currentStudentData.kelas || '4A';
+    const isUjian = (currentExamMode === 'ujian');
 
     // Simpan data nilai untuk dicetak ke PDF
     completedExamScores = {
@@ -1443,7 +1551,9 @@ function calculateAndShowScore(event) {
         pg: pgScore,
         uraian: uraianScore,
         final: totalScore,
-        status: totalScore >= 80 ? 'LULUS REMEDIAL' : 'TUNTAS REMEDIAL',
+        status: isUjian 
+            ? (totalScore >= 80 ? 'LULUS UJIAN' : 'PERLU REMEDIAL')
+            : (totalScore >= 80 ? 'LULUS REMEDIAL' : 'TUNTAS REMEDIAL'),
         predicate: totalScore >= 90 ? 'SANGAT MEMUASKAN' : (totalScore >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK')
     };
 
@@ -1458,34 +1568,28 @@ function calculateAndShowScore(event) {
 
     if (totalScore >= 90) {
         mascotIcon.innerText = '🏆';
-        predicateBadge.innerText = '🌟 LULUS REMEDIAL DENGAN GEMILANG!';
+        predicateBadge.innerText = isUjian ? '🌟 LULUS ASESMEN UJIAN DENGAN GEMILANG!' : '🌟 LULUS REMEDIAL DENGAN GEMILANG!';
         predicateBadge.style.background = 'linear-gradient(135deg, #059669, #10b981)';
         motivationTitle.innerHTML = `Luar Biasa, ${studentName}! Prestasi yang Sangat Membanggakan! 🎉`;
-        motivationMessage.innerHTML = `
-            Selamat atas keberhasilanmu! Usaha keras, ketelitian, dan ketulusan hatimu dalam belajar Koding dan Kecerdasan Artifisial hari ini membuahkan hasil yang luar biasa!
-            <br><br>
-            Kamu telah membuktikan bahwa dengan ketekunan, rumus Excel dan logika AI bisa kamu kuasai dengan sangat baik. Teruslah pertahankan semangat belajar yang tinggi dan jadilah inspirasi bagi teman-temanmu! 🚀✨
-        `;
+        motivationMessage.innerHTML = isUjian
+            ? `Selamat atas keberhasilanmu! Usaha keras, ketelitian, dan ketulusan hatimu dalam mengerjakan Ujian Resmi Koding dan Kecerdasan Artifisial hari ini membuahkan hasil yang luar biasa!<br><br>Kamu telah membuktikan penguasaan materi yang sangat baik. Teruslah pertahankan semangat belajar yang tinggi dan jadilah inspirasi bagi teman-temanmu! 🚀✨`
+            : `Selamat atas keberhasilanmu! Usaha keras, ketelitian, dan ketulusan hatimu dalam belajar Koding dan Kecerdasan Artifisial hari ini membuahkan hasil yang luar biasa!<br><br>Kamu telah membuktikan bahwa dengan ketekunan, rumus Excel dan logika AI bisa kamu kuasai dengan sangat baik. Teruslah pertahankan semangat belajar yang tinggi dan jadilah inspirasi bagi teman-temanmu! 🚀✨`;
     } else if (totalScore >= 80) {
         mascotIcon.innerText = '🎉';
-        predicateBadge.innerText = '✨ DINYATAKAN LULUS REMEDIAL (KKM 80)!';
+        predicateBadge.innerText = isUjian ? '✨ DINYATAKAN LULUS UJIAN (KKM 80)!' : '✨ DINYATAKAN LULUS REMEDIAL (KKM 80)!';
         predicateBadge.style.background = 'linear-gradient(135deg, #0284c7, #38bdf8)';
         motivationTitle.innerHTML = `Kerja Bagus, ${studentName}! Terus Melangkah Maju! 💡`;
-        motivationMessage.innerHTML = `
-            Hebat sekali! Skor remedialmu berhasil melampaui batas KKM 80 dan menunjukkan peningkatan pemahaman yang sangat bagus dan menggembirakan.
-            <br><br>
-            Koding dan logika komputer itu seperti petualangan seru: semakin sering kamu berlatih, pikiranmu akan semakin kreatif dan tangguh! Tetaplah rajin membaca, mempraktikkan rumus-rumus koding, dan jangan pernah ragu untuk terus mencoba hal-hal baru ya! Robi dan Bapak/Ibu Guru sangat bangga padamu! 🌱
-        `;
+        motivationMessage.innerHTML = isUjian
+            ? `Hebat sekali! Nilai ujianmu berhasil melampaui batas KKM 80 dan membuktikan pemahaman materi yang sangat mantap dan memuaskan.<br><br>Tetaplah rajin belajar dan berani mengeksplorasi teknologi baru. Robi dan Bapak/Ibu Guru sangat bangga padamu! 🌱`
+            : `Hebat sekali! Skor remedialmu berhasil melampaui batas KKM 80 dan menunjukkan peningkatan pemahaman yang sangat bagus dan menggembirakan.<br><br>Koding dan logika komputer itu seperti petualangan seru: semakin sering kamu berlatih, pikiranmu akan semakin kreatif dan tangguh! Tetaplah rajin membaca, mempraktikkan rumus-rumus koding, dan jangan pernah ragu untuk terus mencoba hal-hal baru ya! Robi dan Bapak/Ibu Guru sangat bangga padamu! 🌱`;
     } else {
         mascotIcon.innerText = '💪';
-        predicateBadge.innerText = '📖 PERLU PENGAYAAN & TETAP SEMANGAT!';
+        predicateBadge.innerText = isUjian ? '📖 BELUM TUNTAS KKM (PERLU REMEDIAL)' : '📖 PERLU PENGAYAAN & TETAP SEMANGAT!';
         predicateBadge.style.background = 'linear-gradient(135deg, #f59e0b, #ea580c)';
         motivationTitle.innerHTML = `Jangan Pernah Menyerah, ${studentName}! Kamu Pasti Bisa! 💖`;
-        motivationMessage.innerHTML = `
-            Terima kasih banyak sudah berani berusaha dan mengerjakan soal remedial ini dengan jujur dan mandiri!
-            <br><br>
-            Meskipun nilaimu belum mencapai batas KKM 80, setiap kesalahan (*bug*) dalam dunia koding adalah sahabat terbaik yang mengajarkan kita untuk menjadi lebih teliti dan bijaksana. Jangan berkecil hati ya! Tetap tersenyum, teruslah berlatih bersama Bapak/Ibu Guru dan Robi. Selangkah demi selangkah, kamu pasti bisa mencapai nilai terbaik! 🤖✨
-        `;
+        motivationMessage.innerHTML = isUjian
+            ? `Terima kasih sudah mengerjakan ujian ini dengan jujur dan mandiri.<br><br>Meskipun nilaimu saat ini belum mencapai standar KKM 80, jangan berkecil hati! Kamu akan mendapatkan kesempatan mengikuti sesi Remedial untuk memperbaiki nilaimu. Tetap semangat berlatih bersama Guru ya! 🤖✨`
+            : `Terima kasih banyak sudah berani berusaha dan mengerjakan soal remedial ini dengan jujur dan mandiri!<br><br>Meskipun nilaimu belum mencapai batas KKM 80, setiap kesalahan (*bug*) dalam dunia koding adalah sahabat terbaik yang mengajarkan kita untuk menjadi lebih teliti dan bijaksana. Jangan berkecil hati ya! Tetap tersenyum, teruslah berlatih bersama Bapak/Ibu Guru dan Robi. Selangkah demi selangkah, kamu pasti bisa mencapai nilai terbaik! 🤖✨`;
     }
 
     // Simpan riwayat pengerjaan siswa & LEMBAR JAWABAN LENGKAP ke Panel Guru (localStorage)
@@ -1502,7 +1606,8 @@ function calculateAndShowScore(event) {
         nilaiAkhir: totalScore,
         pgScore: pgScore,
         uraianScore: uraianScore,
-        status: totalScore >= 80 ? 'Lulus' : 'Tuntas',
+        status: isUjian ? (totalScore >= 80 ? 'Lulus Ujian' : 'Perlu Remedial') : (totalScore >= 80 ? 'Lulus' : 'Tuntas'),
+        examType: isUjian ? 'Ujian Utama' : 'Remedial',
         predicate: completedExamScores.predicate,
         duration: examDurationText,
         timestamp: timeString,
@@ -1528,7 +1633,7 @@ function calculateAndShowScore(event) {
 
     // Switch to result view
     showExamStep('result');
-    showToast(`Nilai Akhir Remedial: ${totalScore}! 🌟 (Waktu: ${examDurationText})`);
+    showToast(`${isUjian ? 'Nilai Akhir Ujian' : 'Nilai Akhir Remedial'}: ${totalScore}! 🌟 (Waktu: ${examDurationText})`);
 }
 
 // Fungsi Unduh Laporan Remedial Siswa dari Layar Hasil Siswa (PDF Ringkas)
@@ -1539,6 +1644,7 @@ function generateAndDownloadPDF() {
     const today = new Date();
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     const formattedDate = today.toLocaleDateString('id-ID', options);
+    const isUjian = (currentExamMode === 'ujian');
 
     // Isi template dokumen dengan data siswa
     document.getElementById('pdfReportName').innerText = currentStudentData.name || 'Siswa';
@@ -1547,7 +1653,7 @@ function generateAndDownloadPDF() {
     document.getElementById('pdfReportDuration').innerText = `${examDurationText} (Batas: 60 Menit)`;
     document.getElementById('pdfReportDate').innerText = formattedDate;
 
-    document.getElementById('pdfReportInitialScore').innerText = completedExamScores.initial;
+    document.getElementById('pdfReportInitialScore').innerText = isUjian ? '80 (KKM)' : completedExamScores.initial;
     document.getElementById('pdfReportPgScore').innerText = `${completedExamScores.pg} / 50 Poin`;
     document.getElementById('pdfReportUraianScore').innerText = `${completedExamScores.uraian} / 50 Poin`;
     document.getElementById('pdfReportFinalScore').innerText = completedExamScores.final;
@@ -1558,7 +1664,7 @@ function generateAndDownloadPDF() {
 
     const element = document.getElementById('pdfDocumentElement');
     const safeStudentName = (currentStudentData.name || 'Siswa').replace(/[^a-zA-Z0-9]/g, '_');
-    const filename = `Laporan_Remedial_${safeStudentName}_Kelas_${currentStudentData.kelas}.pdf`;
+    const filename = `${isUjian ? 'Laporan_Ujian' : 'Laporan_Remedial'}_${safeStudentName}_Kelas_${currentStudentData.kelas}.pdf`;
 
     if (typeof html2pdf !== 'undefined') {
         const opt = {
@@ -1820,31 +1926,8 @@ function openRemedialKelas5(mode) {
     if (!modal) return;
     modal.classList.add('open');
 
-    // Sembunyikan input Nilai Awal jika Ujian Utama
-    const nilaiAwalInput = document.getElementById('k5NilaiAwal');
-    const nilaiAwalWrap = nilaiAwalInput ? nilaiAwalInput.closest('.form-group') : null;
-    if (nilaiAwalWrap && nilaiAwalInput) {
-        if (currentExamMode === 'ujian') {
-            nilaiAwalWrap.style.display = 'none';
-            nilaiAwalInput.required = false;
-            nilaiAwalInput.value = '0';
-        } else {
-            nilaiAwalWrap.style.display = 'block';
-            nilaiAwalInput.required = true;
-            if (nilaiAwalInput.value === '0') nilaiAwalInput.value = '';
-        }
-    }
-
+    updateExamModalModeUI('k5', currentExamMode);
     showExamStepK5('identity');
-
-    const bubble = document.getElementById('mascotBubble');
-    if (bubble) {
-        if (currentExamMode === 'ujian') {
-            bubble.innerHTML = `<span>Selamat datang di Ujian Utama Kelas 5D! Masukkan nama lengkap dan nomor absenmu. Waktu: 60 Menit ⏰</span>`;
-        } else {
-            bubble.innerHTML = `<span>Selamat datang di Remedial Kelas 5D! Masukkan nama, nilai awal, dan nomor absenmu. Waktu: 60 Menit ⏰</span>`;
-        }
-    }
 }
 const openExamKelas5 = () => openRemedialKelas5('ujian');
 
@@ -1909,10 +1992,11 @@ function startExamK5(event) {
     );
     if (alreadyDone) {
         playCuteSound('pop');
+        const examLabel = (currentExamMode === 'ujian') ? 'ujian utama' : 'remedial';
         const confirmRetry = confirm(
             `⚠️ SISWA SUDAH PERNAH MENGERJAKAN!\n\n` +
-            `Nama "${name}" di Kelas ${selectedClass} sudah pernah tercatat mengerjakan remedial.\n\n` +
-            `Apakah Ibu Guru/Siswa ingin MENGERJAKAN ULANG remedial ini?\n` +
+            `Nama "${name}" di Kelas ${selectedClass} sudah pernah tercatat mengerjakan ${examLabel}.\n\n` +
+            `Apakah Ibu Guru/Siswa ingin MENGERJAKAN ULANG ${examLabel} ini?\n` +
             `• Klik OK: Untuk mengizinkan pengerjaan ulang (nilai baru akan tersimpan).\n` +
             `• Klik Batal (Cancel): Jika tidak ingin mengulang.`
         );
@@ -1928,12 +2012,36 @@ function startExamK5(event) {
 
     document.getElementById('barStudentNameK5').innerText = currentStudentDataK5.name;
     document.getElementById('barStudentClassK5').innerText = `Kelas ${currentStudentDataK5.kelas}`;
-    document.getElementById('barStudentInitialScoreK5').innerText = currentStudentDataK5.nilaiAwal;
+    const barTagK5 = document.getElementById('barExamPeriodTagK5');
+    if (barTagK5) {
+        const periodTitleMapShort = {
+            sem1_pts: 'Ujian PTS 1',
+            sem1_pas: 'Ujian PAS 1',
+            sem2_pts: 'Ujian PTS 2',
+            sem2_pas: 'Ujian PAS 2'
+        };
+        barTagK5.innerText = (currentExamMode === 'ujian')
+            ? (periodTitleMapShort[activeTeacherRemedialPeriod] || 'Ujian Utama')
+            : (REMEDIAL_PERIODS[activeTeacherRemedialPeriod]?.shortName || 'Remedial');
+    }
+    const initialScoreElemK5 = document.getElementById('barStudentInitialScoreK5');
+    if (initialScoreElemK5) {
+        if (currentExamMode === 'ujian') {
+            initialScoreElemK5.innerText = '80 (KKM)';
+            const lbl = initialScoreElemK5.previousElementSibling;
+            if (lbl) lbl.innerText = 'Standar Kelulusan:';
+        } else {
+            initialScoreElemK5.innerText = currentStudentDataK5.nilaiAwal;
+            const lbl = initialScoreElemK5.previousElementSibling;
+            if (lbl) lbl.innerText = 'Nilai Awal:';
+        }
+    }
 
     startCountdownTimerK5();
 
     showExamStepK5('questions');
-    showToast(`Selamat mengerjakan remedial Kelas 5, ${name}! Waktu: 60 Menit ⏰`);
+    const examGreeting = (currentExamMode === 'ujian') ? 'Ujian Utama' : 'Remedial';
+    showToast(`Selamat mengerjakan ${examGreeting} Kelas 5, ${name}! Waktu: 60 Menit ⏰`);
 }
 
 function calculateAndShowScoreK5(event) {
@@ -2144,13 +2252,16 @@ function calculateAndShowScoreK5(event) {
     const totalScore = pgScore + uraianScore;
     const studentName = currentStudentDataK5.name || 'Sahabat Pintar Kelas 5';
     const studentClass = currentStudentDataK5.kelas || '5D';
+    const isUjian = (currentExamMode === 'ujian');
 
     completedExamScoresK5 = {
         initial: currentStudentDataK5.nilaiAwal,
         pg: pgScore,
         uraian: uraianScore,
         final: totalScore,
-        status: totalScore >= 80 ? 'LULUS REMEDIAL' : 'TUNTAS REMEDIAL',
+        status: isUjian 
+            ? (totalScore >= 80 ? 'LULUS UJIAN' : 'PERLU REMEDIAL')
+            : (totalScore >= 80 ? 'LULUS REMEDIAL' : 'TUNTAS REMEDIAL'),
         predicate: totalScore >= 90 ? 'SANGAT MEMUASKAN' : (totalScore >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK')
     };
 
@@ -2165,34 +2276,28 @@ function calculateAndShowScoreK5(event) {
 
     if (totalScore >= 90) {
         mascotIcon.innerText = '🏆';
-        predicateBadge.innerText = '🌟 LULUS REMEDIAL DENGAN GEMILANG!';
+        predicateBadge.innerText = isUjian ? '🌟 LULUS ASESMEN UJIAN DENGAN GEMILANG!' : '🌟 LULUS REMEDIAL DENGAN GEMILANG!';
         predicateBadge.style.background = 'linear-gradient(135deg, #059669, #10b981)';
         motivationTitle.innerHTML = `Luar Biasa, ${studentName}! Presentasimu Sangat Memukau! 🚀`;
-        motivationMessage.innerHTML = `
-            Selamat atas keberhasilanmu! Usaha keras, ketelitian, dan kejujuranmu dalam memahami konsep Microsoft PowerPoint, efek transisi, serta kecerdasan buatan (AI) pembuat slide hari ini membuahkan hasil yang luar biasa!
-            <br><br>
-            Kamu telah membuktikan bahwa dengan ketekunan, kamu bisa menjadi pembuat presentasi yang kreatif dan andal. Teruslah bereksplorasi dengan berbagai ide visual yang hebat dan jadilah inspirasi bagi teman-temanmu! ✨📊
-        `;
+        motivationMessage.innerHTML = isUjian
+            ? `Selamat atas keberhasilanmu! Usaha keras, ketelitian, dan kejujuranmu dalam memahami konsep Microsoft PowerPoint, efek transisi, serta kecerdasan buatan (AI) pembuat slide hari ini membuahkan hasil yang luar biasa!<br><br>Kamu telah membuktikan kemampuan penguasaan materi presentasi yang sangat memuaskan. Teruslah pertahankan prestasi gemilangmu! ✨📊`
+            : `Selamat atas keberhasilanmu! Usaha keras, ketelitian, dan kejujuranmu dalam memahami konsep Microsoft PowerPoint, efek transisi, serta kecerdasan buatan (AI) pembuat slide hari ini membuahkan hasil yang luar biasa!<br><br>Kamu telah membuktikan bahwa dengan ketekunan, kamu bisa menjadi pembuat presentasi yang kreatif dan andal. Teruslah bereksplorasi dengan berbagai ide visual yang hebat dan jadilah inspirasi bagi teman-temanmu! ✨📊`;
     } else if (totalScore >= 80) {
         mascotIcon.innerText = '🎉';
-        predicateBadge.innerText = '✨ DINYATAKAN LULUS REMEDIAL (KKM 80)!';
+        predicateBadge.innerText = isUjian ? '✨ DINYATAKAN LULUS UJIAN (KKM 80)!' : '✨ DINYATAKAN LULUS REMEDIAL (KKM 80)!';
         predicateBadge.style.background = 'linear-gradient(135deg, #0284c7, #38bdf8)';
         motivationTitle.innerHTML = `Kerja Bagus, ${studentName}! Terus Kembangkan Kreasimu! 💡`;
-        motivationMessage.innerHTML = `
-            Hebat sekali! Skor remedialmu berhasil melampaui batas KKM 80 dan membuktikan pemahaman yang sangat baik dalam mendesain slide presentasi dan memanfaatkan teknologi AI.
-            <br><br>
-            Presentasi adalah media komunikasi masa depan: semakin sering kamu berlatih memadukan teks, gambar, dan transisi, presentasimu akan semakin keren dan mengagumkan! Tetaplah rajin berlatih bersama Ibu Guru Darningsih ya! 🌱
-        `;
+        motivationMessage.innerHTML = isUjian
+            ? `Hebat sekali! Nilai ujianmu berhasil melampaui standar KKM 80 dan membuktikan pemahaman yang sangat baik dalam mendesain slide presentasi dan memanfaatkan teknologi AI.<br><br>Presentasi adalah media komunikasi penting: teruslah berlatih dan berkreasi bersama Ibu Guru Darningsih ya! 🌱`
+            : `Hebat sekali! Skor remedialmu berhasil melampaui batas KKM 80 dan membuktikan pemahaman yang sangat baik dalam mendesain slide presentasi dan memanfaatkan teknologi AI.<br><br>Presentasi adalah media komunikasi masa depan: semakin sering kamu berlatih memadukan teks, gambar, dan transisi, presentasimu akan semakin keren dan mengagumkan! Tetaplah rajin berlatih bersama Ibu Guru Darningsih ya! 🌱`;
     } else {
         mascotIcon.innerText = '💪';
-        predicateBadge.innerText = '📖 PERLU PENGAYAAN & TETAP SEMANGAT!';
+        predicateBadge.innerText = isUjian ? '📖 BELUM TUNTAS KKM (PERLU REMEDIAL)' : '📖 PERLU PENGAYAAN & TETAP SEMANGAT!';
         predicateBadge.style.background = 'linear-gradient(135deg, #f59e0b, #ea580c)';
         motivationTitle.innerHTML = `Jangan Pernah Menyerah, ${studentName}! Kamu Pasti Bisa! 💖`;
-        motivationMessage.innerHTML = `
-            Terima kasih banyak sudah berusaha dan mengerjakan soal remedial ini secara mandiri dan jujur!
-            <br><br>
-            Meskipun nilaimu belum mencapai batas KKM 80, setiap tantangan adalah kesempatan terbaik untuk mengasah kreativitas kita. Jangan berkecil hati ya! Pelajari kembali menu-menu PowerPoint dan cara membuat prompt AI. Teruslah mencoba bersama Bapak/Ibu Guru, kamu pasti akan menjadi ahli presentasi yang hebat! 🤖✨
-        `;
+        motivationMessage.innerHTML = isUjian
+            ? `Terima kasih banyak sudah berusaha dan mengerjakan lembar ujian ini secara mandiri dan jujur.<br><br>Meskipun nilaimu belum mencapai batas KKM 80, kamu berhak mengikuti sesi perbaikan/remedial yang dijadwalkan oleh Ibu Guru. Pelajari kembali materi PowerPoint dan prompt AI, kamu pasti bisa meningkat! 🤖✨`
+            : `Terima kasih banyak sudah berusaha dan mengerjakan soal remedial ini secara mandiri dan jujur!<br><br>Meskipun nilaimu belum mencapai batas KKM 80, setiap tantangan adalah kesempatan terbaik untuk mengasah kreativitas kita. Jangan berkecil hati ya! Pelajari kembali menu-menu PowerPoint dan cara membuat prompt AI. Teruslah mencoba bersama Bapak/Ibu Guru, kamu pasti akan menjadi ahli presentasi yang hebat! 🤖✨`;
     }
 
     // Simpan ke Panel Guru
@@ -2209,7 +2314,8 @@ function calculateAndShowScoreK5(event) {
         nilaiAkhir: totalScore,
         pgScore: pgScore,
         uraianScore: uraianScore,
-        status: totalScore >= 80 ? 'Lulus' : 'Tuntas',
+        status: isUjian ? (totalScore >= 80 ? 'Lulus Ujian' : 'Perlu Remedial') : (totalScore >= 80 ? 'Lulus' : 'Tuntas'),
+        examType: isUjian ? 'Ujian Utama' : 'Remedial',
         predicate: completedExamScoresK5.predicate,
         duration: examDurationTextK5,
         timestamp: timeString,
@@ -2233,7 +2339,7 @@ function calculateAndShowScoreK5(event) {
     }
 
     showExamStepK5('result');
-    showToast(`Nilai Akhir Remedial Kelas 5: ${totalScore}! 🌟 (Waktu: ${examDurationTextK5})`);
+    showToast(`${isUjian ? 'Nilai Akhir Ujian Kelas 5' : 'Nilai Akhir Remedial Kelas 5'}: ${totalScore}! 🌟 (Waktu: ${examDurationTextK5})`);
 }
 
 function generateAndDownloadPDFK5() {
@@ -2243,6 +2349,7 @@ function generateAndDownloadPDFK5() {
     const today = new Date();
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     const formattedDate = today.toLocaleDateString('id-ID', options);
+    const isUjian = (currentExamMode === 'ujian');
 
     document.getElementById('pdfReportNameK5').innerText = currentStudentDataK5.name || 'Siswa Kelas 5';
     document.getElementById('pdfReportClassK5').innerText = `Kelas ${currentStudentDataK5.kelas || '5D'}`;
@@ -2250,7 +2357,7 @@ function generateAndDownloadPDFK5() {
     document.getElementById('pdfReportDurationK5').innerText = `${examDurationTextK5} (Batas: 60 Menit)`;
     document.getElementById('pdfReportDateK5').innerText = formattedDate;
 
-    document.getElementById('pdfReportInitialScoreK5').innerText = completedExamScoresK5.initial;
+    document.getElementById('pdfReportInitialScoreK5').innerText = isUjian ? '80 (KKM)' : completedExamScoresK5.initial;
     document.getElementById('pdfReportPgScoreK5').innerText = `${completedExamScoresK5.pg} / 50 Poin`;
     document.getElementById('pdfReportUraianScoreK5').innerText = `${completedExamScoresK5.uraian} / 50 Poin`;
     document.getElementById('pdfReportFinalScoreK5').innerText = completedExamScoresK5.final;
@@ -2261,7 +2368,7 @@ function generateAndDownloadPDFK5() {
 
     const element = document.getElementById('pdfDocumentElementK5');
     const safeStudentName = (currentStudentDataK5.name || 'Siswa_K5').replace(/[^a-zA-Z0-9]/g, '_');
-    const filename = `Laporan_Remedial_${safeStudentName}_Kelas_${currentStudentDataK5.kelas}.pdf`;
+    const filename = `${isUjian ? 'Laporan_Ujian' : 'Laporan_Remedial'}_${safeStudentName}_Kelas_${currentStudentDataK5.kelas}.pdf`;
 
     if (typeof html2pdf !== 'undefined') {
         const opt = {
@@ -2508,6 +2615,45 @@ function updateCountdownUIK6() {
     }
 }
 
+function renderK6QuestionsFromModule() {
+    const container = document.getElementById('k6PgQuestionsContainer');
+    if (!container) return;
+    const questions = (window.SOAL_KELAS_6 && Array.isArray(window.SOAL_KELAS_6.pg)) ? window.SOAL_KELAS_6.pg : [];
+    if (!questions.length) return;
+
+    if (container.children.length !== questions.length) {
+        const htmlCards = questions.map(item => {
+            return `
+                <div class="exam-question-card" id="q-k6-card-${item.num}">
+                    <div class="question-header">
+                        <span class="q-badge" style="background: #9333ea;">Soal ${item.num}</span>
+                        <p class="q-text">${item.question}</p>
+                    </div>
+                    <div class="q-choices-grid">
+                        <label class="choice-item">
+                            <input type="radio" name="pg_k6_${item.num}" value="A" required>
+                            <span><strong>A.</strong> ${item.options.A}</span>
+                        </label>
+                        <label class="choice-item">
+                            <input type="radio" name="pg_k6_${item.num}" value="B">
+                            <span><strong>B.</strong> ${item.options.B}</span>
+                        </label>
+                        <label class="choice-item">
+                            <input type="radio" name="pg_k6_${item.num}" value="C">
+                            <span><strong>C.</strong> ${item.options.C}</span>
+                        </label>
+                        <label class="choice-item">
+                            <input type="radio" name="pg_k6_${item.num}" value="D">
+                            <span><strong>D.</strong> ${item.options.D}</span>
+                        </label>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        container.innerHTML = htmlCards;
+    }
+}
+
 function openRemedialKelas6(mode) {
     currentExamMode = mode || 'remedial';
     playCuteSound('pop');
@@ -2516,36 +2662,14 @@ function openRemedialKelas6(mode) {
         alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan. Silakan tunggu instruksi guru di ruang kelas.");
         return;
     }
+    renderK6QuestionsFromModule();
     syncExamUIWithQuestionModules();
     const modal = document.getElementById('examModalK6');
     if (!modal) return;
     modal.classList.add('open');
 
-    // Sembunyikan input Nilai Awal jika Ujian Utama
-    const nilaiAwalInput = document.getElementById('k6NilaiAwal');
-    const nilaiAwalWrap = nilaiAwalInput ? nilaiAwalInput.closest('.form-group') : null;
-    if (nilaiAwalWrap && nilaiAwalInput) {
-        if (currentExamMode === 'ujian') {
-            nilaiAwalWrap.style.display = 'none';
-            nilaiAwalInput.required = false;
-            nilaiAwalInput.value = '0';
-        } else {
-            nilaiAwalWrap.style.display = 'block';
-            nilaiAwalInput.required = true;
-            if (nilaiAwalInput.value === '0') nilaiAwalInput.value = '';
-        }
-    }
-
+    updateExamModalModeUI('k6', currentExamMode);
     showExamStepK6('identity');
-
-    const bubble = document.getElementById('mascotBubble');
-    if (bubble) {
-        if (currentExamMode === 'ujian') {
-            bubble.innerHTML = `<span>Selamat datang di Ujian Utama Kelas 6! Masukkan nama lengkap dan pilih kelasmu (6A-6E). Waktu: 60 Menit ⏰</span>`;
-        } else {
-            bubble.innerHTML = `<span>Selamat datang di Remedial Kelas 6! Masukkan nama, nilai awal, dan pilih kelasmu (6A-6E). Waktu: 60 Menit ⏰</span>`;
-        }
-    }
 }
 const openExamKelas6 = () => openRemedialKelas6('ujian');
 
@@ -2614,10 +2738,11 @@ function startExamK6(event) {
     );
     if (alreadyDone) {
         playCuteSound('pop');
+        const examLabel = (currentExamMode === 'ujian') ? 'ujian utama' : 'remedial';
         const confirmRetry = confirm(
             `⚠️ SISWA SUDAH PERNAH MENGERJAKAN!\n\n` +
-            `Nama "${name}" di Kelas ${selectedClass} sudah pernah tercatat mengerjakan remedial.\n\n` +
-            `Apakah Ibu Guru/Siswa ingin MENGERJAKAN ULANG remedial ini?\n` +
+            `Nama "${name}" di Kelas ${selectedClass} sudah pernah tercatat mengerjakan ${examLabel}.\n\n` +
+            `Apakah Ibu Guru/Siswa ingin MENGERJAKAN ULANG ${examLabel} ini?\n` +
             `• Klik OK: Untuk mengizinkan pengerjaan ulang (nilai baru akan tersimpan).\n` +
             `• Klik Batal (Cancel): Jika tidak ingin mengulang.`
         );
@@ -2633,34 +2758,57 @@ function startExamK6(event) {
 
     document.getElementById('barStudentNameK6').innerText = currentStudentDataK6.name;
     document.getElementById('barStudentClassK6').innerText = `Kelas ${currentStudentDataK6.kelas}`;
-    document.getElementById('barStudentInitialScoreK6').innerText = currentStudentDataK6.nilaiAwal;
+    const barTagK6 = document.getElementById('barExamPeriodTagK6');
+    if (barTagK6) {
+        const periodTitleMapShort = {
+            sem1_pts: 'Ujian PTS 1',
+            sem1_pas: 'Ujian PAS 1',
+            sem2_pts: 'Ujian PTS 2',
+            sem2_pas: 'Ujian PAS 2'
+        };
+        barTagK6.innerText = (currentExamMode === 'ujian')
+            ? (periodTitleMapShort[activeTeacherRemedialPeriod] || 'Ujian Utama')
+            : (REMEDIAL_PERIODS[activeTeacherRemedialPeriod]?.shortName || 'Remedial');
+    }
+    const initialScoreElemK6 = document.getElementById('barStudentInitialScoreK6');
+    if (initialScoreElemK6) {
+        if (currentExamMode === 'ujian') {
+            initialScoreElemK6.innerText = '80 (KKM)';
+            const lbl = initialScoreElemK6.previousElementSibling;
+            if (lbl) lbl.innerText = 'Standar Kelulusan:';
+        } else {
+            initialScoreElemK6.innerText = currentStudentDataK6.nilaiAwal;
+            const lbl = initialScoreElemK6.previousElementSibling;
+            if (lbl) lbl.innerText = 'Nilai Awal:';
+        }
+    }
 
     startCountdownTimerK6();
 
     showExamStepK6('questions');
-    showToast(`Selamat mengerjakan remedial Kelas 6, ${name}! Waktu: 60 Menit ⏰`);
+    const examGreeting = (currentExamMode === 'ujian') ? 'Ujian Utama' : 'Remedial';
+    showToast(`Selamat mengerjakan ${examGreeting} Kelas 6, ${name}! Waktu: 60 Menit ⏰`);
 }
 
 function calculateAndShowScoreK6(event) {
     event.preventDefault();
     playCuteSound('fanfare');
 
-    let pgScore = 0;
+    const questions = (window.SOAL_KELAS_6 && Array.isArray(window.SOAL_KELAS_6.pg)) ? window.SOAL_KELAS_6.pg : pgQuestionsK6Metadata;
+    const totalPgItems = questions.length || 45;
+    let correctPgCount = 0;
     const collectedPgAnswers = [];
 
-    // 1. Evaluate 10 Multiple Choice Questions (Bobot: 5 poin per soal = 50 poin max)
-    for (let i = 0; i < pgQuestionsK6Metadata.length; i++) {
-        const item = pgQuestionsK6Metadata[i];
+    // 1. Evaluasi 45 Soal Pilihan Ganda (Bobot Resmi: 70 Poin)
+    for (let i = 0; i < totalPgItems; i++) {
+        const item = questions[i];
         const selected = document.querySelector(`input[name="pg_k6_${item.num}"]:checked`);
         const userChoice = selected ? selected.value : '';
         const userChoiceText = userChoice ? `${userChoice}. ${item.options[userChoice] || ''}` : '(Tidak dijawab)';
         const isCorrect = (userChoice === item.key);
-        const pts = isCorrect ? 5 : 0;
+        if (isCorrect) correctPgCount++;
 
-        if (isCorrect) {
-            pgScore += 5;
-        }
-
+        const pts = isCorrect ? (70 / totalPgItems) : 0;
         const keteranganText = getPgKeterangan(isCorrect, item.keyText, item.explanation);
 
         collectedPgAnswers.push({
@@ -2672,151 +2820,169 @@ function calculateAndShowScoreK6(event) {
             keyText: item.keyText,
             explanation: item.explanation,
             isCorrect: isCorrect,
-            points: pts,
+            points: Math.round(pts * 10) / 10,
             keterangan: keteranganText
         });
     }
+    const pgScore = Math.round((correctPgCount / totalPgItems) * 70);
 
-    // 2. Evaluate 5 Uraian Questions (Bobot: 10 poin per soal = 50 poin max)
-    let uraianScore = 0;
+    // 2. Evaluasi 5 Soal Uraian Mandiri (Bobot Resmi: 30 Poin, Skala Mentah 0 - 100 Poin)
+    let rawUraianTotal = 0;
     const collectedUraianAnswers = [];
 
-    // Uraian 1 (No. 11): Codingan Menggerakkan Objek dengan Keyboard
-    const rawAns1 = (document.getElementById('uraian_k6_1') ? document.getElementById('uraian_k6_1').value.trim() : '');
-    const ans1 = rawAns1.toLowerCase();
-    const hasFlag = ans1.includes('flag') || ans1.includes('bendera') || ans1.includes('event');
-    const hasLoop = ans1.includes('forever') || ans1.includes('selamanya') || ans1.includes('loop') || ans1.includes('ulang');
-    const hasKey = ans1.includes('right') || ans1.includes('kanan') || ans1.includes('panah') || ans1.includes('arrow') || ans1.includes('key') || ans1.includes('tombol') || ans1.includes('pressed') || ans1.includes('tekan');
-    const hasMotion = ans1.includes('change x') || ans1.includes('move') || ans1.includes('gerak') || ans1.includes('langkah') || ans1.includes('10');
-    
+    // Uraian 1: 4 Pilar Computational Thinking & 1 Contoh di Rumah (Maks 20 Poin Mentah)
+    const raw1Dek = (document.getElementById('uraian_k6_1_dekomposisi') ? document.getElementById('uraian_k6_1_dekomposisi').value.trim() : '');
+    const raw1Pola = (document.getElementById('uraian_k6_1_pola') ? document.getElementById('uraian_k6_1_pola').value.trim() : '');
+    const raw1Abs = (document.getElementById('uraian_k6_1_abstraksi') ? document.getElementById('uraian_k6_1_abstraksi').value.trim() : '');
+    const raw1Alg = (document.getElementById('uraian_k6_1_algoritma') ? document.getElementById('uraian_k6_1_algoritma').value.trim() : '');
+    const raw1Contoh = (document.getElementById('uraian_k6_1_contoh') ? document.getElementById('uraian_k6_1_contoh').value.trim() : '');
+
     let u1Pts = 0;
-    const matchesCount = [hasFlag, hasLoop, hasKey, hasMotion].filter(Boolean).length;
-    if (matchesCount >= 3) {
-        u1Pts = 10;
-    } else if (matchesCount === 2) {
-        u1Pts = 8;
-    } else if (matchesCount === 1) {
-        u1Pts = 5;
-    } else if (rawAns1.length > 5) {
-        u1Pts = 3;
+    const ans1Dek = raw1Dek.toLowerCase();
+    const ans1Pola = raw1Pola.toLowerCase();
+    const ans1Abs = raw1Abs.toLowerCase();
+    const ans1Alg = raw1Alg.toLowerCase();
+    const ans1Contoh = raw1Contoh.toLowerCase();
+
+    if (ans1Dek.includes('pecah') || ans1Dek.includes('bagi') || ans1Dek.includes('kecil') || ans1Dek.includes('dekomposisi') || ans1Dek.includes('bagian')) u1Pts += 3; else if (raw1Dek.length > 2) u1Pts += 1.5;
+    if (ans1Pola.includes('pola') || ans1Pola.includes('pattern') || ans1Pola.includes('sama') || ans1Pola.includes('kemiripan') || ans1Pola.includes('ulang')) u1Pts += 3; else if (raw1Pola.length > 2) u1Pts += 1.5;
+    if (ans1Abs.includes('abstraksi') || ans1Abs.includes('penting') || ans1Abs.includes('abaikan') || ans1Abs.includes('detail') || ans1Abs.includes('fokus')) u1Pts += 3; else if (raw1Abs.length > 2) u1Pts += 1.5;
+    if (ans1Alg.includes('algoritma') || ans1Alg.includes('langkah') || ans1Alg.includes('urutan') || ans1Alg.includes('runtut') || ans1Alg.includes('tahap')) u1Pts += 3; else if (raw1Alg.length > 2) u1Pts += 1.5;
+    
+    if (ans1Contoh.length >= 15 && (ans1Contoh.includes('kamar') || ans1Contoh.includes('tas') || ans1Contoh.includes('sepatu') || ans1Contoh.includes('baju') || ans1Contoh.includes('sekolah') || ans1Contoh.includes('buku') || ans1Contoh.includes('makan') || ans1Contoh.includes('tidur') || ans1Contoh.includes('cuci') || ans1Contoh.includes('rumah'))) {
+        u1Pts += 8;
+    } else if (raw1Contoh.length >= 8) {
+        u1Pts += 4;
     }
-    uraianScore += u1Pts;
+    u1Pts = Math.min(20, Math.round(u1Pts));
+    rawUraianTotal += u1Pts;
     collectedUraianAnswers.push({
         num: 1,
-        question: "11. Codingan Menggerakkan Objek dengan Keyboard (Scratch)",
-        userAnswer: rawAns1 || "(Tidak diisi)",
-        keyRef: "Susunan blok kode di Scratch yang menggunakan kejadian tombol ditekan (events): memasang blok When [Green Flag] clicked, diikuti blok forever, lalu kondisi if <key [right arrow] pressed?> then dengan perintah change x by 10, serta kondisi if <key [left arrow] pressed?> then dengan perintah change x by -10 (atau move 10 steps).",
+        question: "1. Empat Pilar Computational Thinking & 1 Contoh Penerapan di Rumah",
+        userAnswer: `Dekomposisi: ${raw1Dek || '-'} | Pola: ${raw1Pola || '-'} | Abstraksi: ${raw1Abs || '-'} | Algoritma: ${raw1Alg || '-'} | Contoh: ${raw1Contoh || '-'}`,
+        keyRef: "Dekomposisi (memecah masalah kompleks jadi bagian kecil), Pengenalan Pola (mencari kesamaan atau pola berulang), Abstraksi (fokus pada hal penting dan mengabaikan detail sepele), Algoritma (menyusun instruksi langkah bertahap yang runtut). Contoh di rumah: Merapikan tas sekolah sesuai jadwal pelajaran hari berikutnya.",
         points: u1Pts,
-        keterangan: u1Pts >= 10 ? "✔ Sangat Tepat: Blok Event, Loop Forever, Sensing Key Pressed, dan Motion Change X tersusun dengan benar." : getUraianKeterangan(u1Pts)
+        keterangan: u1Pts >= 18 ? "✔ Sangat Lengkap: Keempat pilar CT dan contoh aktivitas di rumah diuraikan dengan sangat baik." : `Perolehan skor mentah: ${u1Pts}/20 poin.`
     });
 
-    // Uraian 2 (No. 12): Nama Blok Kode Berdasarkan Perintah
-    const raw2a = (document.getElementById('uraian_k6_2_a') ? document.getElementById('uraian_k6_2_a').value.trim() : '');
-    const raw2b = (document.getElementById('uraian_k6_2_b') ? document.getElementById('uraian_k6_2_b').value.trim() : '');
-    const raw2c = (document.getElementById('uraian_k6_2_c') ? document.getElementById('uraian_k6_2_c').value.trim() : '');
-    const raw2d = (document.getElementById('uraian_k6_2_d') ? document.getElementById('uraian_k6_2_d').value.trim() : '');
-
-    const ans2a = raw2a.toLowerCase();
-    const ans2b = raw2b.toLowerCase();
-    const ans2c = raw2c.toLowerCase();
-    const ans2d = raw2d.toLowerCase();
-
+    // Uraian 2: Perbedaan Dekomposisi dan Abstraksi dalam Game (Maks 20 Poin Mentah)
+    const rawAns2 = (document.getElementById('uraian_k6_2') ? document.getElementById('uraian_k6_2').value.trim() : '');
+    const ans2 = rawAns2.toLowerCase();
     let u2Pts = 0;
-    if (ans2a.includes('looks') || ans2a.includes('tampilan') || ans2a.includes('look') || ans2a.includes('kostum')) u2Pts += 2.5;
-    if (ans2b.includes('variable') || ans2b.includes('variabel') || ans2b.includes('data')) u2Pts += 2.5;
-    if (ans2c.includes('sensing') || ans2c.includes('sensor') || ans2c.includes('sentuh')) u2Pts += 2.5;
-    if (ans2d.includes('looks') || ans2d.includes('tampilan') || ans2d.includes('look')) u2Pts += 2.5;
+    const hasDekomp = ans2.includes('pecah') || ans2.includes('bagi') || ans2.includes('bagian') || ans2.includes('komponen') || ans2.includes('karakter') || ans2.includes('level') || ans2.includes('dekomposisi');
+    const hasAbstrak = ans2.includes('penting') || ans2.includes('fokus') || ans2.includes('abaikan') || ans2.includes('detail') || ans2.includes('abstraksi') || ans2.includes('aturan');
 
-    u2Pts = Math.round(u2Pts);
-    uraianScore += u2Pts;
+    if (hasDekomp && hasAbstrak && ans2.length >= 25) {
+        u2Pts = 20;
+    } else if (hasDekomp && hasAbstrak) {
+        u2Pts = 16;
+    } else if (hasDekomp || hasAbstrak) {
+        u2Pts = 10;
+    } else if (rawAns2.length > 5) {
+        u2Pts = 5;
+    }
+    rawUraianTotal += u2Pts;
     collectedUraianAnswers.push({
         num: 2,
-        question: "12. Nama Blok Kode Berdasarkan Perintah (next costume, set lives to 0, touching Goblin?, show/hide)",
-        userAnswer: `A: ${raw2a || '-'} | B: ${raw2b || '-'} | C: ${raw2c || '-'} | D: ${raw2d || '-'}`,
-        keyRef: "A (next costume): Blok Looks (Tampilan) | B (set lives to 0): Blok Variables (Variabel) | C (touching Goblin?): Blok Sensing (Sensor) | D (show/hide): Blok Looks (Tampilan)",
+        question: "2. Perbedaan Mendasar Dekomposisi dan Abstraksi dalam Perencanaan Game",
+        userAnswer: rawAns2 || "(Tidak diisi)",
+        keyRef: "Dekomposisi: Memecah proyek pembuatan game menjadi elemen-elemen kecil yang terpisah (seperti mendesain karakter sprite, sistem latar/stage, variabel skor, rintangan lawan, efek suara). Abstraksi: Memusatkan perhatian hanya pada aturan inti game yang penting bagi pemain (seperti mekanisme loncat dan sistem nyawa), sembari mengabaikan detail yang belum diperlukan saat itu.",
         points: u2Pts,
-        keterangan: u2Pts === 10 ? "✔ Sempurna: Keempat kategori kelompok blok (Looks, Variables, Sensing, Looks) dijawab dengan tepat." : `⚠ Memperoleh ${u2Pts}/10 poin. Kunci: Looks, Variables, Sensing, Looks.`
+        keterangan: u2Pts >= 18 ? "✔ Analisis Sangat Baik: Perbedaan Dekomposisi (pemecahan bagian) dan Abstraksi (fokus inti penting) dijelaskan tepat dalam konteks game." : `Perolehan skor mentah: ${u2Pts}/20 poin.`
     });
 
-    // Uraian 3 (No. 13): Nama dan Fungsi Gambar Ikon di Aplikasi Scratch
-    const raw3a = (document.getElementById('uraian_k6_3_a') ? document.getElementById('uraian_k6_3_a').value.trim() : '');
-    const raw3b = (document.getElementById('uraian_k6_3_b') ? document.getElementById('uraian_k6_3_b').value.trim() : '');
-    const ans3a = raw3a.toLowerCase();
-    const ans3b = raw3b.toLowerCase();
-
+    // Uraian 3: Algoritma Langkah Demi Langkah Sprite Kucing (Maks 20 Poin Mentah)
+    const rawAns3 = (document.getElementById('uraian_k6_3') ? document.getElementById('uraian_k6_3').value.trim() : '');
+    const ans3 = rawAns3.toLowerCase();
     let u3Pts = 0;
-    if (ans3a.includes('sprite') || ans3a.includes('karakter') || ans3a.includes('kucing') || ans3a.includes('tokoh') || ans3a.includes('objek')) {
-        u3Pts += 5;
-    } else if (raw3a.length > 3) {
-        u3Pts += 2;
-    }
+    const hasMove10 = ans3.includes('10') && (ans3.includes('langkah') || ans3.includes('maju') || ans3.includes('move') || ans3.includes('step'));
+    const hasSoundMeow = ans3.includes('meow') || ans3.includes('suara') || ans3.includes('bunyi') || ans3.includes('sound');
+    const hasTurn90 = ans3.includes('90') && (ans3.includes('kanan') || ans3.includes('turn') || ans3.includes('belok') || ans3.includes('putar') || ans3.includes('derajat'));
+    const hasStepsSeq = ans3.includes('1') || ans3.includes('2') || ans3.includes('3') || ans3.includes('mulai') || ans3.includes('pertama') || ans3.includes('lalu') || ans3.includes('kemudian');
 
-    if (ans3b.includes('backdrop') || ans3b.includes('background') || ans3b.includes('latar') || ans3b.includes('panggung') || ans3b.includes('stage')) {
-        u3Pts += 5;
-    } else if (raw3b.length > 3) {
-        u3Pts += 2;
+    const matchK6U3 = [hasMove10, hasSoundMeow, hasTurn90].filter(Boolean).length;
+    if (matchK6U3 === 3 && hasStepsSeq) {
+        u3Pts = 20;
+    } else if (matchK6U3 === 3) {
+        u3Pts = 17;
+    } else if (matchK6U3 === 2) {
+        u3Pts = 12;
+    } else if (matchK6U3 === 1) {
+        u3Pts = 7;
+    } else if (rawAns3.length > 5) {
+        u3Pts = 4;
     }
-
-    uraianScore += u3Pts;
+    rawUraianTotal += u3Pts;
     collectedUraianAnswers.push({
         num: 3,
-        question: "13. Nama dan Fungsi Gambar Ikon di Aplikasi Scratch (Ikon A & B)",
-        userAnswer: `Gambar A: ${raw3a || '-'} | Gambar B: ${raw3b || '-'}`,
-        keyRef: "Gambar A (Ikon Kucing +): Bernama Choose a Sprite (Pilih Sprite), berfungsi untuk menambahkan karakter atau objek baru ke dalam proyek. | Gambar B (Ikon Latar +): Bernama Choose a Backdrop (Pilih Latar Belakang), berfungsi untuk menambahkan gambar latar belakang pada panggung (stage) proyek.",
+        question: "3. Algoritma Langkah Demi Langkah Sprite Kucing (10 Langkah, Meow, Belok Kanan 90 Derajat)",
+        userAnswer: rawAns3 || "(Tidak diisi)",
+        keyRef: "1. Mulai (Klik ikon Green Flag) -> 2. Pasang blok 'move 10 steps' (gerak maju 10 langkah) -> 3. Pasang blok 'play sound Meow until done' (memutar suara Meow) -> 4. Pasang blok 'turn right 90 degrees' (berputar/belok ke kanan sebesar 90 derajat) -> 5. Selesai.",
         points: u3Pts,
-        keterangan: u3Pts === 10 ? "✔ Sangat Tepat: Nama tombol dan fungsi Choose a Sprite & Choose a Backdrop dijawab dengan benar." : getUraianKeterangan(u3Pts)
+        keterangan: u3Pts >= 17 ? "✔ Urutan Sangat Runtut: Ketiga perintah (gerak 10 langkah, bunyi Meow, belok kanan 90 derajat) tersusun runtut dan logis." : `Perolehan skor mentah: ${u3Pts}/20 poin.`
     });
 
-    // Uraian 4 (No. 14): Contoh Perintah dalam Blok Motion dan Control
-    const raw4Motion = (document.getElementById('uraian_k6_4_motion') ? document.getElementById('uraian_k6_4_motion').value.trim() : '');
-    const raw4Control = (document.getElementById('uraian_k6_4_control') ? document.getElementById('uraian_k6_4_control').value.trim() : '');
-    const ans4Motion = raw4Motion.toLowerCase();
-    const ans4Control = raw4Control.toLowerCase();
+    // Uraian 4: Fungsi 4 Komponen Antarmuka Scratch (Sprite, Stage, Green Flag, Tombol Stop) (Maks 20 Poin Mentah)
+    const raw4Sprite = (document.getElementById('uraian_k6_4_sprite') ? document.getElementById('uraian_k6_4_sprite').value.trim() : '');
+    const raw4Stage = (document.getElementById('uraian_k6_4_stage') ? document.getElementById('uraian_k6_4_stage').value.trim() : '');
+    const raw4Flag = (document.getElementById('uraian_k6_4_flag') ? document.getElementById('uraian_k6_4_flag').value.trim() : '');
+    const raw4Stop = (document.getElementById('uraian_k6_4_stop') ? document.getElementById('uraian_k6_4_stop').value.trim() : '');
 
     let u4Pts = 0;
-    const isMotionGood = ans4Motion.includes('move') || ans4Motion.includes('turn') || ans4Motion.includes('go to') || ans4Motion.includes('glide') || ans4Motion.includes('point') || ans4Motion.includes('change x') || ans4Motion.includes('set x') || ans4Motion.includes('langkah') || ans4Motion.includes('gerak');
-    if (isMotionGood) u4Pts += 5; else if (raw4Motion.length > 3) u4Pts += 2;
+    const ans4Sprite = raw4Sprite.toLowerCase();
+    const ans4Stage = raw4Stage.toLowerCase();
+    const ans4Flag = raw4Flag.toLowerCase();
+    const ans4Stop = raw4Stop.toLowerCase();
 
-    const isControlGood = ans4Control.includes('wait') || ans4Control.includes('repeat') || ans4Control.includes('forever') || ans4Control.includes('if') || ans4Control.includes('then') || ans4Control.includes('stop') || ans4Control.includes('clone') || ans4Control.includes('ulang');
-    if (isControlGood) u4Pts += 5; else if (raw4Control.length > 3) u4Pts += 2;
+    if (ans4Sprite.includes('karakter') || ans4Sprite.includes('tokoh') || ans4Sprite.includes('objek') || ans4Sprite.includes('gambar') || ans4Sprite.includes('aktor')) u4Pts += 5; else if (raw4Sprite.length > 2) u4Pts += 2;
+    if (ans4Stage.includes('panggung') || ans4Stage.includes('layar') || ans4Stage.includes('latar') || ans4Stage.includes('tempat') || ans4Stage.includes('area') || ans4Stage.includes('tampil')) u4Pts += 5; else if (raw4Stage.length > 2) u4Pts += 2;
+    if (ans4Flag.includes('mulai') || ans4Flag.includes('start') || ans4Flag.includes('jalan') || ans4Flag.includes('eksekusi') || ans4Flag.includes('hidupkan')) u4Pts += 5; else if (raw4Flag.length > 2) u4Pts += 2;
+    if (ans4Stop.includes('berhenti') || ans4Stop.includes('stop') || ans4Stop.includes('selesai') || ans4Stop.includes('jeda') || ans4Stop.includes('mematikan')) u4Pts += 5; else if (raw4Stop.length > 2) u4Pts += 2;
 
-    uraianScore += u4Pts;
+    rawUraianTotal += u4Pts;
     collectedUraianAnswers.push({
         num: 4,
-        question: "14. Contoh Perintah dalam Blok Motion dan Control",
-        userAnswer: `Blok Motion: ${raw4Motion || '-'} | Blok Control: ${raw4Control || '-'}`,
-        keyRef: "Blok Motion: move 10 steps dan turn right 15 degrees (atau go to x: y:). | Blok Control: wait 1 secs dan repeat 10 (atau forever, if ... then).",
+        question: "4. Fungsi Komponen Antarmuka Scratch (Sprite, Stage, Green Flag, Tombol Stop)",
+        userAnswer: `Sprite: ${raw4Sprite || '-'} | Stage: ${raw4Stage || '-'} | Green Flag: ${raw4Flag || '-'} | Stop: ${raw4Stop || '-'}`,
+        keyRef: "a. Sprite: Karakter, tokoh, atau objek visual 2D yang dapat diprogram untuk bergerak, bersuara, dan berinteraksi. b. Stage: Panggung/jendela area tempat sprite beraksi menampilkan hasil animasi atau game. c. Green Flag (Bendera Hijau): Tombol untuk memulai/menjalankan eksekusi script program di panggung. d. Tombol Merah (Stop): Tombol untuk menghentikan seluruh program dan skrip yang sedang berjalan seketika.",
         points: u4Pts,
-        keterangan: u4Pts === 10 ? "✔ Sangat Tepat: Contoh blok Motion dan Control dituliskan dengan benar." : getUraianKeterangan(u4Pts)
+        keterangan: u4Pts >= 18 ? "✔ Sangat Tepat: Fungsi keempat komponen antarmuka Scratch diuraikan dengan sangat baik." : `Perolehan skor mentah: ${u4Pts}/20 poin.`
     });
 
-    // Uraian 5 (No. 15): Empat Pilar Computational Thinking
-    const raw5Dek = (document.getElementById('uraian_k6_5_dekomposisi') ? document.getElementById('uraian_k6_5_dekomposisi').value.trim() : '');
-    const raw5Pola = (document.getElementById('uraian_k6_5_pola') ? document.getElementById('uraian_k6_5_pola').value.trim() : '');
-    const raw5Abs = (document.getElementById('uraian_k6_5_abstraksi') ? document.getElementById('uraian_k6_5_abstraksi').value.trim() : '');
-    const raw5Alg = (document.getElementById('uraian_k6_5_algoritma') ? document.getElementById('uraian_k6_5_algoritma').value.trim() : '');
+    // Uraian 5: 5 Kategori Balok Kode Scratch, Warna & Contoh (Maks 20 Poin Mentah)
+    const raw5_1 = (document.getElementById('uraian_k6_5_kategori1') ? document.getElementById('uraian_k6_5_kategori1').value.trim() : '');
+    const raw5_2 = (document.getElementById('uraian_k6_5_kategori2') ? document.getElementById('uraian_k6_5_kategori2').value.trim() : '');
+    const raw5_3 = (document.getElementById('uraian_k6_5_kategori3') ? document.getElementById('uraian_k6_5_kategori3').value.trim() : '');
+    const raw5_4 = (document.getElementById('uraian_k6_5_kategori4') ? document.getElementById('uraian_k6_5_kategori4').value.trim() : '');
+    const raw5_5 = (document.getElementById('uraian_k6_5_kategori5') ? document.getElementById('uraian_k6_5_kategori5').value.trim() : '');
 
-    const ans5Dek = raw5Dek.toLowerCase();
-    const ans5Pola = raw5Pola.toLowerCase();
-    const ans5Abs = raw5Abs.toLowerCase();
-    const ans5Alg = raw5Alg.toLowerCase();
+    const checkKategoriK6 = (val) => {
+        const v = val.toLowerCase();
+        const hasKat = v.includes('motion') || v.includes('gerak') || v.includes('looks') || v.includes('tampilan') || v.includes('sound') || v.includes('suara') || v.includes('event') || v.includes('kejadian') || v.includes('control') || v.includes('kontrol') || v.includes('sensing') || v.includes('sensor') || v.includes('operator') || v.includes('variable') || v.includes('variabel');
+        if (hasKat && val.length >= 8) return 4;
+        if (hasKat || val.length >= 5) return 2;
+        return 0;
+    };
 
     let u5Pts = 0;
-    if (ans5Dek.includes('dekomposisi') || ans5Dek.includes('decomposition') || ans5Dek.includes('pecah') || ans5Dek.includes('bagi') || ans5Dek.includes('kecil')) u5Pts += 2.5; else if (raw5Dek.length > 2) u5Pts += 1;
-    if (ans5Pola.includes('pola') || ans5Pola.includes('pattern') || ans5Pola.includes('sama') || ans5Pola.includes('kemiripan') || ans5Pola.includes('recognition')) u5Pts += 2.5; else if (raw5Pola.length > 2) u5Pts += 1;
-    if (ans5Abs.includes('abstraksi') || ans5Abs.includes('abstraction') || ans5Abs.includes('penting') || ans5Abs.includes('abaikan') || ans5Abs.includes('detail')) u5Pts += 2.5; else if (raw5Abs.length > 2) u5Pts += 1;
-    if (ans5Alg.includes('algoritma') || ans5Alg.includes('algorithm') || ans5Alg.includes('langkah') || ans5Alg.includes('urutan') || ans5Alg.includes('runtut') || ans5Alg.includes('logis')) u5Pts += 2.5; else if (raw5Alg.length > 2) u5Pts += 1;
+    u5Pts += checkKategoriK6(raw5_1);
+    u5Pts += checkKategoriK6(raw5_2);
+    u5Pts += checkKategoriK6(raw5_3);
+    u5Pts += checkKategoriK6(raw5_4);
+    u5Pts += checkKategoriK6(raw5_5);
 
-    u5Pts = Math.round(u5Pts);
-    uraianScore += u5Pts;
+    rawUraianTotal += u5Pts;
     collectedUraianAnswers.push({
         num: 5,
-        question: "15. Empat Pilar Computational Thinking (Berpikir Komputasional)",
-        userAnswer: `1. Dekomposisi: ${raw5Dek || '-'} | 2. Pengenalan Pola: ${raw5Pola || '-'} | 3. Abstraksi: ${raw5Abs || '-'} | 4. Algoritma: ${raw5Alg || '-'}`,
-        keyRef: "1. Dekomposisi (Decomposition) | 2. Pengenalan Pola (Pattern Recognition) | 3. Abstraksi (Abstraction) | 4. Algoritma (Algorithm).",
+        question: "5. Lima Kategori Balok Kode Scratch, Warna Khas, dan Contoh Balok Perintah",
+        userAnswer: `1: ${raw5_1 || '-'} | 2: ${raw5_2 || '-'} | 3: ${raw5_3 || '-'} | 4: ${raw5_4 || '-'} | 5: ${raw5_5 || '-'}`,
+        keyRef: "1. Motion (Biru Tua) - contoh: move 10 steps. 2. Looks (Ungu) - contoh: say Hello! for 2 secs. 3. Sound (Magenta/Ungu Muda) - contoh: play sound Meow until done. 4. Events (Kuning Terang) - contoh: when green flag clicked. 5. Control (Oranye) - contoh: forever atau wait 1 seconds.",
         points: u5Pts,
-        keterangan: u5Pts === 10 ? "✔ Sangat Lengkap: Keempat pilar Berpikir Komputasional (Dekomposisi, Pengenalan Pola, Abstraksi, Algoritma) dijelaskan dengan tepat." : getUraianKeterangan(u5Pts)
+        keterangan: u5Pts >= 18 ? "✔ Sangat Lengkap: Kelima kategori balok Scratch, warna khas, dan contoh blok perintah dijawab dengan sempurna." : `Perolehan skor mentah: ${u5Pts}/20 poin.`
     });
+
+    // Konversi Skor Uraian: Bobot 30 Poin (Skala 0 - 30 Poin)
+    const uraianScore = Math.min(30, Math.round((rawUraianTotal / 100) * 30));
 
     // Hentikan timer pengerjaan 60 menit & catat durasi
     if (examTimerIntervalK6) clearInterval(examTimerIntervalK6);
@@ -2825,17 +2991,23 @@ function calculateAndShowScoreK6(event) {
     const secSpent = secondsSpent % 60;
     examDurationTextK6 = `${minSpent} Menit ${secSpent} Detik`;
 
-    // Total Score (0 - 100)
-    const totalScore = pgScore + uraianScore;
+    // Total Score (Bobot 70% PG + Bobot 30% Uraian = Maks 100 Poin)
+    const totalScore = Math.min(100, Math.round(pgScore + uraianScore));
     const studentName = currentStudentDataK6.name || 'Sahabat Pintar Kelas 6';
     const studentClass = currentStudentDataK6.kelas || '6A';
+    const isUjian = (currentExamMode === 'ujian');
 
     completedExamScoresK6 = {
         initial: currentStudentDataK6.nilaiAwal,
         pg: pgScore,
+        correctPgCount: correctPgCount,
+        totalPgItems: totalPgItems,
         uraian: uraianScore,
+        rawUraianTotal: rawUraianTotal,
         final: totalScore,
-        status: totalScore >= 80 ? 'LULUS REMEDIAL' : 'TUNTAS REMEDIAL',
+        status: isUjian 
+            ? (totalScore >= 80 ? 'LULUS UJIAN' : 'PERLU REMEDIAL')
+            : (totalScore >= 80 ? 'LULUS REMEDIAL' : 'TUNTAS REMEDIAL'),
         predicate: totalScore >= 90 ? 'SANGAT MEMUASKAN' : (totalScore >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK')
     };
 
@@ -2850,34 +3022,28 @@ function calculateAndShowScoreK6(event) {
 
     if (totalScore >= 90) {
         mascotIcon.innerText = '🏆';
-        predicateBadge.innerText = '🌟 LULUS REMEDIAL DENGAN GEMILANG!';
+        predicateBadge.innerText = isUjian ? '🌟 LULUS ASESMEN UJIAN DENGAN GEMILANG!' : '🌟 LULUS REMEDIAL DENGAN GEMILANG!';
         predicateBadge.style.background = 'linear-gradient(135deg, #059669, #10b981)';
         motivationTitle.innerHTML = `Luar Biasa, ${studentName}! Logika Kodingmu Sangat Hebat! 🚀`;
-        motivationMessage.innerHTML = `
-            Selamat atas keberhasilanmu! Usaha keras, ketelitian, dan kejujuranmu dalam memahami konsep Berpikir Komputasional, Machine Learning, dan pemrograman Scratch hari ini membuahkan hasil yang sangat membanggakan!
-            <br><br>
-            Kamu telah membuktikan bahwa tantangan koding tingkat lanjut dapat kamu selesaikan dengan gemilang. Teruslah berkarya, ciptakan proyek game dan AI yang bermanfaat, dan jadilah inspirasi bagi sesama! ✨🤖
-        `;
+        motivationMessage.innerHTML = isUjian
+            ? `Selamat atas keberhasilanmu! Usaha keras, ketelitian, dan kejujuranmu dalam menyelesaikan Ujian Koding dan Kecerdasan Artifisial hari ini membuahkan hasil yang sangat membanggakan!<br><br>Kamu telah membuktikan pemahaman logika berpikir komputasional dan koding yang luar biasa. Pertahankan prestasimu dan teruslah berkarya menciptakan inovasi baru! ✨🤖`
+            : `Selamat atas keberhasilanmu! Usaha keras, ketelitian, dan kejujuranmu dalam memahami konsep Berpikir Komputasional, Machine Learning, dan pemrograman Scratch hari ini membuahkan hasil yang sangat membanggakan!<br><br>Kamu telah membuktikan bahwa tantangan koding tingkat lanjut dapat kamu selesaikan dengan gemilang. Teruslah berkarya, ciptakan proyek game dan AI yang bermanfaat, dan jadilah inspirasi bagi sesama! ✨🤖`;
     } else if (totalScore >= 80) {
         mascotIcon.innerText = '🎉';
-        predicateBadge.innerText = '✨ DINYATAKAN LULUS REMEDIAL (KKM 80)!';
+        predicateBadge.innerText = isUjian ? '✨ DINYATAKAN LULUS UJIAN (KKM 80)!' : '✨ DINYATAKAN LULUS REMEDIAL (KKM 80)!';
         predicateBadge.style.background = 'linear-gradient(135deg, #7e22ce, #a855f7)';
         motivationTitle.innerHTML = `Kerja Bagus, ${studentName}! Kamu Berhasil Memenuhi KKM 80! 💡`;
-        motivationMessage.innerHTML = `
-            Hebat sekali! Skor remedialmu berhasil melampaui batas KKM 80 dan membuktikan pemahaman logika yang kuat dan dedikasi yang tinggi.
-            <br><br>
-            Berpikir komputasional dan pemrograman Scratch melatih otak kita untuk selalu berpikir terstruktur dan kreatif. Teruslah bereksplorasi dengan berbagai blok kode baru di Scratch, jangan ragu mencoba algoritma yang lebih seru, dan tetaplah rajin berlatih! Ibu Guru Darningsih sangat bangga padamu! 🌱
-        `;
+        motivationMessage.innerHTML = isUjian
+            ? `Hebat sekali! Nilai ujianmu berhasil melampaui batas KKM 80 dan membuktikan pemahaman logika algoritma koding yang sangat baik.<br><br>Teruslah belajar, bereksperimen dengan ide-ide kreatif di Scratch, dan jadilah teladan bagi teman-temanmu! Ibu Guru Darningsih sangat bangga padamu! 🌱`
+            : `Hebat sekali! Skor remedialmu berhasil melampaui batas KKM 80 dan membuktikan pemahaman logika yang kuat dan dedikasi yang tinggi.<br><br>Berpikir komputasional dan pemrograman Scratch melatih otak kita untuk selalu berpikir terstruktur dan kreatif. Teruslah bereksplorasi dengan berbagai blok kode baru di Scratch, jangan ragu mencoba algoritma yang lebih seru, dan tetaplah rajin berlatih! Ibu Guru Darningsih sangat bangga padamu! 🌱`;
     } else {
         mascotIcon.innerText = '💪';
-        predicateBadge.innerText = '📖 PERLU PENGAYAAN & TETAP SEMANGAT!';
+        predicateBadge.innerText = isUjian ? '📖 BELUM TUNTAS KKM (PERLU REMEDIAL)' : '📖 PERLU PENGAYAAN & TETAP SEMANGAT!';
         predicateBadge.style.background = 'linear-gradient(135deg, #f59e0b, #ea580c)';
         motivationTitle.innerHTML = `Jangan Pernah Menyerah, ${studentName}! Kamu Pasti Bisa! 💖`;
-        motivationMessage.innerHTML = `
-            Terima kasih banyak sudah berusaha dan mengerjakan soal remedial ini secara mandiri dan jujur!
-            <br><br>
-            Meskipun nilaimu belum mencapai batas KKM 80, setiap kesalahan (*bug*) atau kesulitan adalah sahabat terbaik yang mengajarkan kita untuk menjadi lebih teliti dan bijaksana. Jangan berkecil hati ya! Pelajari kembali 4 pilar computational thinking dan blok-blok di Scratch. Selangkah demi selangkah bersama Ibu Guru, kamu pasti bisa menjadi programmer hebat! 🤖✨
-        `;
+        motivationMessage.innerHTML = isUjian
+            ? `Terima kasih banyak sudah berusaha dan mengerjakan soal ujian ini secara mandiri dan jujur.<br><br>Meskipun nilaimu belum mencapai batas standar KKM 80, jangan berkecil hati! Kamu akan mendapatkan bimbingan dan kesempatan remedial untuk memperbaiki nilaimu. Tetap semangat belajar bersama Ibu Guru ya! 🤖✨`
+            : `Terima kasih banyak sudah berusaha dan mengerjakan soal remedial ini secara mandiri dan jujur!<br><br>Meskipun nilaimu belum mencapai batas KKM 80, setiap kesalahan (*bug*) atau kesulitan adalah sahabat terbaik yang mengajarkan kita untuk menjadi lebih teliti dan bijaksana. Jangan berkecil hati ya! Pelajari kembali 4 pilar computational thinking dan blok-blok di Scratch. Selangkah demi selangkah bersama Ibu Guru, kamu pasti bisa menjadi programmer hebat! 🤖✨`;
     }
 
     // Simpan ke Panel Guru
@@ -2894,7 +3060,8 @@ function calculateAndShowScoreK6(event) {
         nilaiAkhir: totalScore,
         pgScore: pgScore,
         uraianScore: uraianScore,
-        status: totalScore >= 80 ? 'Lulus' : 'Tuntas',
+        status: isUjian ? (totalScore >= 80 ? 'Lulus Ujian' : 'Perlu Remedial') : (totalScore >= 80 ? 'Lulus' : 'Tuntas'),
+        examType: isUjian ? 'Ujian Utama' : 'Remedial',
         predicate: completedExamScoresK6.predicate,
         duration: examDurationTextK6,
         timestamp: timeString,
@@ -2918,7 +3085,7 @@ function calculateAndShowScoreK6(event) {
     }
 
     showExamStepK6('result');
-    showToast(`Nilai Akhir Remedial Kelas 6: ${totalScore}! 🌟 (Waktu: ${examDurationTextK6})`);
+    showToast(`${isUjian ? 'Nilai Akhir Ujian Kelas 6' : 'Nilai Akhir Remedial Kelas 6'}: ${totalScore}! 🌟 (Waktu: ${examDurationTextK6})`);
 }
 
 function generateAndDownloadPDFK6() {
@@ -2928,6 +3095,7 @@ function generateAndDownloadPDFK6() {
     const today = new Date();
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     const formattedDate = today.toLocaleDateString('id-ID', options);
+    const isUjian = (currentExamMode === 'ujian');
 
     document.getElementById('pdfReportNameK6').innerText = currentStudentDataK6.name || 'Siswa Kelas 6';
     document.getElementById('pdfReportClassK6').innerText = `Kelas ${currentStudentDataK6.kelas || '6A'}`;
@@ -2935,9 +3103,9 @@ function generateAndDownloadPDFK6() {
     document.getElementById('pdfReportDurationK6').innerText = `${examDurationTextK6} (Batas: 60 Menit)`;
     document.getElementById('pdfReportDateK6').innerText = formattedDate;
 
-    document.getElementById('pdfReportInitialScoreK6').innerText = completedExamScoresK6.initial;
-    document.getElementById('pdfReportPgScoreK6').innerText = `${completedExamScoresK6.pg} / 50 Poin`;
-    document.getElementById('pdfReportUraianScoreK6').innerText = `${completedExamScoresK6.uraian} / 50 Poin`;
+    document.getElementById('pdfReportInitialScoreK6').innerText = isUjian ? '80 (KKM)' : completedExamScoresK6.initial;
+    document.getElementById('pdfReportPgScoreK6').innerText = `${completedExamScoresK6.pg} / 70 Poin (${completedExamScoresK6.correctPgCount || 0}/45 Benar)`;
+    document.getElementById('pdfReportUraianScoreK6').innerText = `${completedExamScoresK6.uraian} / 30 Poin (Skor: ${completedExamScoresK6.rawUraianTotal || 0}/100)`;
     document.getElementById('pdfReportFinalScoreK6').innerText = completedExamScoresK6.final;
 
     document.getElementById('pdfReportStatusK6').innerText = completedExamScoresK6.status;
@@ -2946,7 +3114,7 @@ function generateAndDownloadPDFK6() {
 
     const element = document.getElementById('pdfDocumentElementK6');
     const safeStudentName = (currentStudentDataK6.name || 'Siswa_K6').replace(/[^a-zA-Z0-9]/g, '_');
-    const filename = `Laporan_Remedial_${safeStudentName}_Kelas_${currentStudentDataK6.kelas}.pdf`;
+    const filename = `${isUjian ? 'Laporan_Ujian' : 'Laporan_Remedial'}_${safeStudentName}_Kelas_${currentStudentDataK6.kelas}.pdf`;
 
     if (typeof html2pdf !== 'undefined') {
         const opt = {
@@ -5805,6 +5973,11 @@ function showToast(message) {
    ============================================================== */
 function syncExamUIWithQuestionModules() {
     try {
+        // 0. Render dinamis kartu soal PG Kelas 6 (45 Butir Soal)
+        if (typeof renderK6QuestionsFromModule === 'function') {
+            renderK6QuestionsFromModule();
+        }
+
         // 1. Sinkronisasi Kartu Soal PG Kelas 4
         if (window.SOAL_KELAS_4 && Array.isArray(window.SOAL_KELAS_4.pg)) {
             window.SOAL_KELAS_4.pg.forEach(item => {

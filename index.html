@@ -247,7 +247,7 @@
                             <li><i class="fa-solid fa-check-circle"></i> 5 Soal Uraian Mandiri & Skoring Otomatis</li>
                         </ul>
 
-                        <button class="btn-enter btn-k4 btn-exam-action">
+                        <button class="btn-enter btn-k4 btn-exam-action" onclick="openRemedialKelas4('ujian'); event.stopPropagation();">
                             <span id="btnK4ExamText">Buka Soal Ujian Kelas 4</span>
                             <i class="fa-solid fa-arrow-right"></i>
                         </button>
@@ -279,7 +279,7 @@
                             <li><i class="fa-solid fa-check-circle"></i> 5 Soal Uraian Presentasi PowerPoint</li>
                         </ul>
 
-                        <button class="btn-enter btn-k5 btn-exam-action">
+                        <button class="btn-enter btn-k5 btn-exam-action" onclick="openRemedialKelas5('ujian'); event.stopPropagation();">
                             <span id="btnK5ExamText">Buka Soal Ujian Kelas 5</span>
                             <i class="fa-solid fa-arrow-right"></i>
                         </button>
@@ -307,11 +307,11 @@
                         
                         <ul class="feature-list">
                             <li><i class="fa-solid fa-check-circle"></i> Input Identitas & Pilih Kelas (6A - 6E)</li>
-                            <li><i class="fa-solid fa-check-circle"></i> 10 Soal Pilihan Ganda Resmi (A, B, C, D)</li>
-                            <li><i class="fa-solid fa-check-circle"></i> 5 Soal Uraian Logika Koding Scratch</li>
+                            <li><i class="fa-solid fa-check-circle"></i> 45 Soal Pilihan Ganda Resmi (A, B, C, D)</li>
+                            <li><i class="fa-solid fa-check-circle"></i> 5 Soal Uraian Mandiri & Skoring Otomatis</li>
                         </ul>
 
-                        <button class="btn-enter btn-k6 btn-exam-action">
+                        <button class="btn-enter btn-k6 btn-exam-action" onclick="openRemedialKelas6('ujian'); event.stopPropagation();">
                             <span id="btnK6ExamText">Buka Soal Ujian Kelas 6</span>
                             <i class="fa-solid fa-arrow-right"></i>
                         </button>
@@ -2007,154 +2007,17 @@
 
                     <form id="k6ExamForm" onsubmit="calculateAndShowScoreK6(event)">
                         
-                        <!-- ================= BAGIAN I: PILIHAN GANDA (10 SOAL) ================= -->
+                        <!-- ================= BAGIAN I: PILIHAN GANDA (45 SOAL) ================= -->
                         <div class="exam-section-block">
-                            <div class="section-banner-title">
+                            <div class="section-banner-title" style="background: linear-gradient(135deg, #7e22ce, #a855f7);">
                                 <span class="section-number">BAGIAN I</span>
                                 <h4>PILIHAN GANDA • PILIHLAH SALAH SATU JAWABAN YANG PALING TEPAT!</h4>
-                                <span class="section-points">10 Soal (Bobot: 50 Poin)</span>
+                                <span class="section-points" id="k6PgSectionPoints">45 Soal (Bobot: 70 Poin)</span>
                             </div>
 
-                            <!-- Soal 1 -->
-                            <div class="exam-question-card" id="q-k6-card-1">
-                                <div class="question-header">
-                                    <span class="q-badge" style="background: #9333ea;">Soal 1</span>
-                                    <p class="q-text">Deva ingin merayakan pesta ulang tahunnya di rumah. Ia membuat daftar persiapan: <br>1. Menyiapkan daftar undangan teman-teman <br>2. Menyiapkan kue dan makanan kecil <br>3. Menghias ruang pesta <br>Pola berpikir komputasional yang dilakukan Deva adalah...</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_k6_1" value="A" required><span><strong>A.</strong> Abstraksi</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_1" value="B"><span><strong>B.</strong> Pengenalan pola</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_1" value="C"><span><strong>C.</strong> Dekomposisi</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_1" value="D"><span><strong>D.</strong> Algoritma</span></label>
-                                </div>
+                            <div id="k6PgQuestionsContainer">
+                                <!-- Dimuat otomatis 45 butir soal dari soal/kelas_6/soal_k6.js -->
                             </div>
-
-                            <!-- Soal 2 -->
-                            <div class="exam-question-card" id="q-k6-card-2">
-                                <div class="question-header">
-                                    <span class="q-badge" style="background: #9333ea;">Soal 2</span>
-                                    <p class="q-text">Inaya sedang merapikan buku di perpustakaan sekolah. Ia mengelompokkan buku cerita bergambar di rak A, buku pelajaran sains di rak B, dan buku komik petualangan di rak C berdasarkan kesamaan ciri-ciri jenis bukunya. Pola berpikir komputasional yang dilakukan Inaya adalah...</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_k6_2" value="A" required><span><strong>A.</strong> Pengenalan pola</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_2" value="B"><span><strong>B.</strong> Algoritma</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_2" value="C"><span><strong>C.</strong> Dekomposisi</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_2" value="D"><span><strong>D.</strong> Abstraksi</span></label>
-                                </div>
-                            </div>
-
-                            <!-- Soal 3 -->
-                            <div class="exam-question-card" id="q-k6-card-3">
-                                <div class="question-header">
-                                    <span class="q-badge" style="background: #9333ea;">Soal 3</span>
-                                    <p class="q-text">William ingin membuat rute perjalanan dari rumah ke sekolah untuk temannya. Ia hanya menggambar garis jalan utama, belokan penting, dan nama jalan, tanpa menggambar pohon, tiang listrik, atau rumah di sekitarnya. Pola berpikir komputasional yang diterapkan William adalah...</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_k6_3" value="A" required><span><strong>A.</strong> Algoritma</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_3" value="B"><span><strong>B.</strong> Dekomposisi</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_3" value="C"><span><strong>C.</strong> Pengenalan pola</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_3" value="D"><span><strong>D.</strong> Abstraksi</span></label>
-                                </div>
-                            </div>
-
-                            <!-- Soal 4 -->
-                            <div class="exam-question-card" id="q-k6-card-4">
-                                <div class="question-header">
-                                    <span class="q-badge" style="background: #9333ea;">Soal 4</span>
-                                    <p class="q-text">Shevi ingin membuat origami berbentuk pesawat terbang. Ia mengikuti langkah-langkah yang ada di buku petunjuk secara berurutan mulai dari melipat sisi kanan, kiri, hingga membentuk sayap. Pola berpikir komputasional yang dilakukan Shevi adalah...</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_k6_4" value="A" required><span><strong>A.</strong> Dekomposisi</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_4" value="B"><span><strong>B.</strong> Algoritma</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_4" value="C"><span><strong>C.</strong> Abstraksi</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_4" value="D"><span><strong>D.</strong> Pengenalan pola</span></label>
-                                </div>
-                            </div>
-
-                            <!-- Soal 5 -->
-                            <div class="exam-question-card" id="q-k6-card-5">
-                                <div class="question-header">
-                                    <span class="q-badge" style="background: #9333ea;">Soal 5</span>
-                                    <p class="q-text">Di bawah ini, manakah contoh dalam pembuatan game yang menerapkan prinsip <strong>Pengenalan Pola</strong>?</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_k6_5" value="A" required><span><strong>A.</strong> Menghapus detail gambar latar belakang agar game lebih ringan</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_5" value="B"><span><strong>B.</strong> Membagi pekerjaan membuat game menjadi karakter, suara, dan skor</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_5" value="C"><span><strong>C.</strong> Menggunakan logika pergerakan yang sama untuk semua karakter musuh</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_5" value="D"><span><strong>D.</strong> Menuliskan urutan tombol Start dari awal sampai permainan mulai</span></label>
-                                </div>
-                            </div>
-
-                            <!-- Soal 6 -->
-                            <div class="exam-question-card" id="q-k6-card-6">
-                                <div class="question-header">
-                                    <span class="q-badge" style="background: #9333ea;">Soal 6</span>
-                                    <p class="q-text">When you say "Play music" to a voice assistant, what is the 'Process' phase?</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_k6_6" value="A" required><span><strong>A.</strong> The speaker plays the song</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_6" value="B"><span><strong>B.</strong> The microphone detects your voice</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_6" value="C"><span><strong>C.</strong> The screen displays the album cover</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_6" value="D"><span><strong>D.</strong> Converting sound to text and searching the song</span></label>
-                                </div>
-                            </div>
-
-                            <!-- Soal 7 -->
-                            <div class="exam-question-card" id="q-k6-card-7">
-                                <div class="question-header">
-                                    <span class="q-badge" style="background: #9333ea;">Soal 7</span>
-                                    <p class="q-text">Which scenario illustrates <strong>abstraction</strong> rather than pattern recognition?</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_k6_7" value="A" required><span><strong>A.</strong> Grouping files based on file extensions (.jpg, .mp3)</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_7" value="B"><span><strong>B.</strong> Drawing a subway map that shows only stations and connecting lines</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_7" value="C"><span><strong>C.</strong> Noting that every Monday has heavy traffic at 7:00 AM</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_7" value="D"><span><strong>D.</strong> Identifying recurring shapes in traditional batik patterns</span></label>
-                                </div>
-                            </div>
-
-                            <!-- Soal 8 -->
-                            <div class="exam-question-card" id="q-k6-card-8">
-                                <div class="question-header">
-                                    <span class="q-badge" style="background: #9333ea;">Soal 8</span>
-                                    <p class="q-text">When designing an automated cleaning robot, which of the following is the first step when using <strong>decomposition</strong>?</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_k6_8" value="A" required><span><strong>A.</strong> Test how fast the robot moves across the room</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_8" value="B"><span><strong>B.</strong> Choose the color and decorative stickers for the robot</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_8" value="C"><span><strong>C.</strong> Program the robot to say "Cleaned!" after finishing</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_8" value="D"><span><strong>D.</strong> Divide the cleaning job into three separate sub-tasks: vacuuming, mopping, and obstacle avoidance</span></label>
-                                </div>
-                            </div>
-
-                            <!-- Soal 9 -->
-                            <div class="exam-question-card" id="q-k6-card-9">
-                                <div class="question-header">
-                                    <span class="q-badge" style="background: #9333ea;">Soal 9</span>
-                                    <p class="q-text">An AI model is trained with thousands of cat photos labeled "Cat" to help it recognize cats. What type of machine learning is this?</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_k6_9" value="A" required><span><strong>A.</strong> Unsupervised Learning</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_9" value="B"><span><strong>B.</strong> Supervised Learning</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_9" value="C"><span><strong>C.</strong> Reinforcement Learning</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_9" value="D"><span><strong>D.</strong> Semi-supervised Learning</span></label>
-                                </div>
-                            </div>
-
-                            <!-- Soal 10 -->
-                            <div class="exam-question-card" id="q-k6-card-10">
-                                <div class="question-header">
-                                    <span class="q-badge" style="background: #9333ea;">Soal 10</span>
-                                    <p class="q-text">When building a game where a character collects falling coins and avoids obstacles, which decomposition step should be done first?</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_k6_10" value="A" required><span><strong>A.</strong> Break the game into movement, scoring, and obstacles</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_10" value="B"><span><strong>B.</strong> Draw background decorations and sound effects</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_10" value="C"><span><strong>C.</strong> Publish the game to an online app store</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_k6_10" value="D"><span><strong>D.</strong> Buy a faster computer for programming</span></label>
-                                </div>
-                            </div>
-
                         </div>
 
                         <!-- ================= BAGIAN II: SOAL URAIAN (5 SOAL) ================= -->
@@ -2162,125 +2025,111 @@
                             <div class="section-banner-title" style="background: linear-gradient(135deg, #7e22ce, #a855f7);">
                                 <span class="section-number">BAGIAN II</span>
                                 <h4>SOAL URAIAN MANDIRI • JAWABLAH DENGAN TEPAT DAN JELAS!</h4>
-                                <span class="section-points">5 Soal (Bobot: 50 Poin)</span>
+                                <span class="section-points">5 Soal (Bobot: 30 Poin)</span>
                             </div>
 
-                            <!-- Uraian 1 (No. 11) -->
+                            <!-- Uraian 1 -->
                             <div class="exam-question-card uraian-card" id="q-k6-uraian-1">
                                 <div class="question-header">
                                     <span class="q-badge badge-uraian" style="background: #9333ea;">Uraian 1</span>
-                                    <p class="q-text">1. Tuliskan rangkaian blok kode pemrograman di Scratch untuk menggerakkan suatu karakter/sprite menggunakan tombol keyboard panah ke kanan saat Bendera Hijau (Green Flag) diklik!</p>
-                                </div>
-                                <div class="uraian-input-wrap">
-                                    <textarea id="uraian_k6_1" rows="4" required placeholder="Tuliskan susunan blok kode Scratch jawabanmu di sini..."></textarea>
-                                </div>
-                            </div>
-
-                            <!-- Uraian 2 (No. 12) -->
-                            <div class="exam-question-card uraian-card" id="q-k6-uraian-2">
-                                <div class="question-header">
-                                    <span class="q-badge badge-uraian" style="background: #9333ea;">Uraian 2</span>
-                                    <p class="q-text">2. Sebutkan nama kelompok / kategori blok kode di Scratch berdasarkan perintah di bawah ini:</p>
-                                </div>
-                                <div class="scratch-blocks-subgrid">
-                                    <div class="scratch-block-quiz-card">
-                                        <span class="scratch-block-label">A. Perintah Mengganti Kostum Karakter:</span>
-                                        <div><span class="scratch-badge badge-looks"><i class="fa-solid fa-shirt"></i> next costume</span></div>
-                                        <input type="text" id="uraian_k6_2_a" required placeholder="Tuliskan nama kategori blok A...">
-                                    </div>
-                                    <div class="scratch-block-quiz-card">
-                                        <span class="scratch-block-label">B. Perintah Mengatur Variabel Nilai/Nyawa:</span>
-                                        <div><span class="scratch-badge badge-variables"><i class="fa-solid fa-calculator"></i> set lives to 0</span></div>
-                                        <input type="text" id="uraian_k6_2_b" required placeholder="Tuliskan nama kategori blok B...">
-                                    </div>
-                                    <div class="scratch-block-quiz-card">
-                                        <span class="scratch-block-label">C. Perintah Sensor Menyentuh Objek:</span>
-                                        <div><span class="scratch-badge badge-sensing"><i class="fa-solid fa-hand-pointer"></i> touching Goblin ?</span></div>
-                                        <input type="text" id="uraian_k6_2_c" required placeholder="Tuliskan nama kategori blok C...">
-                                    </div>
-                                    <div class="scratch-block-quiz-card">
-                                        <span class="scratch-block-label">D. Perintah Menampilkan & Menyembunyikan:</span>
-                                        <div><span class="scratch-badge badge-looks"><i class="fa-solid fa-eye"></i> show</span> <span class="scratch-badge badge-looks"><i class="fa-solid fa-eye-slash"></i> hide</span></div>
-                                        <input type="text" id="uraian_k6_2_d" required placeholder="Tuliskan nama kategori blok D...">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Uraian 3 (No. 13) -->
-                            <div class="exam-question-card uraian-card" id="q-k6-uraian-3">
-                                <div class="question-header">
-                                    <span class="q-badge badge-uraian" style="background: #9333ea;">Uraian 3</span>
-                                    <p class="q-text">3. Perhatikan dua ikon tombol ungu pada aplikasi Scratch di bawah ini! Sebutkan <strong>nama tombol</strong> dan <strong>fungsinya</strong> masing-masing:</p>
-                                </div>
-                                <div class="scratch-ui-icons-grid">
-                                    <div class="scratch-ui-card">
-                                        <div class="scratch-circle-btn">
-                                            <i class="fa-solid fa-cat"></i>
-                                            <span class="plus-badge">+</span>
-                                        </div>
-                                        <h4 style="color: #6b21a8; margin-bottom: 0.5rem;">Ikon Tombol A (Kucing)</h4>
-                                        <input type="text" id="uraian_k6_3_a" required placeholder="Tuliskan nama & fungsi tombol A di sini..." style="width: 100%; padding: 0.7rem; border-radius: 10px; border: 2px solid #cbd5e1; font-weight: 600;">
-                                    </div>
-                                    <div class="scratch-ui-card">
-                                        <div class="scratch-circle-btn">
-                                            <i class="fa-solid fa-image"></i>
-                                            <span class="plus-badge">+</span>
-                                        </div>
-                                        <h4 style="color: #6b21a8; margin-bottom: 0.5rem;">Ikon Tombol B (Pemandangan)</h4>
-                                        <input type="text" id="uraian_k6_3_b" required placeholder="Tuliskan nama & fungsi tombol B di sini..." style="width: 100%; padding: 0.7rem; border-radius: 10px; border: 2px solid #cbd5e1; font-weight: 600;">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Uraian 4 (No. 14) -->
-                            <div class="exam-question-card uraian-card" id="q-k6-uraian-4">
-                                <div class="question-header">
-                                    <span class="q-badge badge-uraian" style="background: #9333ea;">Uraian 4</span>
-                                    <p class="q-text">4. Sebutkan 2 contoh perintah pada blok <strong>"Motion"</strong> (Gerakan) dan 2 contoh perintah pada blok <strong>"Control"</strong> (Kontrol) di Scratch!</p>
-                                </div>
-                                <div class="uraian-subgrid" style="grid-template-columns: 1fr 1fr;">
-                                    <div class="sub-input">
-                                        <label for="uraian_k6_4_motion"><strong><i class="fa-solid fa-person-walking"></i> 2 Contoh Perintah Blok Motion (Gerakan):</strong></label>
-                                        <input type="text" id="uraian_k6_4_motion" required placeholder="Tuliskan 2 contoh perintah blok Motion di sini...">
-                                    </div>
-                                    <div class="sub-input">
-                                        <label for="uraian_k6_4_control"><strong><i class="fa-solid fa-sliders"></i> 2 Contoh Perintah Blok Control (Kontrol):</strong></label>
-                                        <input type="text" id="uraian_k6_4_control" required placeholder="Tuliskan 2 contoh perintah blok Control di sini...">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Uraian 5 (No. 15) -->
-                            <div class="exam-question-card uraian-card" id="q-k6-uraian-5">
-                                <div class="question-header">
-                                    <span class="q-badge badge-uraian" style="background: #9333ea;">Uraian 5</span>
-                                    <p class="q-text">5. Sebutkan dan jelaskan secara singkat <strong>4 Pilar Berpikir Komputasional (Computational Thinking)</strong> yang telah kamu pelajari!</p>
+                                    <p class="q-text">1. Sebutkan dan jelaskan secara singkat <strong>4 (empat) pilar utama</strong> dalam Berpikir Komputasional (Computational Thinking)! Berikan pula <strong>1 (satu) contoh penerapannya</strong> dalam kehidupan sehari-hari anak di rumah (misalnya saat merapikan kamar atau menyiapkan peralatan sekolah)!</p>
                                 </div>
                                 <div class="scratch-ct-pillars-grid">
                                     <div class="scratch-pillar-box">
                                         <div class="scratch-pillar-header">
                                             <span>🧩 1. Pilar Dekomposisi:</span>
                                         </div>
-                                        <input type="text" id="uraian_k6_5_dekomposisi" required placeholder="Tuliskan penjelasan pilar Dekomposisi di sini..." style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
+                                        <input type="text" id="uraian_k6_1_dekomposisi" required placeholder="Pengertian Dekomposisi..." style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
                                     </div>
                                     <div class="scratch-pillar-box">
                                         <div class="scratch-pillar-header">
                                             <span>🔍 2. Pilar Pengenalan Pola:</span>
                                         </div>
-                                        <input type="text" id="uraian_k6_5_pola" required placeholder="Tuliskan penjelasan pilar Pengenalan Pola di sini..." style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
+                                        <input type="text" id="uraian_k6_1_pola" required placeholder="Pengertian Pengenalan Pola..." style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
                                     </div>
                                     <div class="scratch-pillar-box">
                                         <div class="scratch-pillar-header">
                                             <span>🎯 3. Pilar Abstraksi:</span>
                                         </div>
-                                        <input type="text" id="uraian_k6_5_abstraksi" required placeholder="Tuliskan penjelasan pilar Abstraksi di sini..." style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
+                                        <input type="text" id="uraian_k6_1_abstraksi" required placeholder="Pengertian Abstraksi..." style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
                                     </div>
                                     <div class="scratch-pillar-box">
                                         <div class="scratch-pillar-header">
                                             <span>📋 4. Pilar Algoritma:</span>
                                         </div>
-                                        <input type="text" id="uraian_k6_5_algoritma" required placeholder="Tuliskan penjelasan pilar Algoritma di sini..." style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
+                                        <input type="text" id="uraian_k6_1_algoritma" required placeholder="Pengertian Algoritma..." style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
                                     </div>
+                                </div>
+                                <div class="uraian-input-wrap" style="margin-top: 0.85rem;">
+                                    <label for="uraian_k6_1_contoh"><strong><i class="fa-solid fa-house"></i> 1 Contoh Penerapan di Rumah:</strong></label>
+                                    <textarea id="uraian_k6_1_contoh" rows="3" required placeholder="Tuliskan 1 contoh penerapan 4 pilar di rumah (misal: menyiapkan tas sekolah atau merapikan kamar tidur)..." style="width: 100%; padding: 0.7rem; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 500;"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Uraian 2 -->
+                            <div class="exam-question-card uraian-card" id="q-k6-uraian-2">
+                                <div class="question-header">
+                                    <span class="q-badge badge-uraian" style="background: #9333ea;">Uraian 2</span>
+                                    <p class="q-text">2. Jelaskan perbedaan mendasar antara pilar <strong>Dekomposisi</strong> dan pilar <strong>Abstraksi</strong> ketika kamu sedang merencanakan pembuatan sebuah game sederhana di komputer!</p>
+                                </div>
+                                <div class="uraian-input-wrap">
+                                    <textarea id="uraian_k6_2" rows="4" required placeholder="Tuliskan perbedaan Dekomposisi dan Abstraksi dalam pembuatan game di sini..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Uraian 3 -->
+                            <div class="exam-question-card uraian-card" id="q-k6-uraian-3">
+                                <div class="question-header">
+                                    <span class="q-badge badge-uraian" style="background: #9333ea;">Uraian 3</span>
+                                    <p class="q-text">3. Susunlah sebuah <strong>algoritma langkah demi langkah</strong> yang teratur dan logis untuk memprogram seekor sprite kucing di Scratch agar: <br>a. Berjalan maju sebanyak 10 langkah, <br>b. Mengeluarkan bunyi suara 'Meow', <br>c. Berbelok/berputar ke arah kanan sebesar 90 derajat!</p>
+                                </div>
+                                <div class="uraian-input-wrap">
+                                    <textarea id="uraian_k6_3" rows="4" required placeholder="Tuliskan urutan algoritma langkah demi langkah (1, 2, 3...) di sini..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Uraian 4 -->
+                            <div class="exam-question-card uraian-card" id="q-k6-uraian-4">
+                                <div class="question-header">
+                                    <span class="q-badge badge-uraian" style="background: #9333ea;">Uraian 4</span>
+                                    <p class="q-text">4. Dalam aplikasi Scratch, terdapat beberapa komponen utama lembar kerja. Jelaskan fungsi dari masing-masing komponen berikut:</p>
+                                </div>
+                                <div class="scratch-ui-icons-grid" style="grid-template-columns: 1fr 1fr;">
+                                    <div class="scratch-ui-card">
+                                        <div class="scratch-circle-btn"><i class="fa-solid fa-cat"></i></div>
+                                        <h4 style="color: #6b21a8; margin-bottom: 0.4rem;">a. Sprite</h4>
+                                        <input type="text" id="uraian_k6_4_sprite" required placeholder="Fungsi Sprite..." style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 500;">
+                                    </div>
+                                    <div class="scratch-ui-card">
+                                        <div class="scratch-circle-btn"><i class="fa-solid fa-tv"></i></div>
+                                        <h4 style="color: #6b21a8; margin-bottom: 0.4rem;">b. Stage (Panggung)</h4>
+                                        <input type="text" id="uraian_k6_4_stage" required placeholder="Fungsi Stage..." style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 500;">
+                                    </div>
+                                    <div class="scratch-ui-card">
+                                        <div class="scratch-circle-btn" style="background: #dcfce7; color: #16a34a;"><i class="fa-solid fa-flag"></i></div>
+                                        <h4 style="color: #16a34a; margin-bottom: 0.4rem;">c. Bendera Hijau (Green Flag)</h4>
+                                        <input type="text" id="uraian_k6_4_flag" required placeholder="Fungsi Bendera Hijau..." style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 500;">
+                                    </div>
+                                    <div class="scratch-ui-card">
+                                        <div class="scratch-circle-btn" style="background: #fee2e2; color: #dc2626;"><i class="fa-solid fa-stop"></i></div>
+                                        <h4 style="color: #dc2626; margin-bottom: 0.4rem;">d. Tombol Merah (Stop)</h4>
+                                        <input type="text" id="uraian_k6_4_stop" required placeholder="Fungsi Tombol Stop..." style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 500;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Uraian 5 -->
+                            <div class="exam-question-card uraian-card" id="q-k6-uraian-5">
+                                <div class="question-header">
+                                    <span class="q-badge badge-uraian" style="background: #9333ea;">Uraian 5</span>
+                                    <p class="q-text">5. Blok kode di Scratch dikelompokkan berdasarkan fungsinya dengan warna-warna yang berbeda agar mudah dikenali. Sebutkan minimal <strong>5 (lima) kategori balok kode di Scratch</strong>, sebutkan <strong>warna khasnya</strong> masing-masing, dan berikan <strong>1 (satu) contoh balok perintah</strong> di dalamnya!</p>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                                    <input type="text" id="uraian_k6_5_kategori1" required placeholder="1. Kategori, Warna & Contoh: (misal: Motion (Biru Tua) - move 10 steps)" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
+                                    <input type="text" id="uraian_k6_5_kategori2" required placeholder="2. Kategori, Warna & Contoh: (misal: Looks (Ungu) - say Hello!)" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
+                                    <input type="text" id="uraian_k6_5_kategori3" required placeholder="3. Kategori, Warna & Contoh: (misal: Sound (Magenta) - play sound Meow)" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
+                                    <input type="text" id="uraian_k6_5_kategori4" required placeholder="4. Kategori, Warna & Contoh: (misal: Events (Kuning) - when green flag clicked)" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
+                                    <input type="text" id="uraian_k6_5_kategori5" required placeholder="5. Kategori, Warna & Contoh: (misal: Control (Oranye) - forever / repeat 10)" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1.5px solid #cbd5e1;">
                                 </div>
                             </div>
 
@@ -2402,14 +2251,14 @@
                                 </tr>
                                 <tr>
                                     <td class="text-center">2</td>
-                                    <td>Soal Pilihan Ganda (10 Nomor)</td>
-                                    <td class="text-center">50 Poin</td>
+                                    <td>Soal Pilihan Ganda (45 Nomor)</td>
+                                    <td class="text-center">70 Poin</td>
                                     <td class="text-center" id="pdfReportPgScoreK6">-</td>
                                 </tr>
                                 <tr>
                                     <td class="text-center">3</td>
                                     <td>Soal Uraian Mandiri (5 Nomor)</td>
-                                    <td class="text-center">50 Poin</td>
+                                    <td class="text-center">30 Poin</td>
                                     <td class="text-center" id="pdfReportUraianScoreK6">-</td>
                                 </tr>
                                 <tr class="pdf-grade-total-row">
@@ -3538,9 +3387,9 @@ function doGet(e) {
     };
     </script>
     <!-- Bank Soal Remedial Modular per Subfolder Kelas (Folder d:\Erapot\soal\) -->
-    <script src="soal/kelas_4/soal_k4.js?v=20261015_v2"></script>
-    <script src="soal/kelas_5/soal_k5.js?v=20261015_v2"></script>
-    <script src="soal/kelas_6/soal_k6.js?v=20261015_v2"></script>
-    <script src="script.js?v=20261119_v2"></script>
+    <script src="soal/kelas_4/soal_k4.js?v=20261123_v1"></script>
+    <script src="soal/kelas_5/soal_k5.js?v=20261123_v1"></script>
+    <script src="soal/kelas_6/soal_k6.js?v=20261123_v1"></script>
+    <script src="script.js?v=20261123_v1"></script>
 </body>
 </html>
