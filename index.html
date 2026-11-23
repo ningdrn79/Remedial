@@ -2238,9 +2238,12 @@
                         <span style="font-size: 0.85rem; font-weight: 800; color: #047857;"><i class="fa-solid fa-key"></i> TOKEN AKTIF:</span>
                         <span class="token-active-badge" id="activeTokenDisplay">TZU26</span>
                     </div>
-                    <div class="token-actions">
+                    <div class="token-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
                         <button type="button" class="btn-token-action btn-random-token-main" onclick="generateRandomExamToken()" title="Buat Token Acak Baru untuk Papan Tulis">
                             <i class="fa-solid fa-dice"></i> Acak Token
+                        </button>
+                        <button type="button" class="btn-token-action" onclick="copyStudentExamShareLink()" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: white; font-weight: 700;" title="Salin link ujian siswa yang otomatis mengunci periode aktif (SEM 1-PAS) di seluruh komputer siswa">
+                            <i class="fa-solid fa-share-nodes"></i> Salin Link Siswa (Otomatis PAS)
                         </button>
                     </div>
                 </div>
@@ -2698,6 +2701,21 @@ function doGet(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
+    // A2. Simpan Status Konfigurasi Guru via GET (Tahan CORS antar-device)
+    if (e && e.parameter && (e.parameter.action === "setExamConfig")) {
+      var props = PropertiesService.getScriptProperties();
+      if (e.parameter.period) props.setProperty("ACTIVE_PERIOD", e.parameter.period);
+      if (e.parameter.status) props.setProperty("EXAM_STATUS", e.parameter.status);
+      if (e.parameter.token) props.setProperty("LIVE_TOKEN", e.parameter.token);
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        action: "setExamConfig",
+        activePeriod: props.getProperty("ACTIVE_PERIOD") || "sem1_pts",
+        examStatus: props.getProperty("EXAM_STATUS") || "OPEN",
+        liveToken: props.getProperty("LIVE_TOKEN") || "TZU26"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
     // B. Mengambil Data Siswa per Sheet
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var paramPeriod = e && e.parameter && (e.parameter.period || e.parameter.sheet);
@@ -3135,9 +3153,9 @@ function doGet(e) {
     };
     </script>
     <!-- Bank Soal Remedial Modular per Subfolder Kelas (Folder d:\Erapot\soal\) -->
-    <script src="soal/kelas_4/soal_k4.js?v=20261123_v4"></script>
+    <script src="soal/kelas_4/soal_k4.js?v=20261123_v6"></script>
     <script src="soal/kelas_5/soal_k5.js?v=20261123_v1"></script>
     <script src="soal/kelas_6/soal_k6.js?v=20261123_v1"></script>
-    <script src="script.js?v=20261123_v4"></script>
+    <script src="script.js?v=20261123_v6"></script>
 </body>
 </html>

@@ -3810,8 +3810,12 @@ function clearAllExamData() {
    ============================================================== */
 // TEMPELKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
 // AGAR OTOMATIS BERLAKU DI SELURUH LAPTOP/HP SISWA YANG MEMBUKA LINK GITHUB
-const DEFAULT_GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbzy19oNK6N3foUZVCmPMG2Egm2fQ-CWGS4EofxYLPFhlXdEZQloL3oDusFej60MAtcv/exec"; 
+const DEFAULT_GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbzEqfYiatXl_8JOGVAAbYdT-KN0VgnrozVTfQN4K8X9il5_hVU1b3ezlhh3bgsGUTfF/exec"; 
 let GOOGLE_SHEETS_WEBAPP_URL = localStorage.getItem('tzuchi_sheets_url') || DEFAULT_GOOGLE_SHEETS_URL;
+if (!GOOGLE_SHEETS_WEBAPP_URL || GOOGLE_SHEETS_WEBAPP_URL.includes('AKfycbzy19oNK6N3foUZVCmP')) {
+    GOOGLE_SHEETS_WEBAPP_URL = DEFAULT_GOOGLE_SHEETS_URL;
+    localStorage.setItem('tzuchi_sheets_url', DEFAULT_GOOGLE_SHEETS_URL);
+}
 if (GOOGLE_SHEETS_WEBAPP_URL && GOOGLE_SHEETS_WEBAPP_URL.endsWith('/dev')) {
     GOOGLE_SHEETS_WEBAPP_URL = GOOGLE_SHEETS_WEBAPP_URL.replace(/\/dev$/, '/exec');
 }
@@ -3837,12 +3841,28 @@ function updateCloudStatusUI() {
    ============================================================== */
 function pushExamConfigToCloud(config) {
     if (!GOOGLE_SHEETS_WEBAPP_URL || !GOOGLE_SHEETS_WEBAPP_URL.trim().startsWith('http')) return;
+    const periodVal = config.period || activeTeacherRemedialPeriod || 'sem1_pts';
+    const statusVal = config.status || (isExamSessionOpen() ? 'OPEN' : 'CLOSED');
+    const tokenVal = config.token || getActiveExamToken() || 'TZU26';
+
     const payload = {
         action: 'setExamConfig',
-        period: config.period || activeTeacherRemedialPeriod || 'sem1_pts',
-        status: config.status || (isExamSessionOpen() ? 'OPEN' : 'CLOSED'),
-        token: config.token || getActiveExamToken() || 'TZU26'
+        period: periodVal,
+        status: statusVal,
+        token: tokenVal
     };
+
+    // 1. Kirim via GET Ping (Paling kompatibel dengan Google Apps Script cross-origin)
+    try {
+        const pingUrl = GOOGLE_SHEETS_WEBAPP_URL + (GOOGLE_SHEETS_WEBAPP_URL.includes('?') ? '&' : '?') +
+            'action=setExamConfig&period=' + encodeURIComponent(periodVal) +
+            '&status=' + encodeURIComponent(statusVal) +
+            '&token=' + encodeURIComponent(tokenVal) +
+            '&_ts=' + Date.now();
+        fetch(pingUrl, { method: 'GET', mode: 'no-cors' });
+    } catch(eGet) {}
+
+    // 2. Kirim via POST Payload
     try {
         fetch(GOOGLE_SHEETS_WEBAPP_URL, {
             method: 'POST',
@@ -4350,7 +4370,7 @@ function copyStudentExamShareLink() {
     playCuteSound('pop');
     const token = getActiveExamToken();
     const period = activeTeacherRemedialPeriod || 'sem1_pts';
-    const url = window.location.origin + window.location.pathname + '?p=' + encodeURIComponent(period) + '&token=' + encodeURIComponent(token);
+    const url = window.location.origin + window.location.pathname + '?p=' + encodeURIComponent(period) + '&token=' + encodeURIComponent(token) + '#menu-ujian';
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(url).then(() => {
             playCuteSound('fanfare');
