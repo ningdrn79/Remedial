@@ -402,10 +402,10 @@ const REMEDIAL_PERIODS = {
         bannerSubtitle: 'PENILAIAN AKHIR SEMESTER 1 (PAS) • TAHUN PELAJARAN 2026/2027',
         pdfDocMeta: 'PENILAIAN AKHIR SEMESTER 1 (PAS) • TAHUN PELAJARAN 2026/2027',
         k4: {
-            tag: 'Komprehensif Excel & AI',
-            tagEn: 'Comprehensive Excel & AI',
-            subtitle: 'Evaluasi Komprehensif Semester 1: Formula Excel, Format Tabel Data & Logika Detektif AI.',
-            subtitleEn: 'Comprehensive Semester 1: Excel Formulas, Data Formatting & AI Logic.'
+            tag: 'Word & Gemini AI',
+            tagEn: 'Word & Gemini AI',
+            subtitle: 'Microsoft Word (Format Teks, WordArt, Gambar) & Eksplorasi Gemini AI.',
+            subtitleEn: 'Microsoft Word (Text Formatting, WordArt, Images) & Gemini AI Exploration.'
         },
         k5: {
             tag: 'Komprehensif PowerPoint & AI',
@@ -828,21 +828,36 @@ function applyRemedialPeriod(periodKey) {
         navSem.innerText = !isOpen ? (isEn ? '🔒 Exam Locked' : '🔒 Ujian Dikunci') : (isEn ? config.badgeEn : config.badge);
     }
 
-    // 5. Perbarui konten tag & subtitle kartu materi
+    // 5. Perbarui konten tag & subtitle kartu materi (Ujian Utama & Remedial)
     const k4Tag = document.getElementById('k4TagText');
     if (k4Tag) k4Tag.innerText = isEn ? config.k4.tagEn : config.k4.tag;
+    const k4ExamTag = document.getElementById('k4ExamTagText');
+    if (k4ExamTag) k4ExamTag.innerText = isEn ? config.k4.tagEn : config.k4.tag;
+
     const k4Sub = document.getElementById('k4SubtitleText');
     if (k4Sub) k4Sub.innerText = isEn ? config.k4.subtitleEn : config.k4.subtitle;
+    const k4ExamSub = document.getElementById('k4ExamSubtitleText');
+    if (k4ExamSub) k4ExamSub.innerText = isEn ? config.k4.subtitleEn : config.k4.subtitle;
 
     const k5Tag = document.getElementById('k5TagText');
     if (k5Tag) k5Tag.innerText = isEn ? config.k5.tagEn : config.k5.tag;
+    const k5ExamTag = document.getElementById('k5ExamTagText');
+    if (k5ExamTag) k5ExamTag.innerText = isEn ? config.k5.tagEn : config.k5.tag;
+
     const k5Sub = document.getElementById('k5SubtitleText');
     if (k5Sub) k5Sub.innerText = isEn ? config.k5.subtitleEn : config.k5.subtitle;
+    const k5ExamSub = document.getElementById('k5ExamSubtitleText');
+    if (k5ExamSub) k5ExamSub.innerText = isEn ? config.k5.subtitleEn : config.k5.subtitle;
 
     const k6Tag = document.getElementById('k6TagText');
     if (k6Tag) k6Tag.innerText = isEn ? config.k6.tagEn : config.k6.tag;
+    const k6ExamTag = document.getElementById('k6ExamTagText');
+    if (k6ExamTag) k6ExamTag.innerText = isEn ? config.k6.tagEn : config.k6.tag;
+
     const k6Sub = document.getElementById('k6SubtitleText');
     if (k6Sub) k6Sub.innerText = isEn ? config.k6.subtitleEn : config.k6.subtitle;
+    const k6ExamSub = document.getElementById('k6ExamSubtitleText');
+    if (k6ExamSub) k6ExamSub.innerText = isEn ? config.k6.subtitleEn : config.k6.subtitle;
 
     // 6. Perbarui banner modal ujian (K4, K5, K6)
     const modalSubtitles = document.querySelectorAll('.exam-header-banner .school-subtitle');
