@@ -2914,11 +2914,29 @@ function normalizeSheetToPeriod(name) {
   return "sem1_pts";
 }
 
-// 1. POST: Menyimpan Hasil Siswa Otomatis ke Sheet yang Sesuai Periode
+// 1. POST: Menyimpan Hasil Siswa atau Pengaturan Ujian Real-Time dari Guru
 function doPost(e) {
   try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
     var data = JSON.parse(e.postData.contents);
+
+    // A. Sinkronisasi Pengaturan Guru (Periode Aktif, Status Kunci, Token)
+    if (data.action === "setExamConfig" || data.type === "config") {
+      var props = PropertiesService.getScriptProperties();
+      if (data.period) props.setProperty("ACTIVE_PERIOD", data.period);
+      if (data.status) props.setProperty("EXAM_STATUS", data.status);
+      if (data.token) props.setProperty("LIVE_TOKEN", data.token);
+
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        action: "setExamConfig",
+        activePeriod: props.getProperty("ACTIVE_PERIOD") || "sem1_pts",
+        examStatus: props.getProperty("EXAM_STATUS") || "OPEN",
+        liveToken: props.getProperty("LIVE_TOKEN") || "TZU26"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // B. Penyimpanan Lembar Jawaban Siswa
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
     var periodKey = data.period || "sem1_pts";
     var sheet = getTargetSheet(ss, periodKey);
 
@@ -2948,9 +2966,21 @@ function doPost(e) {
   }
 }
 
-// 2. GET: Mengambil Data Siswa per Sheet (SEM 1-PTS, SEM 1-PAS, SEM 2-PTS, SEM 2-PAT)
+// 2. GET: Mengambil Data Siswa per Sheet atau Status Konfigurasi Guru Real-Time
 function doGet(e) {
   try {
+    // A. Sinkronisasi Real-Time ke Komputer Siswa
+    if (e && e.parameter && (e.parameter.action === "getExamConfig" || e.parameter.type === "config")) {
+      var props = PropertiesService.getScriptProperties();
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        activePeriod: props.getProperty("ACTIVE_PERIOD") || "sem1_pts",
+        examStatus: props.getProperty("EXAM_STATUS") || "OPEN",
+        liveToken: props.getProperty("LIVE_TOKEN") || "TZU26"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // B. Mengambil Data Siswa per Sheet
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var paramPeriod = e && e.parameter && (e.parameter.period || e.parameter.sheet);
     var sheetsToRead = [];
@@ -3390,6 +3420,6 @@ function doGet(e) {
     <script src="soal/kelas_4/soal_k4.js?v=20261123_v1"></script>
     <script src="soal/kelas_5/soal_k5.js?v=20261123_v1"></script>
     <script src="soal/kelas_6/soal_k6.js?v=20261123_v1"></script>
-    <script src="script.js?v=20261123_v1"></script>
+    <script src="script.js?v=20261123_v2"></script>
 </body>
 </html>

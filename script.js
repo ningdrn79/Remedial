@@ -511,6 +511,15 @@ function selectRemedialPeriodTeacher(periodKey) {
     playCuteSound('fanfare');
     const pName = (currentLang === 'en') ? REMEDIAL_PERIODS[periodKey].nameEn : REMEDIAL_PERIODS[periodKey].name;
     showToast(`✅ Tombol [${pName}] AKTIF & DIBUKA untuk siswa! Tabel langsung menampilkan data remedial ini.`);
+
+    // Broadcast ke Google Cloud agar seluruh komputer/HP siswa otomatis berubah secara real-time
+    if (typeof pushExamConfigToCloud === 'function') {
+        pushExamConfigToCloud({
+            period: periodKey,
+            status: 'OPEN',
+            token: getActiveExamToken()
+        });
+    }
 }
 
 // 2. Klik pada Tab Periode di Beranda Siswa (Diproteksi agar Anak Tidak Salah Klik)
@@ -3707,6 +3716,117 @@ function updateCloudStatusUI() {
     }
 }
 
+/* ==============================================================
+   CLOUD REAL-TIME CONTROLLER (SINKRONISASI SAKLAR GURU ANTAR-DEVICE)
+   Memastikan komputer siswa otomatis sinkron saat guru mengganti
+   periode ujian, mengunci ujian, atau mengacak token di komputer guru.
+   ============================================================== */
+function pushExamConfigToCloud(config) {
+    if (!GOOGLE_SHEETS_WEBAPP_URL || !GOOGLE_SHEETS_WEBAPP_URL.trim().startsWith('http')) return;
+    const payload = {
+        action: 'setExamConfig',
+        period: config.period || activeTeacherRemedialPeriod || 'sem1_pts',
+        status: config.status || (isExamSessionOpen() ? 'OPEN' : 'CLOSED'),
+        token: config.token || getActiveExamToken() || 'TZU26'
+    };
+    try {
+        fetch(GOOGLE_SHEETS_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }).then(() => {
+            console.log('☁️ Exam config successfully broadcasted to cloud:', payload);
+        }).catch(err => {
+            console.warn('Notice: pushExamConfigToCloud network notice:', err);
+        });
+    } catch(e) {}
+}
+
+let isCloudConfigFetching = false;
+async function fetchExamConfigFromCloud(isInitial = false) {
+    if (!GOOGLE_SHEETS_WEBAPP_URL || !GOOGLE_SHEETS_WEBAPP_URL.trim().startsWith('http')) return;
+    if (isCloudConfigFetching) return;
+    isCloudConfigFetching = true;
+
+    try {
+        const queryUrl = GOOGLE_SHEETS_WEBAPP_URL + (GOOGLE_SHEETS_WEBAPP_URL.includes('?') ? '&' : '?') + 'action=getExamConfig&_ts=' + Date.now();
+        const res = await fetch(queryUrl, { method: 'GET', redirect: 'follow', cache: 'no-store' });
+        const text = await res.text();
+        let config;
+        try {
+            config = JSON.parse(text);
+        } catch (e) {
+            isCloudConfigFetching = false;
+            return;
+        }
+
+        if (config && config.status === 'success' && config.activePeriod) {
+            const remotePeriod = config.activePeriod;
+            const remoteStatus = config.examStatus || 'OPEN';
+            const remoteToken = config.liveToken;
+
+            // 1. Cek perubahan periode aktif dari guru
+            if (remotePeriod && REMEDIAL_PERIODS[remotePeriod] && remotePeriod !== activeTeacherRemedialPeriod) {
+                activeTeacherRemedialPeriod = remotePeriod;
+                currentRemedialPeriod = remotePeriod;
+                officialRemedialPeriod = remotePeriod;
+                localStorage.setItem('tzuchi_teacher_active_period', remotePeriod);
+                localStorage.setItem('tzuchi_official_period', remotePeriod);
+                localStorage.setItem('tzuchi_remedial_period', remotePeriod);
+                applyRemedialPeriod(remotePeriod);
+
+                if (!isInitial) {
+                    const pName = REMEDIAL_PERIODS[remotePeriod]?.name || remotePeriod;
+                    showToast(`📢 Guru Pengawas mengaktifkan: [${pName}]`);
+                    playCuteSound('pop');
+                }
+            }
+
+            // 2. Cek perubahan saklar kunci ujian
+            const currentStatus = isExamSessionOpen() ? 'OPEN' : 'CLOSED';
+            if (remoteStatus && remoteStatus !== currentStatus) {
+                localStorage.setItem('tzuchi_exam_session_status', remoteStatus);
+                updateExamSessionDisplay();
+                applyRemedialPeriod(activeTeacherRemedialPeriod);
+
+                if (!isInitial) {
+                    if (remoteStatus === 'CLOSED') {
+                        showToast('🔒 Guru Pengawas mengunci seluruh akses ujian.');
+                    } else {
+                        showToast('🔓 Guru Pengawas membuka akses ujian!');
+                    }
+                    playCuteSound('pop');
+                }
+            }
+
+            // 3. Cek perubahan token ujian live
+            if (remoteToken && remoteToken !== getActiveExamToken()) {
+                setActiveExamToken(remoteToken);
+                ['k4ExamToken', 'k5ExamToken', 'k6ExamToken'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el && !el.value) el.value = remoteToken;
+                });
+            }
+        }
+    } catch (err) {
+        // Silent catch: network fallback
+    } finally {
+        isCloudConfigFetching = false;
+    }
+}
+
+let cloudPollingInterval = null;
+function startCloudConfigPolling() {
+    if (cloudPollingInterval) clearInterval(cloudPollingInterval);
+    // Langsung cek saat pertama kali halaman terbuka
+    fetchExamConfigFromCloud(true);
+    // Polling berkala setiap 8 detik agar responsif antar-komputer di kelas
+    cloudPollingInterval = setInterval(() => {
+        fetchExamConfigFromCloud(false);
+    }, 8000);
+}
+
 function openCloudConfigModal() {
     playCuteSound('pop');
     const modal = document.getElementById('cloudConfigModal');
@@ -4101,17 +4221,27 @@ function generateRandomExamToken() {
     setActiveExamToken(token);
     playCuteSound('fanfare');
     showToast(`🎲 Token Baru Diacak: ${token}. Silakan tuliskan di papan tulis kelas!`);
+
+    // Broadcast token baru ke cloud
+    if (typeof pushExamConfigToCloud === 'function') {
+        pushExamConfigToCloud({
+            period: activeTeacherRemedialPeriod,
+            status: 'OPEN',
+            token: token
+        });
+    }
 }
 
 function copyStudentExamShareLink() {
     playCuteSound('pop');
     const token = getActiveExamToken();
-    const url = window.location.origin + window.location.pathname + '?token=' + encodeURIComponent(token);
+    const period = activeTeacherRemedialPeriod || 'sem1_pts';
+    const url = window.location.origin + window.location.pathname + '?p=' + encodeURIComponent(period) + '&token=' + encodeURIComponent(token);
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(url).then(() => {
             playCuteSound('fanfare');
-            showToast(`📋 Link ujian siswa dengan token "${token}" berhasil disalin!`);
-            alert(`📋 LINK UJIAN DENGAN TOKEN AKTIF BERHASIL DISALIN!\n\nTautan:\n${url}\n\nJika siswa membuka link ini di laptop/Chromebook masing-masing, kode token "${token}" akan otomatis terpasang dan siap langsung ujian tanpa ketik token manual.`);
+            showToast(`📋 Link ujian siswa dengan periode [${period}] & token "${token}" berhasil disalin!`);
+            alert(`📋 LINK UJIAN SISWA BERHASIL DISALIN!\n\nTautan:\n${url}\n\nLink ini otomatis menyertakan:\n1. Periode aktif yang dipilih Guru (${period})\n2. Token ujian aktif (${token})\n\nSiswa yang membuka link ini akan otomatis terkunci pada periode tersebut dan token terpasang otomatis.`);
         }).catch(() => {
             prompt('Salin link ujian siswa berikut:', url);
         });
@@ -4342,12 +4472,30 @@ function toggleExamSession() {
         applyRemedialPeriod(activeTeacherRemedialPeriod);
         playCuteSound('fanfare');
         showToast('🔒 Akses Ujian Berhasil DITUTUP. Seluruh tombol periode dan soal remedial siswa terkunci!');
+
+        // Broadcast kunci ujian ke seluruh komputer siswa
+        if (typeof pushExamConfigToCloud === 'function') {
+            pushExamConfigToCloud({
+                period: activeTeacherRemedialPeriod,
+                status: 'CLOSED',
+                token: getActiveExamToken()
+            });
+        }
     } else {
         localStorage.setItem('tzuchi_exam_session_status', 'OPEN');
         updateExamSessionDisplay();
         applyRemedialPeriod(activeTeacherRemedialPeriod);
         playCuteSound('fanfare');
         showToast('🔓 Akses Ujian Berhasil DIBUKA. Siswa dapat mengerjakan ujian!');
+
+        // Broadcast buka ujian ke seluruh komputer siswa
+        if (typeof pushExamConfigToCloud === 'function') {
+            pushExamConfigToCloud({
+                period: activeTeacherRemedialPeriod,
+                status: 'OPEN',
+                token: getActiveExamToken()
+            });
+        }
     }
 }
 
@@ -6060,9 +6208,20 @@ window.addEventListener('DOMContentLoaded', () => {
     updateExamSessionDisplay();
     applyRemedialPeriod(currentRemedialPeriod);
 
-    // Auto-detect URL token parameter: ?token=XYZ atau ?k=XYZ
+    // Auto-detect URL parameter: ?p=sem1_pas & ?token=XYZ
     try {
         const urlParams = new URLSearchParams(window.location.search);
+        const paramPeriod = urlParams.get('p') || urlParams.get('period') || urlParams.get('periode') || urlParams.get('sem');
+        if (paramPeriod && REMEDIAL_PERIODS[paramPeriod]) {
+            activeTeacherRemedialPeriod = paramPeriod;
+            currentRemedialPeriod = paramPeriod;
+            officialRemedialPeriod = paramPeriod;
+            localStorage.setItem('tzuchi_teacher_active_period', paramPeriod);
+            localStorage.setItem('tzuchi_official_period', paramPeriod);
+            localStorage.setItem('tzuchi_remedial_period', paramPeriod);
+            applyRemedialPeriod(paramPeriod);
+        }
+
         const paramToken = urlParams.get('token') || urlParams.get('k');
         if (paramToken) {
             const cleanParam = paramToken.trim().toUpperCase().replace(/\s+/g, '');
@@ -6078,6 +6237,11 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         }
     } catch(eParam) {}
+
+    // Jalankan pemantauan cloud sinkronisasi real-time antar-perangkat
+    if (typeof startCloudConfigPolling === 'function') {
+        startCloudConfigPolling();
+    }
 });
 
 
