@@ -3898,9 +3898,11 @@ function clearAllExamData() {
    ============================================================== */
 // TEMPELKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
 // AGAR OTOMATIS BERLAKU DI SELURUH LAPTOP/HP SISWA YANG MEMBUKA LINK GITHUB
-const DEFAULT_GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbzEqfYiatXl_8JOGVAAbYdT-KN0VgnrozVTfQN4K8X9il5_hVU1b3ezlhh3bgsGUTfF/exec"; 
-let GOOGLE_SHEETS_WEBAPP_URL = localStorage.getItem('tzuchi_sheets_url') || DEFAULT_GOOGLE_SHEETS_URL;
-if (!GOOGLE_SHEETS_WEBAPP_URL || GOOGLE_SHEETS_WEBAPP_URL.includes('AKfycbzy19oNK6N3foUZVCmP')) {
+const DEFAULT_GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbzlB_FGnomRlzZdhxNX4uMOoz2ERmMImC4FvdzdLJ4_-OUAN7OFvKXMwVI-QlLwo1f6/exec"; 
+let GOOGLE_SHEETS_WEBAPP_URL = localStorage.getItem('tzuchi_sheets_url');
+if (!GOOGLE_SHEETS_WEBAPP_URL || 
+    GOOGLE_SHEETS_WEBAPP_URL.includes('AKfycbzy19oNK6N3foUZVCmP') || 
+    GOOGLE_SHEETS_WEBAPP_URL.includes('AKfycbzEqfYiatXl_8JOGVAAbYdT-KN0VgnrozVTfQN4K8X9il5_hVU1b3ezlhh3bgsGUTfF')) {
     GOOGLE_SHEETS_WEBAPP_URL = DEFAULT_GOOGLE_SHEETS_URL;
     localStorage.setItem('tzuchi_sheets_url', DEFAULT_GOOGLE_SHEETS_URL);
 }
@@ -4606,7 +4608,16 @@ function processImportSheetData() {
             } else {
                 score = 0;
             }
-            status = cols[8] || (score >= 80 ? 'Lulus' : 'Tuntas');
+            
+            // Kolom 8 adalah Predikat, Kolom 9 adalah Status
+            let colStatus = cols[9] || cols[8] || '';
+            if (colStatus.toUpperCase().includes('LULUS') || colStatus.toUpperCase().includes('TUNTAS')) {
+                status = colStatus.toUpperCase().includes('LULUS') ? 'Lulus' : 'Tuntas';
+            } else {
+                status = score >= 80 ? 'Lulus' : 'Tuntas';
+            }
+            let colPred = (cols[8] && !cols[8].toUpperCase().includes('LULUS') && !cols[8].toUpperCase().includes('TUNTAS')) ? cols[8] : (score >= 90 ? 'SANGAT MEMUASKAN' : (score >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK'));
+
             if (cols[2] && cols[2].match(/^\d+$/)) {
                 nilaiAwal = parseInt(cols[2], 10) || 0;
             }
@@ -4684,7 +4695,7 @@ function processImportSheetData() {
             pgScore: Math.min(50, Math.round(score * 0.5)),
             uraianScore: Math.max(0, score - Math.min(50, Math.round(score * 0.5))),
             status: status,
-            predicate: score >= 90 ? 'SANGAT MEMUASKAN' : (score >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK'),
+            predicate: (typeof colPred !== 'undefined' && colPred) ? colPred : (score >= 90 ? 'SANGAT MEMUASKAN' : (score >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK')),
             duration: cols[9] && cols[9].includes('Menit') ? cols[9] : '25 Menit',
             timestamp: (date && !date.includes('{') && !date.includes('[')) ? date : '-',
             date: formatIndonesianDate((date && !date.includes('{') && !date.includes('[')) ? (date.includes(' ') ? date.split(' ')[0] : date) : new Date().toLocaleDateString('id-ID')),
