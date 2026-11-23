@@ -14,7 +14,16 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <!-- HTML2PDF CDN for generating professional PDF reports -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=20261011_v5">
+    <link rel="stylesheet" href="style.css?v=20261123_v7">
+    <style>
+        /* Kolom Nilai Awal tersembunyi pada mode SEM 1-PAS dan SEM 2-PAT */
+        .hide-nilai-awal #thTeacherNilaiAwal,
+        .hide-nilai-awal .td-nilai-awal,
+        th#thTeacherNilaiAwal.is-hidden,
+        td.td-nilai-awal.is-hidden {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -2369,7 +2378,7 @@
                                     <th style="width: 85px; cursor: pointer;" onclick="sortTeacherTableBy('absen')" title="Klik untuk mengurutkan nomor absen">
                                         No. Absen <span class="th-sort-icon" id="sortIcon-absen"><i class="fa-solid fa-sort"></i></span>
                                     </th>
-                                    <th style="width: 95px; cursor: pointer;" onclick="sortTeacherTableBy('nilaiAwal')" title="Klik untuk mengurutkan nilai awal" id="thTeacherNilaiAwal">
+                                    <th style="width: 95px; cursor: pointer; display: none;" onclick="sortTeacherTableBy('nilaiAwal')" title="Klik untuk mengurutkan nilai awal" id="thTeacherNilaiAwal" class="is-hidden">
                                         Nilai Awal <span class="th-sort-icon" id="sortIcon-nilaiAwal"><i class="fa-solid fa-sort"></i></span>
                                     </th>
                                     <th style="width: 135px; cursor: pointer;" onclick="sortTeacherTableBy('nilaiAkhir')" title="Klik untuk mengurutkan nilai" id="thTeacherNilaiAkhir">
@@ -3166,6 +3175,6 @@ function doGet(e) {
     <script src="soal/kelas_4/soal_k4.js?v=20261123_v6"></script>
     <script src="soal/kelas_5/soal_k5.js?v=20261123_v1"></script>
     <script src="soal/kelas_6/soal_k6.js?v=20261123_v1"></script>
-    <script src="script.js?v=20261123_v6"></script>
+    <script src="script.js?v=20261123_v7"></script>
 </body>
 </html>

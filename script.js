@@ -915,6 +915,28 @@ function applyRemedialPeriod(periodKey) {
             }
         }
     });
+
+    // 8c. Sembunyikan kolom Nilai Awal pada tabel guru dan set judul kolom jika PAS/PAT
+    const thTeacherNilaiAwalElem = document.getElementById('thTeacherNilaiAwal');
+    const thScoreLbl = document.getElementById('thTeacherScoreHeaderLabel');
+    const teacherTableElem = document.querySelector('.teacher-data-table');
+    if (teacherTableElem) {
+        teacherTableElem.classList.toggle('hide-nilai-awal', isPasOrPatPeriod);
+    }
+    if (thTeacherNilaiAwalElem) {
+        if (isPasOrPatPeriod) {
+            thTeacherNilaiAwalElem.style.setProperty('display', 'none', 'important');
+            thTeacherNilaiAwalElem.classList.add('is-hidden');
+        } else {
+            thTeacherNilaiAwalElem.style.removeProperty('display');
+            thTeacherNilaiAwalElem.classList.remove('is-hidden');
+        }
+    }
+    if (thScoreLbl) {
+        if (activeKey === 'sem1_pas') thScoreLbl.innerText = 'Nilai PAS';
+        else if (activeKey === 'sem2_pas') thScoreLbl.innerText = 'Nilai PAT';
+        else thScoreLbl.innerText = 'Nilai PTS';
+    }
 }
 
 // 5. Sinkronisasi Antar-Tab / Layar Siswa Secara Real-Time
@@ -4935,14 +4957,25 @@ function renderTeacherTable() {
 
         const isPasPeriod = (currentActivePeriod === 'sem1_pas');
         const isPatPeriod = (currentActivePeriod === 'sem2_pas');
-        const isPasOrPat = isAutoPeriod ? (isPasPeriod || isPatPeriod) : false;
+        const isPasOrPat = (currentActivePeriod === 'sem1_pas' || currentActivePeriod === 'sem2_pas');
 
         // Atur Header Tabel Dinamis (Hilangkan kolom Nilai Awal & Ganti Judul Nilai PAS/PAT)
         const thNilaiAwal = document.getElementById('thTeacherNilaiAwal');
         const thScoreLabel = document.getElementById('thTeacherScoreHeaderLabel');
+        const teacherTableEl = document.querySelector('.teacher-data-table');
+
+        if (teacherTableEl) {
+            teacherTableEl.classList.toggle('hide-nilai-awal', isPasOrPat);
+        }
 
         if (thNilaiAwal) {
-            thNilaiAwal.style.display = isPasOrPat ? 'none' : '';
+            if (isPasOrPat) {
+                thNilaiAwal.style.setProperty('display', 'none', 'important');
+                thNilaiAwal.classList.add('is-hidden');
+            } else {
+                thNilaiAwal.style.removeProperty('display');
+                thNilaiAwal.classList.remove('is-hidden');
+            }
         }
 
         if (thScoreLabel) {
@@ -5162,7 +5195,7 @@ function renderTeacherTable() {
                     <td><span class="class-tag">Kelas ${safeKelas}</span></td>
                     <td><strong>${safeAbsen}</strong></td>
                     ${!isPasOrPat ? `
-                    <td>
+                    <td class="td-nilai-awal">
                         <button type="button" class="btn-edit-nilai-awal" onclick="editStudentNilaiAwal('${safeId}')" title="Klik untuk mengubah Nilai Awal siswa ini">
                             <span>${safeAwal}</span>
                             <i class="fa-solid fa-pen-to-square"></i>
