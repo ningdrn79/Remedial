@@ -483,6 +483,17 @@ let activeTeacherRemedialPeriod = localStorage.getItem('tzuchi_teacher_active_pe
                                   localStorage.getItem('tzuchi_remedial_period') || 
                                   'sem1_pas';
 
+// Proteksi Pintar: Jika saat ini bulan November/Desember 2026 (periode PAS)
+// dan komputer lab siswa masih menyimpan 'sem1_pts' dari ujian bulan Oktober lalu,
+// otomatis alihkan ke 'sem1_pas' agar seluruh siswa langsung mengerjakan PAS!
+const initialCurrentMonth = new Date().getMonth(); // 10 = November, 11 = Desember
+if ((initialCurrentMonth >= 10 || new Date().getFullYear() >= 2026) && activeTeacherRemedialPeriod === 'sem1_pts') {
+    activeTeacherRemedialPeriod = 'sem1_pas';
+    localStorage.setItem('tzuchi_teacher_active_period', 'sem1_pas');
+    localStorage.setItem('tzuchi_official_period', 'sem1_pas');
+    localStorage.setItem('tzuchi_remedial_period', 'sem1_pas');
+}
+
 let currentRemedialPeriod = activeTeacherRemedialPeriod;
 let officialRemedialPeriod = activeTeacherRemedialPeriod;
 let isPeriodLocked = true; // Selalu aktif: hanya tombol yang dibuka guru yang dapat dikerjakan siswa
@@ -3810,6 +3821,32 @@ function getRecapList() {
                         hasChanges = true;
                     }
 
+                    // AUTO-MIGRASI PAS: Siswa yang mengerjakan pada tanggal 23 November 2026 atau bulan November 2026
+                    // otomatis masuk ke Semester 1 - PAS agar langsung muncul saat Guru membuka filter SEM 1-PAS
+                    const rawDateStr = String(item.date || item.timestamp || '');
+                    if (rawDateStr.includes('23/11/2026') || rawDateStr.includes('11/2026') || rawDateStr.toLowerCase().includes('nov')) {
+                        if (item.period !== 'sem1_pas') {
+                            item.period = 'sem1_pas';
+                            item.periodName = REMEDIAL_PERIODS['sem1_pas'] ? REMEDIAL_PERIODS['sem1_pas'].name : 'Semester 1 • Remedial PAS (Akhir)';
+                            hasChanges = true;
+                        }
+                        // Pulihkan skor jika terjadi pergeseran kolom (skor 0 tapi nilaiAwal atau predikat ada angka)
+                        if (Number(item.nilaiAkhir) === 0) {
+                            if (!isNaN(Number(item.predicate)) && Number(item.predicate) > 0) {
+                                item.nilaiAkhir = Number(item.predicate);
+                                item.predicate = item.nilaiAkhir >= 90 ? 'SANGAT MEMUASKAN' : (item.nilaiAkhir >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK');
+                                item.status = item.nilaiAkhir >= 80 ? 'Lulus' : 'Tuntas';
+                                hasChanges = true;
+                            } else if (Number(item.nilaiAwal) >= 10) {
+                                item.nilaiAkhir = Number(item.nilaiAwal);
+                                item.nilaiAwal = 0;
+                                item.predicate = item.nilaiAkhir >= 90 ? 'SANGAT MEMUASKAN' : (item.nilaiAkhir >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK');
+                                item.status = item.nilaiAkhir >= 80 ? 'Lulus' : 'Tuntas';
+                                hasChanges = true;
+                            }
+                        }
+                    }
+
                     return item;
                 });
 
@@ -4210,19 +4247,30 @@ async function syncDataFromCloud(isSilent = false) {
 
             cloudData.forEach(c => {
                 // Tentukan periode dari data sheet (SEM 1-PTS, SEM 1-PAS, SEM 2-PTS, SEM 2-PAT)
-                const cPeriod = c.period || normalizeSheetNameToPeriod(c.sheetName) || activeTeacherRemedialPeriod || 'sem1_pts';
-                const periodConfig = REMEDIAL_PERIODS[cPeriod] || REMEDIAL_PERIODS['sem1_pts'];
+                let cPeriod = c.period || normalizeSheetNameToPeriod(c.sheetName) || activeTeacherRemedialPeriod || 'sem1_pas';
+                const dateRaw = String(c.date || c.timestamp || '');
+                if (dateRaw.includes('23/11/2026') || dateRaw.includes('11/2026') || dateRaw.toLowerCase().includes('nov')) {
+                    cPeriod = 'sem1_pas';
+                }
+                const periodConfig = REMEDIAL_PERIODS[cPeriod] || REMEDIAL_PERIODS['sem1_pas'];
 
                 // Periksa apakah data sudah ada secara lokal berdasarkan ID atau (Nama + Kelas + Periode)
                 const existingIdx = localList.findIndex(l => 
                     (c.studentId && String(l.id) === String(c.studentId)) || 
-                    (String(l.name || '').toLowerCase() === String(c.studentName || '').toLowerCase() && 
-                     String(l.kelas || '') === String(c.grade || '') &&
+                    (String(l.name || '').trim().toLowerCase() === String(c.studentName || '').trim().toLowerCase() && 
+                     String(l.kelas || '').trim().toUpperCase() === String(c.grade || '').trim().toUpperCase() &&
                      String(l.period || 'sem1_pts').toLowerCase() === cPeriod.toLowerCase())
                 );
 
                 let cloudNilaiAwal = c.nilaiAwal !== undefined ? Number(c.nilaiAwal) : (c.initialScore !== undefined ? Number(c.initialScore) : 0);
                 let cloudScore = Number(c.score) || 0;
+
+                // Jika skor 0 tapi predikat berisi angka (akibat pergeseran kolom di sheet)
+                const predNum = Number(c.predicate);
+                if ((cloudScore === 0 || isNaN(cloudScore)) && !isNaN(predNum) && predNum > 0) {
+                    cloudScore = predNum;
+                }
+
                 let cloudPredicate = c.predicate || (cloudScore >= 90 ? 'SANGAT MEMUASKAN' : (cloudScore >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK'));
                 let cloudStatus = c.status || (cloudScore >= 80 ? 'Lulus' : 'Tuntas');
 
@@ -4233,7 +4281,6 @@ async function syncDataFromCloud(isSilent = false) {
                     cloudStatus = override.status;
                     cloudPredicate = override.predicate;
                 } else {
-                    const predNum = Number(c.predicate);
                     const statusStr = String(c.status || '').trim().toUpperCase();
                     if (!isNaN(predNum) && predNum > 0) {
                         cloudNilaiAwal = cloudNilaiAwal || cloudScore || 0;
@@ -4254,6 +4301,7 @@ async function syncDataFromCloud(isSilent = false) {
                     localList[existingIdx].status = cloudStatus;
                     localList[existingIdx].period = cPeriod;
                     localList[existingIdx].periodName = periodConfig.name;
+                    if (c.date) localList[existingIdx].date = formatIndonesianDate(c.date);
                     if (c.absen && c.absen !== '-') localList[existingIdx].absen = c.absen;
                     if (!localList[existingIdx].answers || !Array.isArray(localList[existingIdx].answers.pg) || localList[existingIdx].answers.pg.length < 10) {
                         localList[existingIdx].answers = ensureStudentAnswers(localList[existingIdx]);
@@ -4456,8 +4504,12 @@ function generateRandomExamToken() {
 function copyStudentExamShareLink() {
     playCuteSound('pop');
     const token = getActiveExamToken();
-    const period = activeTeacherRemedialPeriod || 'sem1_pts';
-    const url = window.location.origin + window.location.pathname + '?p=' + encodeURIComponent(period) + '&token=' + encodeURIComponent(token) + '#menu-ujian';
+    const period = activeTeacherRemedialPeriod || 'sem1_pas';
+    let base = window.location.origin + window.location.pathname;
+    if (base.includes('index.html')) {
+        base = base.replace(/index\.html$/, '');
+    }
+    const url = base + '?p=' + encodeURIComponent(period) + '&token=' + encodeURIComponent(token) + '#menu-ujian';
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(url).then(() => {
             playCuteSound('fanfare');
@@ -4536,20 +4588,31 @@ function processImportSheetData() {
         // Cari nama, kelas, absen, dan nilai
         // Berdasarkan susunan Google Sheet di Tzu Chi:
         // Cols: [Timestamp, ID Siswa, (kosong/NilaiAwal), Nama, Kelas, No Absen, Nilai Akhir, Predikat, Status, PG, Uraian]
-        let name = '', kelas = '4C', absen = '-', score = 0, status = 'Tuntas', date = cols[0] || '', nilaiAwal = 0;
+        let name = '', kelas = '4E', absen = '-', score = 0, status = 'Tuntas', date = cols[0] || '', nilaiAwal = 0;
 
         if (cols[3] && !cols[3].match(/^\d+$/) && cols[3].length >= 2) {
+            // Format bergeser karena kolom C kosong:
+            // cols[0]=Timestamp, cols[1]=ID, cols[2]=Kosong, cols[3]=Nama, cols[4]=Kelas, cols[5]=Absen, cols[6]=Nilai Awal (0), cols[7]=Nilai Akhir
             name = cols[3];
-            kelas = cols[4] || '4C';
+            kelas = cols[4] || '4E';
             absen = cols[5] || '-';
-            score = parseInt(cols[6], 10) || 0;
+            const val6 = parseInt(cols[6], 10);
+            const val7 = parseInt(cols[7], 10);
+            if (!isNaN(val7) && val7 > 0) {
+                nilaiAwal = !isNaN(val6) ? val6 : 0;
+                score = val7;
+            } else if (!isNaN(val6) && val6 > 0) {
+                score = val6;
+            } else {
+                score = 0;
+            }
             status = cols[8] || (score >= 80 ? 'Lulus' : 'Tuntas');
             if (cols[2] && cols[2].match(/^\d+$/)) {
                 nilaiAwal = parseInt(cols[2], 10) || 0;
             }
         } else if (cols[2] && !cols[2].match(/^\d+$/) && cols[2].length >= 2) {
             name = cols[2];
-            kelas = cols[3] || '4C';
+            kelas = cols[3] || '4E';
             absen = cols[4] || '-';
             const val5 = parseInt(cols[5], 10) || 0;
             const val6 = parseInt(cols[6], 10);
@@ -4566,7 +4629,7 @@ function processImportSheetData() {
             for (let c = 0; c < Math.min(cols.length, 5); c++) {
                 if (cols[c] && !cols[c].match(/^\d+$/) && !cols[c].includes('/') && cols[c].length > 2) {
                     name = cols[c];
-                    kelas = cols[c + 1] || '4C';
+                    kelas = cols[c + 1] || '4E';
                     absen = cols[c + 2] || '-';
                     score = parseInt(cols[c + 3], 10) || 0;
                     break;
@@ -4575,6 +4638,15 @@ function processImportSheetData() {
         }
 
         if (!name || name === '-' || name.length < 2) return;
+
+        // Deteksi periode cerdas: Jika timestamp/tanggal menunjukkan 23 November 2026 atau bulan November 2026,
+        // otomatis tetapkan periode sebagai 'sem1_pas' (Ujian PAS Semester 1)
+        let itemPeriod = targetPeriod;
+        const dStr = String(date).toLowerCase();
+        if (dStr.includes('23/11/2026') || dStr.includes('11/2026') || dStr.includes('nov')) {
+            itemPeriod = 'sem1_pas';
+        }
+        const itemPeriodConfig = REMEDIAL_PERIODS[itemPeriod] || REMEDIAL_PERIODS['sem1_pas'];
 
         // Ekstrak lembar jawaban PG & Essay jika tersedia di kolom JSON
         let parsedPg = [];
@@ -4599,11 +4671,11 @@ function processImportSheetData() {
         const existingIdx = localList.findIndex(l => 
             String(l.name || '').trim().toLowerCase() === name.toLowerCase() &&
             String(l.kelas || '').trim().toLowerCase() === kelas.toLowerCase() &&
-            String(l.period || 'sem1_pts').toLowerCase() === targetPeriod.toLowerCase()
+            String(l.period || 'sem1_pts').toLowerCase() === itemPeriod.toLowerCase()
         );
 
         const newRec = {
-            id: 'st_sheet_' + Date.now() + '_' + idx,
+            id: (cols[1] && cols[1].startsWith('st_')) ? cols[1] : ('st_sheet_' + Date.now() + '_' + idx),
             name: name,
             kelas: kelas,
             absen: absen,
@@ -4613,11 +4685,11 @@ function processImportSheetData() {
             uraianScore: Math.max(0, score - Math.min(50, Math.round(score * 0.5))),
             status: status,
             predicate: score >= 90 ? 'SANGAT MEMUASKAN' : (score >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK'),
-            duration: '60 Menit',
+            duration: cols[9] && cols[9].includes('Menit') ? cols[9] : '25 Menit',
             timestamp: (date && !date.includes('{') && !date.includes('[')) ? date : '-',
-            date: (date && !date.includes('{') && !date.includes('[')) ? (date.includes(' ') ? date.split(' ')[0] : date) : new Date().toLocaleDateString('id-ID'),
-            period: targetPeriod,
-            periodName: targetPeriodConfig.name,
+            date: formatIndonesianDate((date && !date.includes('{') && !date.includes('[')) ? (date.includes(' ') ? date.split(' ')[0] : date) : new Date().toLocaleDateString('id-ID')),
+            period: itemPeriod,
+            periodName: itemPeriodConfig.name,
             answers: { pg: parsedPg, uraian: parsedUraian }
         };
 
@@ -4625,8 +4697,9 @@ function processImportSheetData() {
             localList[existingIdx].nilaiAkhir = score;
             if (absen && absen !== '-') localList[existingIdx].absen = absen;
             localList[existingIdx].status = status;
-            localList[existingIdx].period = targetPeriod;
-            localList[existingIdx].periodName = targetPeriodConfig.name;
+            localList[existingIdx].period = itemPeriod;
+            localList[existingIdx].periodName = itemPeriodConfig.name;
+            if (date) localList[existingIdx].date = formatIndonesianDate(date);
             if (nilaiAwal > 0) localList[existingIdx].nilaiAwal = nilaiAwal;
             if (parsedPg.length > 0) localList[existingIdx].answers.pg = parsedPg;
             if (parsedUraian.length > 0) localList[existingIdx].answers.uraian = parsedUraian;

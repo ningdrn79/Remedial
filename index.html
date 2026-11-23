@@ -2780,51 +2780,79 @@ function doGet(e) {
 
       var headers = rows[0].map(function(h){ return String(h).toLowerCase().trim(); });
       var idxId = headers.indexOf("id siswa");
-      var idxName = headers.indexOf("nama lengkap");
-      var idxGrade = headers.indexOf("kelas");
-      var idxAbsen = headers.indexOf("no absen");
-      var idxAwal = headers.indexOf("nilai awal");
-      var idxScore = headers.indexOf("nilai akhir") !== -1 ? headers.indexOf("nilai akhir") : headers.indexOf("nilai");
-      var idxPred = headers.indexOf("predikat");
-      var idxStatus = headers.indexOf("status");
-      var idxDur = headers.indexOf("durasi");
-      var idxPg = headers.indexOf("jawaban pg");
-      var idxEssay = headers.indexOf("jawaban essay");
+      var idxName = -1, idxGrade = -1, idxAbsen = -1, idxAwal = -1, idxScore = -1, idxPred = -1, idxStatus = -1, idxDur = -1, idxPg = -1, idxEssay = -1;
+      for (var h = 0; h < headers.length; h++) {
+        var hn = headers[h];
+        if (idxName === -1 && hn.indexOf("nama") !== -1) idxName = h;
+        if (idxGrade === -1 && hn.indexOf("kelas") !== -1) idxGrade = h;
+        if (idxAbsen === -1 && (hn.indexOf("absen") !== -1 || hn === "no")) idxAbsen = h;
+        if (idxAwal === -1 && hn.indexOf("awal") !== -1) idxAwal = h;
+        if (idxScore === -1 && (hn.indexOf("akhir") !== -1 || hn.indexOf("nilai pas") !== -1 || hn.indexOf("nilai pat") !== -1 || hn === "nilai")) idxScore = h;
+        if (idxPred === -1 && hn.indexOf("predikat") !== -1) idxPred = h;
+        if (idxStatus === -1 && hn.indexOf("status") !== -1) idxStatus = h;
+        if (idxDur === -1 && hn.indexOf("durasi") !== -1) idxDur = h;
+        if (idxPg === -1 && hn.indexOf("pg") !== -1) idxPg = h;
+        if (idxEssay === -1 && (hn.indexOf("essay") !== -1 || hn.indexOf("uraian") !== -1)) idxEssay = h;
+      }
 
       for (var i = 1; i < rows.length; i++) {
         var r = rows[i];
-        if (!r || r.length === 0 || (!r[0] && !r[1] && !r[2])) continue;
+        if (!r || r.length === 0 || (!r[0] && !r[1] && !r[2] && !r[3])) continue;
 
-        var isNewFormat = (idxAwal !== -1 || r.length >= 12);
-        var rAwal = idxAwal !== -1 ? r[idxAwal] : (isNewFormat ? r[5] : 0);
-        var rScore = idxScore !== -1 ? r[idxScore] : (isNewFormat ? r[6] : r[5]);
-        var rPred = idxPred !== -1 ? r[idxPred] : (isNewFormat ? r[7] : r[6]);
-        var rStatus = idxStatus !== -1 ? r[idxStatus] : (isNewFormat ? r[8] : r[7]);
+        var sName = "";
+        var isColShifted = false;
+        if (idxName !== -1 && r[idxName] && String(r[idxName]).trim().length >= 2) {
+          sName = String(r[idxName]).trim();
+        } else if (r[3] && String(r[3]).trim().length >= 2 && isNaN(Number(r[3])) && (!r[2] || String(r[2]).trim() === "")) {
+          // Format jika kolom C kosong / bergeser 1 kolom ke kanan
+          sName = String(r[3]).trim();
+          isColShifted = true;
+        } else if (r[2] && String(r[2]).trim().length >= 2 && isNaN(Number(r[2]))) {
+          sName = String(r[2]).trim();
+        } else if (r[3] && String(r[3]).trim().length >= 2 && isNaN(Number(r[3]))) {
+          sName = String(r[3]).trim();
+          isColShifted = true;
+        }
 
+        if (!sName || sName === "-" || sName.length < 2) continue;
+
+        var rGrade = idxGrade !== -1 ? r[idxGrade] : (isColShifted ? r[4] : r[3]);
+        var rAbsen = idxAbsen !== -1 ? r[idxAbsen] : (isColShifted ? r[5] : r[4]);
+        var rAwal = idxAwal !== -1 ? r[idxAwal] : (isColShifted ? r[6] : (r.length >= 12 ? r[5] : 0));
+        var rScore = idxScore !== -1 ? r[idxScore] : (isColShifted ? (r[7] !== undefined && r[7] !== "" ? r[7] : r[6]) : (r.length >= 12 ? r[6] : r[5]));
+        var rPred = idxPred !== -1 ? r[idxPred] : (isColShifted ? r[8] : (r.length >= 12 ? r[7] : r[6]));
+        var rStatus = idxStatus !== -1 ? r[idxStatus] : (isColShifted ? r[9] : (r.length >= 12 ? r[8] : r[7]));
+        var rDur = idxDur !== -1 ? r[idxDur] : (isColShifted ? r[10] : (r.length >= 12 ? r[9] : "-"));
+
+        // Normalisasi pergeseran kolom predikat/skor
         if (!isNaN(Number(rPred)) && Number(rPred) > 0 && typeof rStatus === "string" && (rStatus.indexOf("BAIK") !== -1 || rStatus.indexOf("MEMUASKAN") !== -1)) {
           rScore = Number(rPred);
           rPred = rStatus;
           rStatus = rScore >= 80 ? "Lulus" : "Tuntas";
         }
 
-        var sName = String(idxName !== -1 ? r[idxName] : r[2] || "").trim();
-        if (!sName || sName === "-" || sName.length < 2) continue;
+        // Tanggal pengerjaan November 2026 otomatis masuk ke Semester 1 - PAS
+        var rowPeriod = curPeriod;
+        var dateRawStr = String(r[0] || "");
+        if (dateRawStr.indexOf("23/11/2026") !== -1 || dateRawStr.indexOf("11/2026") !== -1 || dateRawStr.toLowerCase().indexOf("nov") !== -1) {
+          rowPeriod = "sem1_pas";
+        }
 
         allRecords.push({
           date: r[0],
           studentId: idxId !== -1 ? r[idxId] : r[1],
           studentName: sName,
-          grade: idxGrade !== -1 ? r[idxGrade] : r[3],
-          absen: idxAbsen !== -1 ? r[idxAbsen] : (isNewFormat ? r[4] : "-"),
-          nilaiAwal: rAwal,
-          score: rScore,
+          grade: rGrade,
+          absen: rAbsen || "-",
+          nilaiAwal: rAwal || 0,
+          score: rScore || 0,
           predicate: rPred,
           status: (rStatus === "Lulus" || rStatus === "Tuntas") ? rStatus : (Number(rScore) >= 80 ? "Lulus" : "Tuntas"),
-          duration: idxDur !== -1 ? r[idxDur] : (isNewFormat ? r[9] : "-"),
-          period: curPeriod,
+          duration: rDur || "-",
+          period: rowPeriod,
           sheetName: currentSheet.getName(),
-          pgAnswers: safeParse(idxPg !== -1 ? r[idxPg] : (isNewFormat ? r[10] : r[7])),
-          essayAnswers: safeParse(idxEssay !== -1 ? r[idxEssay] : (isNewFormat ? r[11] : r[8]))
+          pgAnswers: safeParse(idxPg !== -1 ? r[idxPg] : (isColShifted ? r[11] : (r.length >= 12 ? r[10] : r[7]))),
+          essayAnswers: safeParse(idxEssay !== -1 ? r[idxEssay] : (isColShifted ? r[12] : (r.length >= 12 ? r[11] : r[8])))
         });
       }
     }
@@ -3175,6 +3203,6 @@ function doGet(e) {
     <script src="soal/kelas_4/soal_k4.js?v=20261123_v6"></script>
     <script src="soal/kelas_5/soal_k5.js?v=20261123_v1"></script>
     <script src="soal/kelas_6/soal_k6.js?v=20261123_v1"></script>
-    <script src="script.js?v=20261123_v8"></script>
+    <script src="script.js?v=20261123_v9"></script>
 </body>
 </html>
