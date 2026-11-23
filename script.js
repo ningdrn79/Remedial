@@ -1119,6 +1119,46 @@ function updateExamModalModeUI(grade, mode) {
     }
 }
 
+// Render Dinamis 45 Butir Soal PG Kelas 4 dari Bank Soal Modular (soal/kelas_4/soal_k4.js)
+function renderK4QuestionsFromModule() {
+    const container = document.getElementById('k4PgQuestionsContainer');
+    if (!container) return;
+    const questions = (window.SOAL_KELAS_4 && Array.isArray(window.SOAL_KELAS_4.pg)) ? window.SOAL_KELAS_4.pg : [];
+    if (!questions.length) return;
+
+    if (container.children.length !== questions.length) {
+        const htmlCards = questions.map(item => {
+            return `
+                <div class="exam-question-card" id="q-card-${item.num}">
+                    <div class="question-header">
+                        <span class="q-badge" style="background: #2563eb;">Soal ${item.num}</span>
+                        <p class="q-text">${item.question}</p>
+                    </div>
+                    <div class="q-choices-grid">
+                        <label class="choice-item">
+                            <input type="radio" name="pg_${item.num}" value="A" required>
+                            <span><strong>A.</strong> ${item.options.A}</span>
+                        </label>
+                        <label class="choice-item">
+                            <input type="radio" name="pg_${item.num}" value="B">
+                            <span><strong>B.</strong> ${item.options.B}</span>
+                        </label>
+                        <label class="choice-item">
+                            <input type="radio" name="pg_${item.num}" value="C">
+                            <span><strong>C.</strong> ${item.options.C}</span>
+                        </label>
+                        <label class="choice-item">
+                            <input type="radio" name="pg_${item.num}" value="D">
+                            <span><strong>D.</strong> ${item.options.D}</span>
+                        </label>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        container.innerHTML = htmlCards;
+    }
+}
+
 // Open Kelas 4 Dedicated Exam Modal (Ujian Utama / Remedial)
 function openRemedialKelas4(mode) {
     currentExamMode = mode || 'remedial';
@@ -1128,6 +1168,7 @@ function openRemedialKelas4(mode) {
         alert("⛔ AKSES UJIAN SEDANG DITUTUP!\n\nUjian saat ini sedang dikunci oleh Ibu Guru Darningsih, S.T.\n\nSiswa tidak diperkenankan mengerjakan ujian sendiri di luar jam kelas/pengawasan. Silakan tunggu instruksi guru di ruang kelas.");
         return;
     }
+    renderK4QuestionsFromModule();
     syncExamUIWithQuestionModules();
     const modal = document.getElementById('examModalK4');
     if (modal) modal.classList.add('open');
@@ -1410,28 +1451,31 @@ function getUraianKeterangan(points, defaultText) {
     }
 }
 
-// Calculate and Show Score
+// Calculate and Show Score (Kelas 4: 45 PG [Bobot 70 Poin] + 5 Uraian [Bobot 30 Poin])
 function calculateAndShowScore(event) {
     event.preventDefault();
     playCuteSound('fanfare');
 
-    let pgScore = 0;
+    const questions = (window.SOAL_KELAS_4 && Array.isArray(window.SOAL_KELAS_4.pg)) ? window.SOAL_KELAS_4.pg : pgQuestionsMetadata;
+    const totalPgItems = questions.length || 45;
+    let correctPgCount = 0;
     const collectedPgAnswers = [];
 
-    // 1. Evaluate 10 Multiple Choice Questions (Bobot: 5 poin per soal = 50 poin max)
-    for (let i = 0; i < pgQuestionsMetadata.length; i++) {
-        const item = pgQuestionsMetadata[i];
+    // 1. Evaluate Multiple Choice Questions (45 Soal, Bobot: 70 Poin Maksimal)
+    for (let i = 0; i < questions.length; i++) {
+        const item = questions[i];
         const selected = document.querySelector(`input[name="pg_${item.num}"]:checked`);
         const userChoice = selected ? selected.value : '';
         const userChoiceText = userChoice ? `${userChoice}. ${item.options[userChoice] || ''}` : '(Tidak dijawab)';
         const isCorrect = (userChoice === item.key);
-        const pts = isCorrect ? 5 : 0;
 
         if (isCorrect) {
-            pgScore += 5;
+            correctPgCount++;
         }
 
-        const keteranganText = getPgKeterangan(isCorrect, item.keyText, item.explanation);
+        const keteranganText = isCorrect
+            ? `✔ Benar: ${item.explanation || 'Sesuai konsep Microsoft Word & Gemini AI.'}`
+            : `✘ Belum Tepat: Kunci yang benar adalah ${item.keyText || item.key}. ${item.explanation || ''}`;
 
         collectedPgAnswers.push({
             num: item.num,
@@ -1442,104 +1486,156 @@ function calculateAndShowScore(event) {
             keyText: item.keyText,
             explanation: item.explanation,
             isCorrect: isCorrect,
-            points: pts,
+            points: isCorrect ? 1 : 0,
             keterangan: keteranganText
         });
     }
 
-    // 2. Evaluate 5 Uraian Questions (Bobot: 10 poin per soal = 50 poin max)
-    let uraianScore = 0;
+    const pgScore = Math.round((correctPgCount / totalPgItems) * 70);
+
+    // 2. Evaluate 5 Uraian Questions (Maks 20 Poin Mentah per soal = Total 100 Poin Mentah, Dikonversi ke Bobot 30 Poin)
+    let rawUraianTotal = 0;
     const collectedUraianAnswers = [];
 
-    // Uraian 1: =AVERAGE()
-    const rawAns1 = document.getElementById('uraian_1').value.trim();
+    // Uraian 1: Langkah Menyimpan Dokumen Baru di Microsoft Word (Maks 20 Poin Mentah)
+    const rawAns1 = (document.getElementById('uraian_1') ? document.getElementById('uraian_1').value.trim() : '');
     const ans1 = rawAns1.toLowerCase();
-    const isUraian1Correct = ans1.includes('rata') || ans1.includes('average') || ans1.includes('tengah');
-    const u1Pts = isUraian1Correct ? 10 : (ans1.length > 5 ? 6 : (rawAns1.length > 0 ? 3 : 0));
-    uraianScore += u1Pts;
+    const hasU1File = ans1.includes('file');
+    const hasU1Save = ans1.includes('save as') || ans1.includes('save') || ans1.includes('simpan');
+    const hasU1Browse = ans1.includes('browse') || ans1.includes('folder') || ans1.includes('disk') || ans1.includes('dokumen');
+    const hasU1Name = ans1.includes('name') || ans1.includes('nama') || ans1.includes('judul');
+    
+    let u1Pts = 0;
+    if (hasU1File && hasU1Save && (hasU1Browse || hasU1Name)) {
+        u1Pts = 20;
+    } else if (hasU1File || hasU1Save) {
+        u1Pts = (ans1.length > 20) ? 14 : 10;
+    } else if (rawAns1.length > 5) {
+        u1Pts = 6;
+    }
+    rawUraianTotal += u1Pts;
     collectedUraianAnswers.push({
         num: 1,
-        question: "Jelaskan pengertian dari rumus =AVERAGE()",
+        question: "1. Langkah-langkah menyimpan dokumen baru di Microsoft Word",
         userAnswer: rawAns1 || "(Tidak diisi)",
-        keyRef: "Rumus =AVERAGE() digunakan untuk menghitung nilai rata-rata dari sekumpulan angka dalam rentang sel yang ditentukan.",
+        keyRef: "1. Klik tab menu File di pojok kiri atas. 2. Pilih menu Save As lalu klik Browse untuk memilih folder penyimpanan. 3. Ketikkan nama file pada kotak File name. 4. Klik tombol Save.",
         points: u1Pts,
-        keterangan: getUraianKeterangan(u1Pts)
+        keterangan: u1Pts >= 18 ? "✔ Sangat Tepat: Langkah-langkah menyimpan dokumen diuraikan dengan lengkap dan berurutan." : `Perolehan skor mentah: ${u1Pts}/20 poin.`
     });
 
-    // Uraian 2: =SUM()
-    const rawAns2 = document.getElementById('uraian_2').value.trim();
+    // Uraian 2: WordArt, Font Size, dan Font Color (Maks 20 Poin Mentah)
+    const rawAns2 = (document.getElementById('uraian_2') ? document.getElementById('uraian_2').value.trim() : '');
     const ans2 = rawAns2.toLowerCase();
-    const isUraian2Correct = ans2.includes('jumlah') || ans2.includes('total') || ans2.includes('tambah') || ans2.includes('sum');
-    const u2Pts = isUraian2Correct ? 10 : (ans2.length > 5 ? 6 : (rawAns2.length > 0 ? 3 : 0));
-    uraianScore += u2Pts;
+    const hasU2WordArt = ans2.includes('insert') || ans2.includes('wordart') || ans2.includes('seni');
+    const hasU2Size = ans2.includes('font size') || ans2.includes('ukuran') || ans2.includes('angka') || ans2.includes('besar') || ans2.includes('kecil');
+    const hasU2Color = ans2.includes('font color') || ans2.includes('warna') || ans2.includes('color');
+
+    let u2Pts = 0;
+    if (hasU2WordArt && hasU2Size && hasU2Color) {
+        u2Pts = 20;
+    } else if ((hasU2WordArt && hasU2Size) || (hasU2WordArt && hasU2Color) || (hasU2Size && hasU2Color)) {
+        u2Pts = 14;
+    } else if (hasU2WordArt || hasU2Size || hasU2Color) {
+        u2Pts = 8;
+    } else if (rawAns2.length > 5) {
+        u2Pts = 4;
+    }
+    rawUraianTotal += u2Pts;
     collectedUraianAnswers.push({
         num: 2,
-        question: "Jelaskan pengertian dari rumus =SUM()",
+        question: "2. Cara membuat WordArt, mengubah ukuran huruf (Font Size), dan memberi warna (Font Color)",
         userAnswer: rawAns2 || "(Tidak diisi)",
-        keyRef: "Rumus =SUM() digunakan untuk menjumlahkan seluruh nilai angka yang ada di dalam rentang sel yang telah ditentukan.",
+        keyRef: "WordArt: Tab Insert > klik WordArt > pilih gaya huruf > ketik teks. Ukuran: Blok teks > tab Home > pilih ukuran di Font Size. Warna: Blok teks > tab Home > klik Font Color > pilih warna.",
         points: u2Pts,
-        keterangan: getUraianKeterangan(u2Pts)
+        keterangan: u2Pts >= 18 ? "✔ Sangat Lengkap: Cara membuat WordArt, mengatur ukuran Font Size, dan warna Font Color dijawab dengan jelas." : `Perolehan skor mentah: ${u2Pts}/20 poin.`
     });
 
-    // Uraian 3: =COUNT()
-    const rawAns3 = document.getElementById('uraian_3').value.trim();
+    // Uraian 3: Memasukkan Gambar & Alasan Menarik Titik Sudut/Corner (Maks 20 Poin Mentah)
+    const rawAns3 = (document.getElementById('uraian_3') ? document.getElementById('uraian_3').value.trim() : '');
     const ans3 = rawAns3.toLowerCase();
-    const isUraian3Correct = ans3.includes('banyak') || ans3.includes('hitung') || ans3.includes('jumlah sel') || ans3.includes('count') || ans3.includes('sel berisi') || ans3.includes('data');
-    const u3Pts = isUraian3Correct ? 10 : (ans3.length > 5 ? 6 : (rawAns3.length > 0 ? 3 : 0));
-    uraianScore += u3Pts;
+    const hasU3Insert = ans3.includes('insert') || ans3.includes('pictures') || ans3.includes('gambar');
+    const hasU3Sudut = ans3.includes('proporsional') || ans3.includes('seimbang') || ans3.includes('gepeng') || ans3.includes('lonjong') || ans3.includes('melar') || ans3.includes('rusak') || ans3.includes('asli') || ans3.includes('bentuk');
+
+    let u3Pts = 0;
+    if (hasU3Insert && hasU3Sudut) {
+        u3Pts = 20;
+    } else if (hasU3Insert || hasU3Sudut) {
+        u3Pts = (ans3.length > 20) ? 12 : 8;
+    } else if (rawAns3.length > 5) {
+        u3Pts = 4;
+    }
+    rawUraianTotal += u3Pts;
     collectedUraianAnswers.push({
         num: 3,
-        question: "Jelaskan pengertian dari rumus =COUNT()",
+        question: "3. Langkah memasukkan gambar ke Word dan alasan menarik titik sudut gambar",
         userAnswer: rawAns3 || "(Tidak diisi)",
-        keyRef: "Rumus =COUNT() digunakan untuk menghitung banyaknya sel yang berisi angka dalam rentang yang dipilih (tidak menghitung sel teks/kosong).",
+        keyRef: "Langkah: Tab Insert > Pictures > pilih file gambar > klik Insert. Alasan menarik titik sudut: Agar skala perbandingan ukuran gambar seimbang dan proporsional, sehingga gambar tidak gepeng, melar, atau rusak bentuk aslinya.",
         points: u3Pts,
-        keterangan: getUraianKeterangan(u3Pts)
+        keterangan: u3Pts >= 18 ? "✔ Sangat Tepat: Langkah Insert Picture dan alasan menjaga proporsi gambar dijelaskan dengan sangat baik." : `Perolehan skor mentah: ${u3Pts}/20 poin.`
     });
 
-    // Uraian 4: Penunjuk Mouse Tanda Tambah Hitam Tipis (Autofill)
-    const rawAns4 = document.getElementById('uraian_4').value.trim();
+    // Uraian 4: Pengertian Prompt & Contoh Prompt Sekolah Bersih (Maks 20 Poin Mentah)
+    const rawAns4 = (document.getElementById('uraian_4') ? document.getElementById('uraian_4').value.trim() : '');
     const ans4 = rawAns4.toLowerCase();
-    const isUraian4Correct = ans4.includes('otomatis') || ans4.includes('urutan') || ans4.includes('berurutan') || ans4.includes('autofill') || ans4.includes('mengisi') || ans4.includes('deret') || ans4.includes('salin') || ans4.includes('copy') || ans4.includes('tarik') || ans4.includes('drag') || ans4.includes('lebar') || ans4.includes('tinggi') || ans4.includes('ukuran');
-    const u4Pts = isUraian4Correct ? 10 : (ans4.length > 5 ? 6 : (rawAns4.length > 0 ? 3 : 0));
-    uraianScore += u4Pts;
+    const hasU4Pengertian = ans4.includes('perintah') || ans4.includes('instruksi') || ans4.includes('kalimat') || ans4.includes('pertanyaan') || ans4.includes('permintaan');
+    const hasU4Contoh = ans4.includes('sekolah') || ans4.includes('bersih') || ans4.includes('gedung') || ans4.includes('halaman') || ans4.includes('gambar');
+
+    let u4Pts = 0;
+    if (hasU4Pengertian && hasU4Contoh) {
+        u4Pts = (ans4.length >= 30) ? 20 : 15;
+    } else if (hasU4Pengertian || hasU4Contoh) {
+        u4Pts = 10;
+    } else if (rawAns4.length > 5) {
+        u4Pts = 4;
+    }
+    rawUraianTotal += u4Pts;
     collectedUraianAnswers.push({
         num: 4,
-        question: "Apa fungsi penunjuk mouse berbentuk tanda tambah hitam tipis (Autofill)?",
+        question: "4. Pengertian Prompt pada Gemini AI dan Contoh Kalimat Prompt Sekolah Bersih dan Indah",
         userAnswer: rawAns4 || "(Tidak diisi)",
-        keyRef: "Berfungsi untuk mengisi data secara otomatis dan berurutan ke sel-sel berikutnya (angka, tanggal, atau pola berulang) dengan cepat.",
+        keyRef: "Pengertian: Prompt adalah kalimat instruksi/perintah tertulis yang kita berikan kepada AI agar menghasilkan jawaban teks atau gambar yang diinginkan. Contoh: 'Buatkan gambar gedung sekolah dasar yang bersih, halaman hijau asri dengan bunga warna-warni, ada bendera merah putih berkibar, anak-anak tersenyum ceria, gaya kartun 3D yang indah.'",
         points: u4Pts,
-        keterangan: getUraianKeterangan(u4Pts)
+        keterangan: u4Pts >= 18 ? "✔ Sangat Tepat: Definisi prompt dan contoh kalimat prompt gambar dirumuskan dengan detail dan kreatif." : `Perolehan skor mentah: ${u4Pts}/20 poin.`
     });
 
-    // Uraian 5: Rumus sel E9, E10, E11
-    const cleanFormula = str => str.replace(/\s+/g, '').toUpperCase();
-    const rawAnsE9 = document.getElementById('uraian_5_e9').value.trim();
-    const rawAnsE10 = document.getElementById('uraian_5_e10').value.trim();
-    const rawAnsE11 = document.getElementById('uraian_5_e11').value.trim();
-    const ansE9 = cleanFormula(rawAnsE9);
-    const ansE10 = cleanFormula(rawAnsE10);
-    const ansE11 = cleanFormula(rawAnsE11);
+    // Uraian 5: 4 Tahapan Alur Kerja Gemini AI ke Microsoft Word (Maks 20 Poin Mentah)
+    const rawAns5 = (document.getElementById('uraian_5') ? document.getElementById('uraian_5').value.trim() : '');
+    const ans5 = rawAns5.toLowerCase();
+    const hasU5Prompt = ans5.includes('prompt') || ans5.includes('minta') || ans5.includes('tanya') || ans5.includes('gemini') || ans5.includes('buat');
+    const hasU5Download = ans5.includes('download') || ans5.includes('unduh') || ans5.includes('save') || ans5.includes('simpan');
+    const hasU5Insert = ans5.includes('insert') || ans5.includes('pictures') || ans5.includes('masuk') || ans5.includes('word');
+    const hasU5Wrap = ans5.includes('wrap') || ans5.includes('atur') || ans5.includes('posisi') || ans5.includes('square') || ans5.includes('geser') || ans5.includes('rapi');
+
+    let u5StageCount = 0;
+    if (hasU5Prompt) u5StageCount++;
+    if (hasU5Download) u5StageCount++;
+    if (hasU5Insert) u5StageCount++;
+    if (hasU5Wrap) u5StageCount++;
 
     let u5Pts = 0;
-    if (ansE9.includes('SUM(E2:E7)') || ansE9.includes('SUM(E3:E8)') || ansE9.includes('SUM(E2:E8)') || (ansE9.includes('SUM') && ansE9.includes('E'))) {
-        u5Pts += 4;
+    if (u5StageCount >= 4) {
+        u5Pts = 20;
+    } else if (u5StageCount === 3) {
+        u5Pts = 15;
+    } else if (u5StageCount === 2) {
+        u5Pts = 10;
+    } else if (u5StageCount === 1) {
+        u5Pts = 5;
+    } else if (rawAns5.length > 5) {
+        u5Pts = 4;
     }
-    if (ansE10.includes('AVERAGE(E2:E7)') || ansE10.includes('AVERAGE(E3:E8)') || ansE10.includes('AVERAGE(E2:E8)') || (ansE10.includes('AVERAGE') && ansE10.includes('E'))) {
-        u5Pts += 3;
-    }
-    if (ansE11.includes('COUNT(A2:A7)') || ansE11.includes('COUNT(A3:A8)') || ansE11.includes('COUNT(E2:E7)') || ansE11.includes('COUNT(E3:E8)') || ansE11.includes('COUNT')) {
-        u5Pts += 3;
-    }
-
-    uraianScore += u5Pts;
+    rawUraianTotal += u5Pts;
     collectedUraianAnswers.push({
         num: 5,
-        question: "Penulisan Rumus pada Tabel Hewan (Sel E9: Total Kaki, Sel E10: Rata-rata Kaki, Sel E11: Banyak Data)",
-        userAnswer: `Sel E9: ${rawAnsE9 || '-'} | Sel E10: ${rawAnsE10 || '-'} | Sel E11: ${rawAnsE11 || '-'}`,
-        keyRef: "E9: =SUM(E2:E7) | E10: =AVERAGE(E2:E7) | E11: =COUNT(A2:A7)",
+        question: "5. Empat tahapan alur kerja dari Gemini AI sampai gambar tertata rapi di Microsoft Word",
+        userAnswer: rawAns5 || "(Tidak diisi)",
+        keyRef: "1. Membuat Prompt di Gemini AI. 2. Mengunduh (Download/Save as) gambar ke komputer. 3. Memasukkan gambar ke Word melalui menu Insert > Pictures. 4. Mengatur posisi gambar dengan Wrap Text (Square/In Front of Text) agar serasi dengan naskah cerita.",
         points: u5Pts,
-        keterangan: u5Pts === 10 ? "✔ Penulisan ketiga rumus sel E9, E10, E11 tepat dan sesuai kaidah Excel." : `⚠ Memperoleh ${u5Pts}/10 poin. Periksa kembali penulisan rentang sel dan nama fungsinya.`
+        keterangan: u5Pts >= 18 ? "✔ Sangat Lengkap: Keempat tahapan integrasi kreasi AI ke naskah Word diuraikan dengan runtut dan akurat." : `Perolehan skor mentah: ${u5Pts}/20 poin.`
     });
+
+    // Konversi Skor Uraian: Bobot 30 Poin (Skala 0 - 30 Poin)
+    const uraianScore = Math.min(30, Math.round((rawUraianTotal / 100) * 30));
 
     // Hentikan timer pengerjaan 60 menit & catat waktu yang digunakan
     if (examTimerInterval) clearInterval(examTimerInterval);
@@ -1548,9 +1644,9 @@ function calculateAndShowScore(event) {
     const secSpent = secondsSpent % 60;
     examDurationText = `${minSpent} Menit ${secSpent} Detik`;
 
-    // Total Score (0 - 100)
-    const totalScore = pgScore + uraianScore;
-    const studentName = currentStudentData.name || 'Sahabat Pintar';
+    // Total Score (Bobot 70% PG + Bobot 30% Uraian = Maks 100 Poin)
+    const totalScore = Math.min(100, Math.round(pgScore + uraianScore));
+    const studentName = currentStudentData.name || 'Sahabat Pintar Kelas 4';
     const studentClass = currentStudentData.kelas || '4A';
     const isUjian = (currentExamMode === 'ujian');
 
@@ -1558,7 +1654,10 @@ function calculateAndShowScore(event) {
     completedExamScores = {
         initial: currentStudentData.nilaiAwal,
         pg: pgScore,
+        correctPgCount: correctPgCount,
+        totalPgItems: totalPgItems,
         uraian: uraianScore,
+        rawUraianTotal: rawUraianTotal,
         final: totalScore,
         status: isUjian 
             ? (totalScore >= 80 ? 'LULUS UJIAN' : 'PERLU REMEDIAL')
@@ -1581,16 +1680,16 @@ function calculateAndShowScore(event) {
         predicateBadge.style.background = 'linear-gradient(135deg, #059669, #10b981)';
         motivationTitle.innerHTML = `Luar Biasa, ${studentName}! Prestasi yang Sangat Membanggakan! 🎉`;
         motivationMessage.innerHTML = isUjian
-            ? `Selamat atas keberhasilanmu! Usaha keras, ketelitian, dan ketulusan hatimu dalam mengerjakan Ujian Resmi Koding dan Kecerdasan Artifisial hari ini membuahkan hasil yang luar biasa!<br><br>Kamu telah membuktikan penguasaan materi yang sangat baik. Teruslah pertahankan semangat belajar yang tinggi dan jadilah inspirasi bagi teman-temanmu! 🚀✨`
-            : `Selamat atas keberhasilanmu! Usaha keras, ketelitian, dan ketulusan hatimu dalam belajar Koding dan Kecerdasan Artifisial hari ini membuahkan hasil yang luar biasa!<br><br>Kamu telah membuktikan bahwa dengan ketekunan, rumus Excel dan logika AI bisa kamu kuasai dengan sangat baik. Teruslah pertahankan semangat belajar yang tinggi dan jadilah inspirasi bagi teman-temanmu! 🚀✨`;
+            ? `Selamat atas keberhasilanmu! Usaha keras, ketelitian, dan ketulusan hatimu dalam mengerjakan Ujian Resmi Koding dan Kecerdasan Artifisial hari ini membuahkan hasil yang luar biasa!<br><br>Kamu telah membuktikan kemahiran dalam mengolah naskah di Microsoft Word dan berkreasi bersama teknologi Gemini AI. Teruslah pertahankan semangat belajar yang tinggi dan jadilah inspirasi bagi teman-temanmu! 🚀✨`
+            : `Selamat atas keberhasilanmu! Usaha keras, ketelitian, dan ketulusan hatimu dalam belajar Koding dan Kecerdasan Artifisial hari ini membuahkan hasil yang luar biasa!<br><br>Kamu telah membuktikan bahwa dengan ketekunan, keterampilan Microsoft Word dan eksplorasi prompt AI bisa kamu kuasai dengan sangat baik. Teruslah pertahankan semangat belajar yang tinggi dan jadilah inspirasi bagi teman-temanmu! 🚀✨`;
     } else if (totalScore >= 80) {
         mascotIcon.innerText = '🎉';
         predicateBadge.innerText = isUjian ? '✨ DINYATAKAN LULUS UJIAN (KKM 80)!' : '✨ DINYATAKAN LULUS REMEDIAL (KKM 80)!';
         predicateBadge.style.background = 'linear-gradient(135deg, #0284c7, #38bdf8)';
         motivationTitle.innerHTML = `Kerja Bagus, ${studentName}! Terus Melangkah Maju! 💡`;
         motivationMessage.innerHTML = isUjian
-            ? `Hebat sekali! Nilai ujianmu berhasil melampaui batas KKM 80 dan membuktikan pemahaman materi yang sangat mantap dan memuaskan.<br><br>Tetaplah rajin belajar dan berani mengeksplorasi teknologi baru. Robi dan Bapak/Ibu Guru sangat bangga padamu! 🌱`
-            : `Hebat sekali! Skor remedialmu berhasil melampaui batas KKM 80 dan menunjukkan peningkatan pemahaman yang sangat bagus dan menggembirakan.<br><br>Koding dan logika komputer itu seperti petualangan seru: semakin sering kamu berlatih, pikiranmu akan semakin kreatif dan tangguh! Tetaplah rajin membaca, mempraktikkan rumus-rumus koding, dan jangan pernah ragu untuk terus mencoba hal-hal baru ya! Robi dan Bapak/Ibu Guru sangat bangga padamu! 🌱`;
+            ? `Hebat sekali! Nilai ujianmu berhasil melampaui batas KKM 80 dan membuktikan pemahaman materi Microsoft Word dan Gemini AI yang sangat baik.<br><br>Tetaplah rajin belajar dan berani mengeksplorasi teknologi baru. Robi dan Bapak/Ibu Guru sangat bangga padamu! 🌱`
+            : `Hebat sekali! Skor remedialmu berhasil melampaui batas KKM 80 dan menunjukkan peningkatan pemahaman yang sangat bagus dan menggembirakan.<br><br>Koding dan teknologi komputer itu seperti petualangan seru: semakin sering kamu berlatih, pikiranmu akan semakin kreatif dan tangguh! Tetaplah rajin membaca, mempraktikkan keterampilan mengetik dan berkreasi dengan AI, dan jangan pernah ragu untuk mencoba hal-hal baru! Robi dan Bapak/Ibu Guru sangat bangga padamu! 🌱`;
     } else {
         mascotIcon.innerText = '💪';
         predicateBadge.innerText = isUjian ? '📖 BELUM TUNTAS KKM (PERLU REMEDIAL)' : '📖 PERLU PENGAYAAN & TETAP SEMANGAT!';
@@ -1598,7 +1697,7 @@ function calculateAndShowScore(event) {
         motivationTitle.innerHTML = `Jangan Pernah Menyerah, ${studentName}! Kamu Pasti Bisa! 💖`;
         motivationMessage.innerHTML = isUjian
             ? `Terima kasih sudah mengerjakan ujian ini dengan jujur dan mandiri.<br><br>Meskipun nilaimu saat ini belum mencapai standar KKM 80, jangan berkecil hati! Kamu akan mendapatkan kesempatan mengikuti sesi Remedial untuk memperbaiki nilaimu. Tetap semangat berlatih bersama Guru ya! 🤖✨`
-            : `Terima kasih banyak sudah berani berusaha dan mengerjakan soal remedial ini dengan jujur dan mandiri!<br><br>Meskipun nilaimu belum mencapai batas KKM 80, setiap kesalahan (*bug*) dalam dunia koding adalah sahabat terbaik yang mengajarkan kita untuk menjadi lebih teliti dan bijaksana. Jangan berkecil hati ya! Tetap tersenyum, teruslah berlatih bersama Bapak/Ibu Guru dan Robi. Selangkah demi selangkah, kamu pasti bisa mencapai nilai terbaik! 🤖✨`;
+            : `Terima kasih banyak sudah berani berusaha dan mengerjakan soal remedial ini dengan jujur dan mandiri!<br><br>Meskipun nilaimu belum mencapai batas KKM 80, setiap tantangan adalah kesempatan belajar yang berharga. Jangan berkecil hati ya! Tetap tersenyum, teruslah berlatih bersama Bapak/Ibu Guru dan Robi. Selangkah demi selangkah, kamu pasti bisa mencapai nilai terbaik! 🤖✨`;
     }
 
     // Simpan riwayat pengerjaan siswa & LEMBAR JAWABAN LENGKAP ke Panel Guru (localStorage)
@@ -1663,8 +1762,8 @@ function generateAndDownloadPDF() {
     document.getElementById('pdfReportDate').innerText = formattedDate;
 
     document.getElementById('pdfReportInitialScore').innerText = isUjian ? '80 (KKM)' : completedExamScores.initial;
-    document.getElementById('pdfReportPgScore').innerText = `${completedExamScores.pg} / 50 Poin`;
-    document.getElementById('pdfReportUraianScore').innerText = `${completedExamScores.uraian} / 50 Poin`;
+    document.getElementById('pdfReportPgScore').innerText = `${completedExamScores.pg} / 70 Poin (${completedExamScores.correctPgCount || 0}/45 Benar)`;
+    document.getElementById('pdfReportUraianScore').innerText = `${completedExamScores.uraian} / 30 Poin (Skor: ${completedExamScores.rawUraianTotal || 0}/100)`;
     document.getElementById('pdfReportFinalScore').innerText = completedExamScores.final;
 
     document.getElementById('pdfReportStatus').innerText = completedExamScores.status;
@@ -6121,7 +6220,12 @@ function showToast(message) {
    ============================================================== */
 function syncExamUIWithQuestionModules() {
     try {
-        // 0. Render dinamis kartu soal PG Kelas 6 (45 Butir Soal)
+        // 0a. Render dinamis kartu soal PG Kelas 4 (45 Butir Soal)
+        if (typeof renderK4QuestionsFromModule === 'function') {
+            renderK4QuestionsFromModule();
+        }
+
+        // 0b. Render dinamis kartu soal PG Kelas 6 (45 Butir Soal)
         if (typeof renderK6QuestionsFromModule === 'function') {
             renderK6QuestionsFromModule();
         }

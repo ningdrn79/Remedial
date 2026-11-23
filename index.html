@@ -227,7 +227,7 @@
                     <div class="card-ribbon exam-ribbon">Ujian Resmi</div>
                     <div class="card-icon-bubble">
                         <img src="student_k4.png" alt="Siswa Kelas 4" class="card-student-avatar">
-                        <div class="icon-tag icon-tag-exam" id="k4ExamTagText">Excel & AI Detektif</div>
+                        <div class="icon-tag icon-tag-exam" id="k4ExamTagText">Word & Gemini AI</div>
                     </div>
                     <div class="card-body">
                         <span class="class-badge k4-badge">SD Kelas 4 (4A - 4E)</span>
@@ -237,13 +237,13 @@
                             <img src="student_k4.png" alt="Icon Materi Siswa" class="materi-badge-icon">
                             <div class="materi-text-wrap">
                                 <span class="materi-label-tag"><i class="fa-solid fa-graduation-cap"></i> Materi Ujian:</span>
-                                <p class="card-subtitle" id="k4ExamSubtitleText">Microsoft Excel & Detektif Data AI (Penilaian Resmi Semester).</p>
+                                <p class="card-subtitle" id="k4ExamSubtitleText">Microsoft Word (Format Teks, WordArt, Gambar) & Eksplorasi Gemini AI.</p>
                             </div>
                         </div>
                         
                         <ul class="feature-list">
                             <li><i class="fa-solid fa-check-circle"></i> Input Nama Lengkap, Absen & Pilih Kelas (4A - 4E)</li>
-                            <li><i class="fa-solid fa-check-circle"></i> 10 Soal Pilihan Ganda Resmi (A, B, C, D)</li>
+                            <li><i class="fa-solid fa-check-circle"></i> 45 Soal Pilihan Ganda Resmi (A, B, C, D)</li>
                             <li><i class="fa-solid fa-check-circle"></i> 5 Soal Uraian Mandiri & Skoring Otomatis</li>
                         </ul>
 
@@ -419,7 +419,7 @@
                 <div class="card-ribbon special">Soal Lengkap</div>
                 <div class="card-icon-bubble">
                     <img src="student_k4.png" alt="Siswa Kelas 4" class="card-student-avatar">
-                    <div class="icon-tag" id="k4TagText" data-i18n="cardTagK4">Excel & AI Detektif</div>
+                    <div class="icon-tag" id="k4TagText" data-i18n="cardTagK4">Word & Gemini AI</div>
                 </div>
                 <div class="card-body">
                     <span class="class-badge k4-badge" id="k4BadgeText" data-i18n="cardBadgeK4">SD Kelas 4 (4A - 4E)</span>
@@ -429,13 +429,13 @@
                         <img src="student_k4.png" alt="Icon Materi Siswa" class="materi-badge-icon">
                         <div class="materi-text-wrap">
                             <span class="materi-label-tag"><i class="fa-solid fa-book-open"></i> <span id="k4MateriLabel" data-i18n="cardMateriLabelK4">Materi Remedial:</span></span>
-                            <p class="card-subtitle" id="k4SubtitleText" data-i18n="cardSubtitleK4">Microsoft Excel (Row, Column, Rumus SUM, AVERAGE, COUNT) & Detektif Data AI.</p>
+                            <p class="card-subtitle" id="k4SubtitleText" data-i18n="cardSubtitleK4">Microsoft Word (Format Teks, WordArt, Gambar) & Eksplorasi Gemini AI.</p>
                         </div>
                     </div>
                     
                     <ul class="feature-list">
                         <li><i class="fa-solid fa-check-circle"></i> Input Nama, Nilai & Pilih Kelas (4A, 4B, 4C, 4D, 4E)</li>
-                        <li><i class="fa-solid fa-check-circle"></i> 10 Soal Pilihan Ganda (A, B, C, D)</li>
+                        <li><i class="fa-solid fa-check-circle"></i> 45 Soal Pilihan Ganda (A, B, C, D)</li>
                         <li><i class="fa-solid fa-check-circle"></i> 5 Soal Uraian & Perhitungan Skor Otomatis</li>
                     </ul>
 
@@ -704,172 +704,36 @@
 
                     <form id="k4ExamForm" onsubmit="calculateAndShowScore(event)">
                         
-                        <!-- ================= BAGIAN I: PILIHAN GANDA (10 SOAL) ================= -->
+                        <!-- ================= BAGIAN I: PILIHAN GANDA (45 SOAL) ================= -->
                         <div class="exam-section-block">
                             <div class="section-banner-title">
                                 <span class="section-number">BAGIAN I</span>
-                                <h4>BERILAH TANDA SILANG (X) PADA HURUF A, B, C ATAU D UNTUK JAWABAN YANG BENAR!</h4>
-                                <span class="section-points">10 Soal (Bobot: 50 Poin)</span>
+                                <h4>PILIHAN GANDA • PILIHLAH SALAH SATU JAWABAN YANG PALING TEPAT!</h4>
+                                <span class="section-points" id="k4PgSectionPoints">45 Soal (Bobot: 70 Poin)</span>
                             </div>
 
-                            <!-- Soal 1 -->
-                            <div class="exam-question-card" id="q-card-1">
-                                <div class="question-header">
-                                    <span class="q-badge">Soal 1</span>
-                                    <p class="q-text">Apa fungsi utama dari program Microsoft Excel...</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_1" value="A" required><span><strong>A.</strong> Mengedit Video dan Suara</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_1" value="B"><span><strong>B.</strong> Membuat Presentasi</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_1" value="C"><span><strong>C.</strong> Pengolah Angka dan Tabel</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_1" value="D"><span><strong>D.</strong> Mengetik surat dan cerita</span></label>
-                                </div>
+                            <!-- Wadah Render Dinamis 45 Butir Soal PG Kelas 4 dari Bank Soal Modular -->
+                            <div id="k4PgQuestionsContainer">
+                                <!-- Dimuat otomatis 45 butir soal dari soal/kelas_4/soal_k4.js -->
                             </div>
-
-                            <!-- Soal 2 -->
-                            <div class="exam-question-card" id="q-card-2">
-                                <div class="question-header">
-                                    <span class="q-badge">Soal 2</span>
-                                    <p class="q-text">Bagian di Microsoft Excel yang membujur secara vertikal (ke atas dan ke bawah) dan ditandai dengan huruf dinamakan ...</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_2" value="A" required><span><strong>A.</strong> Column</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_2" value="B"><span><strong>B.</strong> Row</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_2" value="C"><span><strong>C.</strong> Sel</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_2" value="D"><span><strong>D.</strong> Range</span></label>
-                                </div>
-                            </div>
-
-                            <!-- Soal 3 -->
-                            <div class="exam-question-card" id="q-card-3">
-                                <div class="question-header">
-                                    <span class="q-badge">Soal 3</span>
-                                    <p class="q-text">Baris (Row) dalam Microsoft Excel diidentifikasi dengan tanda ...</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_3" value="A" required><span><strong>A.</strong> Huruf</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_3" value="B"><span><strong>B.</strong> Angka</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_3" value="C"><span><strong>C.</strong> Simbol</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_3" value="D"><span><strong>D.</strong> Warna</span></label>
-                                </div>
-                            </div>
-
-                            <!-- Soal 4 -->
-                            <div class="exam-question-card" id="q-card-4">
-                                <div class="question-header">
-                                    <span class="q-badge">Soal 4</span>
-                                    <p class="q-text">Berdasarkan yang kamu alami menjadi Detektif Data, apa yang dimaksud dengan data ...</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_4" value="A" required><span><strong>A.</strong> Kumpulan informasi berupa angka atau benda</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_4" value="B"><span><strong>B.</strong> Aplikasi komputer untuk menggambar grafik</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_4" value="C"><span><strong>C.</strong> Kumpulan gambar hiasan pada lembar kerja</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_4" value="D"><span><strong>D.</strong> Rumus khusus untuk menghitung penjumlahan</span></label>
-                                </div>
-                            </div>
-
-                            <!-- Soal 5 -->
-                            <div class="exam-question-card" id="q-card-5">
-                                <div class="question-header">
-                                    <span class="q-badge">Soal 5</span>
-                                    <p class="q-text">Fungsi dasar Excel yang digunakan untuk menjumlahkan total angka dalam rentang sel tertentu adalah ....</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_5" value="A" required><span><strong>A.</strong> SUM()</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_5" value="B"><span><strong>B.</strong> average()</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_5" value="C"><span><strong>C.</strong> count()</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_5" value="D"><span><strong>D.</strong> round()</span></label>
-                                </div>
-                            </div>
-
-                            <!-- Soal 6 -->
-                            <div class="exam-question-card" id="q-card-6">
-                                <div class="question-header">
-                                    <span class="q-badge">Soal 6</span>
-                                    <p class="q-text">In Microsoft Excel, how are columns identified?....</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_6" value="A" required><span><strong>A.</strong> By letters such as A, B and C ...</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_6" value="B"><span><strong>B.</strong> By numbers such as 1, 2 and 3</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_6" value="C"><span><strong>C.</strong> By colors such as red, green and blue</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_6" value="D"><span><strong>D.</strong> By symbols such as $, # and @</span></label>
-                                </div>
-                            </div>
-
-                            <!-- Soal 7 -->
-                            <div class="exam-question-card" id="q-card-7">
-                                <div class="question-header">
-                                    <span class="q-badge">Soal 7</span>
-                                    <p class="q-text">What is a horizontal group of cells called in Excel?</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_7" value="A" required><span><strong>A.</strong> A formula</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_7" value="B"><span><strong>B.</strong> A range</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_7" value="C"><span><strong>C.</strong> A column</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_7" value="D"><span><strong>D.</strong> A row</span></label>
-                                </div>
-                            </div>
-
-                            <!-- Soal 8 -->
-                            <div class="exam-question-card" id="q-card-8">
-                                <div class="question-header">
-                                    <span class="q-badge">Soal 8</span>
-                                    <p class="q-text">Menu for saving files in Microsoft Excel ...</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_8" value="A" required><span><strong>A.</strong> Home</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_8" value="B"><span><strong>B.</strong> File</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_8" value="C"><span><strong>C.</strong> Insert</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_8" value="D"><span><strong>D.</strong> Data</span></label>
-                                </div>
-                            </div>
-
-                            <!-- Soal 9 -->
-                            <div class="exam-question-card" id="q-card-9">
-                                <div class="question-header">
-                                    <span class="q-badge">Soal 9</span>
-                                    <p class="q-text">If you want to search for animal data, the AI application you use to find that data is...</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_9" value="A" required><span><strong>A.</strong> Google calender</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_9" value="B"><span><strong>B.</strong> Flo</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_9" value="C"><span><strong>C.</strong> Search Engine</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_9" value="D"><span><strong>D.</strong> Perplexity AI</span></label>
-                                </div>
-                            </div>
-
-                            <!-- Soal 10 -->
-                            <div class="exam-question-card" id="q-card-10">
-                                <div class="question-header">
-                                    <span class="q-badge">Soal 10</span>
-                                    <p class="q-text">What task is performed using the thin black plus pointer (Autofill)?...</p>
-                                </div>
-                                <div class="q-choices-grid">
-                                    <label class="choice-item"><input type="radio" name="pg_10" value="A" required><span><strong>A.</strong> filling continuous data like a series of numbers</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_10" value="B"><span><strong>B.</strong> deleting selected cell borders and backgrounds collors</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_10" value="C"><span><strong>C.</strong> changing the overall height a specific row</span></label>
-                                    <label class="choice-item"><input type="radio" name="pg_10" value="D"><span><strong>D.</strong> dragging cell contents to a different worksheet</span></label>
-                                </div>
-                            </div>
-
                         </div>
 
                         <!-- ================= BAGIAN II: URAIAN (5 SOAL) ================= -->
                         <div class="exam-section-block">
                             <div class="section-banner-title section-uraian">
                                 <span class="section-number">BAGIAN II</span>
-                                <h4>TULISKAN SOAL DAN JAWABAN DIBAWAH INI DENGAN TULISAN RAPI DAN MUDAH DIBACA!</h4>
-                                <span class="section-points">5 Soal Uraian (Bobot: 50 Poin)</span>
+                                <h4>TULISKAN JAWABAN PERTANYAAN DI BAWAH INI SECARA LENGKAP, JELAS, DAN RAPI!</h4>
+                                <span class="section-points">5 Soal Uraian Mandiri (Bobot: 30 Poin)</span>
                             </div>
 
                             <!-- Uraian 1 -->
                             <div class="exam-question-card uraian-card" id="q-uraian-1">
                                 <div class="question-header">
                                     <span class="q-badge badge-uraian">Uraian 1</span>
-                                    <p class="q-text">1. Jelaskan pengertian dari rumus <code>=AVERAGE()</code></p>
+                                    <p class="q-text">1. Sebutkan dan jelaskan langkah-langkah menyimpan dokumen baru yang baru saja kamu ketik di Microsoft Word agar tersimpan aman di dalam komputer!</p>
                                 </div>
                                 <div class="uraian-input-wrap">
-                                    <textarea id="uraian_1" rows="3" required placeholder="Tuliskan penjelasan fungsi rumus =AVERAGE() di sini..."></textarea>
+                                    <textarea id="uraian_1" rows="3" required placeholder="Tuliskan langkah-langkah menyimpan dokumen di Microsoft Word di sini..."></textarea>
                                 </div>
                             </div>
 
@@ -877,10 +741,10 @@
                             <div class="exam-question-card uraian-card" id="q-uraian-2">
                                 <div class="question-header">
                                     <span class="q-badge badge-uraian">Uraian 2</span>
-                                    <p class="q-text">2. Jelaskan pengertian dari rumus <code>=SUM()</code></p>
+                                    <p class="q-text">2. Bagaimanakah cara membuat tulisan judul menggunakan fitur WordArt di Microsoft Word, lalu bagaimana cara mengubah ukuran tulisan (Font Size) dan memberi warna (Font Color) pada tulisan tersebut?</p>
                                 </div>
                                 <div class="uraian-input-wrap">
-                                    <textarea id="uraian_2" rows="3" required placeholder="Tuliskan penjelasan fungsi rumus =SUM() di sini..."></textarea>
+                                    <textarea id="uraian_2" rows="3" required placeholder="Tuliskan cara membuat WordArt, cara mengubah ukuran huruf, dan cara memberi warna huruf di sini..."></textarea>
                                 </div>
                             </div>
 
@@ -888,10 +752,10 @@
                             <div class="exam-question-card uraian-card" id="q-uraian-3">
                                 <div class="question-header">
                                     <span class="q-badge badge-uraian">Uraian 3</span>
-                                    <p class="q-text">3. Jelaskan pengertian dari rumus <code>=COUNT()</code></p>
+                                    <p class="q-text">3. Tuliskan langkah-langkah memasukkan gambar ke dalam lembar dokumen Microsoft Word! Mengapa saat memperbesar atau memperkecil ukuran gambar kita disarankan menarik titik di bagian sudut/pojok gambar?</p>
                                 </div>
                                 <div class="uraian-input-wrap">
-                                    <textarea id="uraian_3" rows="3" required placeholder="Tuliskan penjelasan fungsi rumus =COUNT() di sini..."></textarea>
+                                    <textarea id="uraian_3" rows="3" required placeholder="Tuliskan langkah memasukkan gambar dan alasan menarik titik sudut di sini..."></textarea>
                                 </div>
                             </div>
 
@@ -899,167 +763,21 @@
                             <div class="exam-question-card uraian-card" id="q-uraian-4">
                                 <div class="question-header">
                                     <span class="q-badge badge-uraian">Uraian 4</span>
-                                    <p class="q-text">4. Apa fungsi penunjuk mouse berbentuk tanda tambah hitam tipis?</p>
+                                    <p class="q-text">4. Apakah yang dimaksud dengan &quot;Prompt&quot; pada Gemini AI? Tuliskan satu contoh kalimat prompt yang lengkap dan jelas jika kamu ingin meminta Gemini AI membuatkan gambar bertema &quot;Sekolahku yang Bersih dan Indah&quot;!</p>
                                 </div>
-                                
-                                <!-- Pointer Illustration Box (Tanpa Petunjuk Jawaban) -->
-                                <div class="pointer-illustration-box">
-                                    <div class="pointer-display">
-                                        <div class="pointer-item">
-                                            <svg viewBox="0 0 100 100" class="pointer-svg">
-                                                <rect x="0" y="0" width="100" height="100" rx="14" fill="#f8fafc" stroke="#94a3b8" stroke-width="3" />
-                                                <!-- Thin black plus Autofill cursor -->
-                                                <rect x="47" y="20" width="6" height="60" fill="#0f172a" rx="1" />
-                                                <rect x="20" y="47" width="60" height="6" fill="#0f172a" rx="1" />
-                                            </svg>
-                                            <span class="pointer-label">Tanda Tambah Hitam Tipis (+)</span>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <div class="uraian-input-wrap">
-                                    <textarea id="uraian_4" rows="3" required placeholder="Tuliskan jawaban penjelasanmu di sini..."></textarea>
+                                    <textarea id="uraian_4" rows="3" required placeholder="Tuliskan pengertian prompt dan satu contoh kalimat prompt gambar bertema sekolah bersih di sini..."></textarea>
                                 </div>
                             </div>
 
-                            <!-- Uraian 5 (With Excel Spreadsheet Table) -->
+                            <!-- Uraian 5 -->
                             <div class="exam-question-card uraian-card" id="q-uraian-5">
                                 <div class="question-header">
                                     <span class="q-badge badge-uraian">Uraian 5</span>
-                                    <p class="q-text">5. Perhatikan gambar tabel data hewan berikut! Tuliskan rumus di sel <strong>E9</strong>, <strong>E10</strong>, dan <strong>E11</strong>!</p>
+                                    <p class="q-text">5. Uraikan 4 tahapan alur kerja mulai dari meminta gambar di Gemini AI, menyimpannya ke komputer, sampai memasukkan gambar tersebut ke dalam naskah cerita di Microsoft Word dan merapikan posisinya!</p>
                                 </div>
-
-                                <!-- Spreadsheet Replica Table -->
-                                <div class="excel-table-wrapper">
-                                    <table class="excel-table">
-                                        <thead>
-                                            <tr>
-                                                <th class="cell-corner"></th>
-                                                <th>A</th>
-                                                <th>B</th>
-                                                <th>C</th>
-                                                <th>D</th>
-                                                <th class="highlight-col">E</th>
-                                                <th>F</th>
-                                                <th>G</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td class="row-num">1</td>
-                                                <td colspan="7" class="sheet-title-cell">Tuliskan rumus di sel E9, E10 dan E11</td>
-                                            </tr>
-                                            <tr class="header-data-row">
-                                                <td class="row-num">2</td>
-                                                <td></td>
-                                                <td>NO</td>
-                                                <td>Hewan</td>
-                                                <td>Jenis</td>
-                                                <td class="highlight-head">Jumlah</td>
-                                                <td>Warna</td>
-                                                <td>Jumlah kaki</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="row-num">3</td>
-                                                <td></td>
-                                                <td>1</td>
-                                                <td>Elephant</td>
-                                                <td>Mamalia</td>
-                                                <td class="num-cell">3</td>
-                                                <td>Abu-abu</td>
-                                                <td>4</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="row-num">4</td>
-                                                <td></td>
-                                                <td>2</td>
-                                                <td>Lion</td>
-                                                <td>Mamalia</td>
-                                                <td class="num-cell">2</td>
-                                                <td>Coklat</td>
-                                                <td>4</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="row-num">5</td>
-                                                <td></td>
-                                                <td>3</td>
-                                                <td>Penguin</td>
-                                                <td>Burung</td>
-                                                <td class="num-cell">1</td>
-                                                <td>Hitam-Putih</td>
-                                                <td>2</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="row-num">6</td>
-                                                <td></td>
-                                                <td>4</td>
-                                                <td>Giraffe</td>
-                                                <td>Mamalia</td>
-                                                <td class="num-cell">4</td>
-                                                <td>Totol</td>
-                                                <td>4</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="row-num">7</td>
-                                                <td></td>
-                                                <td>5</td>
-                                                <td>Zebra</td>
-                                                <td>Mamalia</td>
-                                                <td class="num-cell">2</td>
-                                                <td>Belang</td>
-                                                <td>4</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="row-num">8</td>
-                                                <td></td>
-                                                <td>6</td>
-                                                <td>Tiger</td>
-                                                <td>Mamalia</td>
-                                                <td class="num-cell">3</td>
-                                                <td>Orange</td>
-                                                <td>4</td>
-                                            </tr>
-                                            <tr class="calc-row-orange">
-                                                <td class="row-num">9</td>
-                                                <td></td>
-                                                <td colspan="3" class="label-calc">Jumlah</td>
-                                                <td class="target-cell cell-e9">E9 = ?</td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            <tr class="calc-row-yellow">
-                                                <td class="row-num">10</td>
-                                                <td></td>
-                                                <td colspan="3" class="label-calc">Rata-Rata</td>
-                                                <td class="target-cell cell-e10">E10 = ?</td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            <tr class="calc-row-pink">
-                                                <td class="row-num">11</td>
-                                                <td></td>
-                                                <td colspan="3" class="label-calc">Banyak Data</td>
-                                                <td class="target-cell cell-e11">E11 = ?</td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <div class="uraian-subgrid">
-                                    <div class="sub-input">
-                                        <label for="uraian_5_e9"><strong>Rumus di Sel E9 (Jumlah):</strong></label>
-                                        <input type="text" id="uraian_5_e9" required placeholder="Tuliskan rumus di sini...">
-                                    </div>
-                                    <div class="sub-input">
-                                        <label for="uraian_5_e10"><strong>Rumus di Sel E10 (Rata-Rata):</strong></label>
-                                        <input type="text" id="uraian_5_e10" required placeholder="Tuliskan rumus di sini...">
-                                    </div>
-                                    <div class="sub-input">
-                                        <label for="uraian_5_e11"><strong>Rumus di Sel E11 (Banyak Data):</strong></label>
-                                        <input type="text" id="uraian_5_e11" required placeholder="Tuliskan rumus di sini...">
-                                    </div>
+                                <div class="uraian-input-wrap">
+                                    <textarea id="uraian_5" rows="4" required placeholder="Tuliskan 4 tahapan alur kerja dari Gemini AI ke Microsoft Word di sini..."></textarea>
                                 </div>
                             </div>
 
@@ -1182,14 +900,14 @@
                                 </tr>
                                 <tr>
                                     <td class="text-center">2</td>
-                                    <td>Soal Pilihan Ganda (10 Nomor)</td>
-                                    <td class="text-center">50 Poin</td>
+                                    <td>Soal Pilihan Ganda (45 Nomor)</td>
+                                    <td class="text-center">70 Poin</td>
                                     <td class="text-center" id="pdfReportPgScore">-</td>
                                 </tr>
                                 <tr>
                                     <td class="text-center">3</td>
                                     <td>Soal Uraian Mandiri (5 Nomor)</td>
-                                    <td class="text-center">50 Poin</td>
+                                    <td class="text-center">30 Poin</td>
                                     <td class="text-center" id="pdfReportUraianScore">-</td>
                                 </tr>
                                 <tr class="pdf-grade-total-row">
@@ -3417,9 +3135,9 @@ function doGet(e) {
     };
     </script>
     <!-- Bank Soal Remedial Modular per Subfolder Kelas (Folder d:\Erapot\soal\) -->
-    <script src="soal/kelas_4/soal_k4.js?v=20261123_v1"></script>
+    <script src="soal/kelas_4/soal_k4.js?v=20261123_v3"></script>
     <script src="soal/kelas_5/soal_k5.js?v=20261123_v1"></script>
     <script src="soal/kelas_6/soal_k6.js?v=20261123_v1"></script>
-    <script src="script.js?v=20261123_v2"></script>
+    <script src="script.js?v=20261123_v3"></script>
 </body>
 </html>
