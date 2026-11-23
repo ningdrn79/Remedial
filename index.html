@@ -148,18 +148,18 @@
                     </span>
                     <span class="period-status-pill pill-exam" id="examPeriodStatusPill">
                         <span class="status-pulse-dot dot-blue"></span>
-                        <span id="examPeriodStatusPillText">Semester 1 • Ujian PTS Semester 1</span>
+                        <span id="examPeriodStatusPillText">Semester 1 • Ujian PAS Semester 1</span>
                     </span>
                 </div>
                 
                 <div class="period-tabs-grid" id="examPeriodTabsGrid">
                     <!-- Tab 1: Ujian PTS Semester 1 -->
-                    <button type="button" class="period-tab-card period-exam-card active" data-period="sem1_pts" onclick="selectExamPeriod('sem1_pts')" id="examTab_sem1_pts" title="Ujian Aktif">
+                    <button type="button" class="period-tab-card period-exam-card disabled-period" data-period="sem1_pts" onclick="selectExamPeriod('sem1_pts')" id="examTab_sem1_pts" title="Dinonaktifkan oleh Guru">
                         <div class="tab-card-header">
                             <span class="semester-tag sem1">Semester 1</span>
                             <div style="display: flex; gap: 4px; align-items: center;">
-                                <span class="period-official-badge visible"><i class="fa-solid fa-circle-check"></i> Dibuka Guru</span>
-                                <span class="period-locked-badge"><i class="fa-solid fa-lock"></i> Nonaktif</span>
+                                <span class="period-official-badge"><i class="fa-solid fa-circle-check"></i> Dibuka Guru</span>
+                                <span class="period-locked-badge visible"><i class="fa-solid fa-lock"></i> Nonaktif</span>
                                 <span class="active-check-badge"><i class="fa-solid fa-check"></i> Aktif</span>
                             </div>
                         </div>
@@ -168,12 +168,12 @@
                     </button>
 
                     <!-- Tab 2: Ujian PAS Semester 1 -->
-                    <button type="button" class="period-tab-card period-exam-card disabled-period" data-period="sem1_pas" onclick="selectExamPeriod('sem1_pas')" id="examTab_sem1_pas" title="Dinonaktifkan oleh Guru">
+                    <button type="button" class="period-tab-card period-exam-card active" data-period="sem1_pas" onclick="selectExamPeriod('sem1_pas')" id="examTab_sem1_pas" title="Ujian Aktif">
                         <div class="tab-card-header">
                             <span class="semester-tag sem1">Semester 1</span>
                             <div style="display: flex; gap: 4px; align-items: center;">
-                                <span class="period-official-badge"><i class="fa-solid fa-circle-check"></i> Dibuka Guru</span>
-                                <span class="period-locked-badge visible"><i class="fa-solid fa-lock"></i> Nonaktif</span>
+                                <span class="period-official-badge visible"><i class="fa-solid fa-circle-check"></i> Dibuka Guru</span>
+                                <span class="period-locked-badge"><i class="fa-solid fa-lock"></i> Nonaktif</span>
                                 <span class="active-check-badge"><i class="fa-solid fa-check"></i> Aktif</span>
                             </div>
                         </div>
@@ -347,18 +347,18 @@
                     </span>
                     <span class="period-status-pill" id="periodStatusPill">
                         <span class="status-pulse-dot"></span>
-                        <span id="periodStatusPillText">Semester 1 • Remedial PTS (Mid)</span>
+                        <span id="periodStatusPillText">Semester 1 • Remedial PAS (Akhir)</span>
                     </span>
                 </div>
                 
                 <div class="period-tabs-grid" id="periodTabsGrid">
                     <!-- Tab 1: Semester 1 PTS -->
-                    <button type="button" class="period-tab-card active" data-period="sem1_pts" onclick="selectRemedialPeriod('sem1_pts')" id="periodTab_sem1_pts" title="Periode Aktif">
+                    <button type="button" class="period-tab-card disabled-period" data-period="sem1_pts" onclick="selectRemedialPeriod('sem1_pts')" id="periodTab_sem1_pts" title="Dinonaktifkan oleh Guru">
                         <div class="tab-card-header">
                             <span class="semester-tag sem1">Semester 1</span>
                             <div style="display: flex; gap: 4px; align-items: center;">
-                                <span class="period-official-badge visible" id="officialBadge_sem1_pts"><i class="fa-solid fa-circle-check"></i> Dibuka Guru</span>
-                                <span class="period-locked-badge" id="lockedBadge_sem1_pts"><i class="fa-solid fa-lock"></i> Nonaktif</span>
+                                <span class="period-official-badge" id="officialBadge_sem1_pts"><i class="fa-solid fa-circle-check"></i> Dibuka Guru</span>
+                                <span class="period-locked-badge visible" id="lockedBadge_sem1_pts"><i class="fa-solid fa-lock"></i> Nonaktif</span>
                                 <span class="active-check-badge"><i class="fa-solid fa-check"></i> Aktif</span>
                             </div>
                         </div>
@@ -367,12 +367,12 @@
                     </button>
 
                     <!-- Tab 2: Semester 1 PAS -->
-                    <button type="button" class="period-tab-card disabled-period" data-period="sem1_pas" onclick="selectRemedialPeriod('sem1_pas')" id="periodTab_sem1_pas" title="Dinonaktifkan oleh Guru">
+                    <button type="button" class="period-tab-card active" data-period="sem1_pas" onclick="selectRemedialPeriod('sem1_pas')" id="periodTab_sem1_pas" title="Periode Aktif">
                         <div class="tab-card-header">
                             <span class="semester-tag sem1">Semester 1</span>
                             <div style="display: flex; gap: 4px; align-items: center;">
-                                <span class="period-official-badge" id="officialBadge_sem1_pas"><i class="fa-solid fa-circle-check"></i> Dibuka Guru</span>
-                                <span class="period-locked-badge visible" id="lockedBadge_sem1_pas"><i class="fa-solid fa-lock"></i> Nonaktif</span>
+                                <span class="period-official-badge visible" id="officialBadge_sem1_pas"><i class="fa-solid fa-circle-check"></i> Dibuka Guru</span>
+                                <span class="period-locked-badge" id="lockedBadge_sem1_pas"><i class="fa-solid fa-lock"></i> Nonaktif</span>
                                 <span class="active-check-badge"><i class="fa-solid fa-check"></i> Aktif</span>
                             </div>
                         </div>

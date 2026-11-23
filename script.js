@@ -100,7 +100,7 @@ const i18nTranslations = {
         soundOn: "Suara: ON",
         soundOff: "Suara: OFF",
         teacherPanel: "Panel Guru",
-        midSemester: "Mid Semester 1",
+        midSemester: "Akhir Semester 1 (PAS)",
         mentorTag: "Mentor Koding & AI",
         teacherRole: "Guru Koding & Kecerdasan Artifisial",
         speechBubbleDefault: "Halo anak-anak hebat! Selamat datang di Laboratorium Koding & AI! Tetap semangat, teliti, dan jujur mengerjakan remedial ya! 💻✨",
@@ -138,7 +138,7 @@ const i18nTranslations = {
         soundOn: "Sound: ON",
         soundOff: "Sound: OFF",
         teacherPanel: "Teacher Panel",
-        midSemester: "Mid Semester 1",
+        midSemester: "Final Semester 1 (PAS)",
         mentorTag: "Coding & AI Mentor",
         teacherRole: "Coding & Artificial Intelligence Teacher",
         speechBubbleDefault: "Hello great students! Welcome to the Coding & AI Lab! Stay enthusiastic, thorough, and honest when doing the remedial! 💻✨",
@@ -481,7 +481,7 @@ const REMEDIAL_PERIODS = {
 let activeTeacherRemedialPeriod = localStorage.getItem('tzuchi_teacher_active_period') || 
                                   localStorage.getItem('tzuchi_official_period') || 
                                   localStorage.getItem('tzuchi_remedial_period') || 
-                                  'sem1_pts';
+                                  'sem1_pas';
 
 let currentRemedialPeriod = activeTeacherRemedialPeriod;
 let officialRemedialPeriod = activeTeacherRemedialPeriod;
@@ -676,8 +676,8 @@ function executeExitExamModal() {
 
 // 4. Menerapkan Status Aktif & Nonaktif Tombol di Halaman Siswa & Panel Guru
 function applyRemedialPeriod(periodKey) {
-    const activeKey = activeTeacherRemedialPeriod || periodKey || 'sem1_pts';
-    const config = REMEDIAL_PERIODS[activeKey] || REMEDIAL_PERIODS['sem1_pts'];
+    const activeKey = activeTeacherRemedialPeriod || periodKey || 'sem1_pas';
+    const config = REMEDIAL_PERIODS[activeKey] || REMEDIAL_PERIODS['sem1_pas'];
     const isEn = (currentLang === 'en');
     const isOpen = isExamSessionOpen();
 
