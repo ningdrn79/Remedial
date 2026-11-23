@@ -627,7 +627,7 @@
                             </div>
 
                             <div class="form-row">
-                                <div class="form-group">
+                                <div class="form-group" id="k4NilaiAwalGroup">
                                     <label for="k4NilaiAwal"><i class="fa-solid fa-chart-line"></i> Input Nilai (Nilai Mid Sebelumnya / Awal) *</label>
                                     <input type="number" id="k4NilaiAwal" min="0" max="100" required placeholder="Contoh: 65">
                                 </div>
@@ -1036,7 +1036,7 @@
                             </div>
 
                             <div class="form-row">
-                                <div class="form-group">
+                                <div class="form-group" id="k5NilaiAwalGroup">
                                     <label for="k5NilaiAwal"><i class="fa-solid fa-chart-line"></i> Input Nilai (Nilai Mid Sebelumnya / Awal) *</label>
                                     <input type="number" id="k5NilaiAwal" min="0" max="100" required placeholder="Contoh: 65">
                                 </div>
@@ -1648,7 +1648,7 @@
                             </div>
 
                             <div class="form-row">
-                                <div class="form-group">
+                                <div class="form-group" id="k6NilaiAwalGroup">
                                     <label for="k6NilaiAwal"><i class="fa-solid fa-chart-line"></i> Input Nilai (Nilai Mid Sebelumnya / Awal) *</label>
                                     <input type="number" id="k6NilaiAwal" min="0" max="100" required placeholder="Contoh: 65">
                                 </div>
@@ -2369,11 +2369,11 @@
                                     <th style="width: 85px; cursor: pointer;" onclick="sortTeacherTableBy('absen')" title="Klik untuk mengurutkan nomor absen">
                                         No. Absen <span class="th-sort-icon" id="sortIcon-absen"><i class="fa-solid fa-sort"></i></span>
                                     </th>
-                                    <th style="width: 95px; cursor: pointer;" onclick="sortTeacherTableBy('nilaiAwal')" title="Klik untuk mengurutkan nilai awal">
+                                    <th style="width: 95px; cursor: pointer;" onclick="sortTeacherTableBy('nilaiAwal')" title="Klik untuk mengurutkan nilai awal" id="thTeacherNilaiAwal">
                                         Nilai Awal <span class="th-sort-icon" id="sortIcon-nilaiAwal"><i class="fa-solid fa-sort"></i></span>
                                     </th>
-                                    <th style="width: 135px; cursor: pointer;" onclick="sortTeacherTableBy('nilaiAkhir')" title="Klik untuk mengurutkan nilai remedial">
-                                        Nilai Akhir Remedial <span class="th-sort-icon" id="sortIcon-nilaiAkhir"><i class="fa-solid fa-sort"></i></span>
+                                    <th style="width: 135px; cursor: pointer;" onclick="sortTeacherTableBy('nilaiAkhir')" title="Klik untuk mengurutkan nilai" id="thTeacherNilaiAkhir">
+                                        <span id="thTeacherScoreHeaderLabel">Nilai PAS</span> <span class="th-sort-icon" id="sortIcon-nilaiAkhir"><i class="fa-solid fa-sort"></i></span>
                                     </th>
                                     <th style="width: 140px; cursor: pointer;" onclick="sortTeacherTableBy('date')" title="Klik untuk mengurutkan tanggal/waktu pengerjaan">
                                         TGL/WAKTU <span class="th-sort-icon" id="sortIcon-date"><i class="fa-solid fa-sort"></i></span>
@@ -2650,7 +2650,7 @@ function doPost(e) {
       return ContentService.createTextOutput(JSON.stringify({
         status: "success",
         action: "setExamConfig",
-        activePeriod: props.getProperty("ACTIVE_PERIOD") || "sem1_pts",
+        activePeriod: props.getProperty("ACTIVE_PERIOD") || "sem1_pas",
         examStatus: props.getProperty("EXAM_STATUS") || "OPEN",
         liveToken: props.getProperty("LIVE_TOKEN") || "TZU26"
       })).setMimeType(ContentService.MimeType.JSON);
@@ -2658,7 +2658,7 @@ function doPost(e) {
 
     // B. Penyimpanan Lembar Jawaban Siswa
     var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var periodKey = data.period || "sem1_pts";
+    var periodKey = data.period || "sem1_pas";
     var sheet = getTargetSheet(ss, periodKey);
 
     sheet.appendRow([
@@ -2693,12 +2693,17 @@ function doGet(e) {
     // A. Sinkronisasi Real-Time ke Komputer Siswa
     if (e && e.parameter && (e.parameter.action === "getExamConfig" || e.parameter.type === "config")) {
       var props = PropertiesService.getScriptProperties();
-      return ContentService.createTextOutput(JSON.stringify({
+      var conf = {
         status: "success",
-        activePeriod: props.getProperty("ACTIVE_PERIOD") || "sem1_pts",
+        activePeriod: props.getProperty("ACTIVE_PERIOD") || "sem1_pas",
         examStatus: props.getProperty("EXAM_STATUS") || "OPEN",
         liveToken: props.getProperty("LIVE_TOKEN") || "TZU26"
-      })).setMimeType(ContentService.MimeType.JSON);
+      };
+      if (e.parameter.callback) {
+        return ContentService.createTextOutput(e.parameter.callback + "(" + JSON.stringify(conf) + ")")
+          .setMimeType(ContentService.MimeType.JAVASCRIPT);
+      }
+      return ContentService.createTextOutput(JSON.stringify(conf)).setMimeType(ContentService.MimeType.JSON);
     }
 
     // A2. Simpan Status Konfigurasi Guru via GET (Tahan CORS antar-device)
@@ -2707,13 +2712,18 @@ function doGet(e) {
       if (e.parameter.period) props.setProperty("ACTIVE_PERIOD", e.parameter.period);
       if (e.parameter.status) props.setProperty("EXAM_STATUS", e.parameter.status);
       if (e.parameter.token) props.setProperty("LIVE_TOKEN", e.parameter.token);
-      return ContentService.createTextOutput(JSON.stringify({
+      var confSave = {
         status: "success",
         action: "setExamConfig",
-        activePeriod: props.getProperty("ACTIVE_PERIOD") || "sem1_pts",
+        activePeriod: props.getProperty("ACTIVE_PERIOD") || "sem1_pas",
         examStatus: props.getProperty("EXAM_STATUS") || "OPEN",
         liveToken: props.getProperty("LIVE_TOKEN") || "TZU26"
-      })).setMimeType(ContentService.MimeType.JSON);
+      };
+      if (e.parameter.callback) {
+        return ContentService.createTextOutput(e.parameter.callback + "(" + JSON.stringify(confSave) + ")")
+          .setMimeType(ContentService.MimeType.JAVASCRIPT);
+      }
+      return ContentService.createTextOutput(JSON.stringify(confSave)).setMimeType(ContentService.MimeType.JSON);
     }
 
     // B. Mengambil Data Siswa per Sheet

@@ -886,6 +886,35 @@ function applyRemedialPeriod(periodKey) {
     if (pdfDocMeta) {
         pdfDocMeta.innerText = config.pdfDocMeta;
     }
+
+    // 8. Atur formulir input Nilai Awal untuk siswa (Disembunyikan pada PAS / PAT)
+    const isPasOrPatPeriod = (activeKey === 'sem1_pas' || activeKey === 'sem2_pas');
+    ['k4', 'k5', 'k6'].forEach(grade => {
+        const group = document.getElementById(`${grade}NilaiAwalGroup`);
+        const input = document.getElementById(`${grade}NilaiAwal`);
+        if (group) {
+            group.style.display = isPasOrPatPeriod ? 'none' : '';
+        }
+        if (input) {
+            if (isPasOrPatPeriod) {
+                input.removeAttribute('required');
+                if (!input.value) input.value = '0';
+            } else {
+                input.setAttribute('required', 'required');
+            }
+        }
+    });
+
+    // 8b. Sembunyikan item Nilai Awal di sticky bar saat ujian berlangsung jika PAS/PAT
+    ['barStudentInitialScore', 'barStudentInitialScoreK5', 'barStudentInitialScoreK6'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            const parentItem = el.closest('.student-bar-item');
+            if (parentItem) {
+                parentItem.style.display = isPasOrPatPeriod ? 'none' : '';
+            }
+        }
+    });
 }
 
 // 5. Sinkronisasi Antar-Tab / Layar Siswa Secara Real-Time
@@ -3841,7 +3870,7 @@ function updateCloudStatusUI() {
    ============================================================== */
 function pushExamConfigToCloud(config) {
     if (!GOOGLE_SHEETS_WEBAPP_URL || !GOOGLE_SHEETS_WEBAPP_URL.trim().startsWith('http')) return;
-    const periodVal = config.period || activeTeacherRemedialPeriod || 'sem1_pts';
+    const periodVal = config.period || activeTeacherRemedialPeriod || 'sem1_pas';
     const statusVal = config.status || (isExamSessionOpen() ? 'OPEN' : 'CLOSED');
     const tokenVal = config.token || getActiveExamToken() || 'TZU26';
 
@@ -3852,17 +3881,24 @@ function pushExamConfigToCloud(config) {
         token: tokenVal
     };
 
-    // 1. Kirim via GET Ping (Paling kompatibel dengan Google Apps Script cross-origin)
+    const pingParams = 'action=setExamConfig&period=' + encodeURIComponent(periodVal) +
+        '&status=' + encodeURIComponent(statusVal) +
+        '&token=' + encodeURIComponent(tokenVal) +
+        '&_ts=' + Date.now();
+    const pingUrl = GOOGLE_SHEETS_WEBAPP_URL + (GOOGLE_SHEETS_WEBAPP_URL.includes('?') ? '&' : '?') + pingParams;
+
+    // 1. Kirim via Image Ping (100% Kebal CORS & Preflight browser)
     try {
-        const pingUrl = GOOGLE_SHEETS_WEBAPP_URL + (GOOGLE_SHEETS_WEBAPP_URL.includes('?') ? '&' : '?') +
-            'action=setExamConfig&period=' + encodeURIComponent(periodVal) +
-            '&status=' + encodeURIComponent(statusVal) +
-            '&token=' + encodeURIComponent(tokenVal) +
-            '&_ts=' + Date.now();
+        const pingImg = new Image();
+        pingImg.src = pingUrl;
+    } catch(eImg) {}
+
+    // 2. Kirim via GET Ping
+    try {
         fetch(pingUrl, { method: 'GET', mode: 'no-cors' });
     } catch(eGet) {}
 
-    // 2. Kirim via POST Payload
+    // 3. Kirim via POST Payload
     try {
         fetch(GOOGLE_SHEETS_WEBAPP_URL, {
             method: 'POST',
@@ -3878,6 +3914,63 @@ function pushExamConfigToCloud(config) {
 }
 
 let isCloudConfigFetching = false;
+
+// Callback Global untuk JSONP Sinkronisasi Cloud
+window.handleCloudExamConfigCallback = function(config) {
+    if (!config) return;
+    processRemoteExamConfig(config, false);
+};
+
+function processRemoteExamConfig(config, isInitial = false) {
+    if (!config || (config.status !== 'success' && !config.activePeriod)) return;
+    const remotePeriod = config.activePeriod;
+    const remoteStatus = config.examStatus || 'OPEN';
+    const remoteToken = config.liveToken;
+
+    // 1. Cek perubahan periode aktif dari guru
+    if (remotePeriod && REMEDIAL_PERIODS[remotePeriod] && remotePeriod !== activeTeacherRemedialPeriod) {
+        activeTeacherRemedialPeriod = remotePeriod;
+        currentRemedialPeriod = remotePeriod;
+        officialRemedialPeriod = remotePeriod;
+        localStorage.setItem('tzuchi_teacher_active_period', remotePeriod);
+        localStorage.setItem('tzuchi_official_period', remotePeriod);
+        localStorage.setItem('tzuchi_remedial_period', remotePeriod);
+        applyRemedialPeriod(remotePeriod);
+
+        if (!isInitial) {
+            const pName = REMEDIAL_PERIODS[remotePeriod]?.name || remotePeriod;
+            showToast(`📢 Guru Pengawas mengaktifkan: [${pName}]`);
+            playCuteSound('pop');
+        }
+    }
+
+    // 2. Cek perubahan saklar kunci ujian
+    const currentStatus = isExamSessionOpen() ? 'OPEN' : 'CLOSED';
+    if (remoteStatus && remoteStatus !== currentStatus) {
+        localStorage.setItem('tzuchi_exam_session_status', remoteStatus);
+        updateExamSessionDisplay();
+        applyRemedialPeriod(activeTeacherRemedialPeriod);
+
+        if (!isInitial) {
+            if (remoteStatus === 'CLOSED') {
+                showToast('🔒 Guru Pengawas mengunci seluruh akses ujian.');
+            } else {
+                showToast('🔓 Guru Pengawas membuka akses ujian!');
+            }
+            playCuteSound('pop');
+        }
+    }
+
+    // 3. Cek perubahan token ujian live
+    if (remoteToken && remoteToken !== getActiveExamToken()) {
+        setActiveExamToken(remoteToken);
+        ['k4ExamToken', 'k5ExamToken', 'k6ExamToken'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el && !el.value) el.value = remoteToken;
+        });
+    }
+}
+
 async function fetchExamConfigFromCloud(isInitial = false) {
     if (!GOOGLE_SHEETS_WEBAPP_URL || !GOOGLE_SHEETS_WEBAPP_URL.trim().startsWith('http')) return;
     if (isCloudConfigFetching) return;
@@ -3891,63 +3984,35 @@ async function fetchExamConfigFromCloud(isInitial = false) {
         try {
             config = JSON.parse(text);
         } catch (e) {
+            // Jika respons bukan JSON langsung, fallback ke JSONP
+            fallbackJsonpExamConfig();
             isCloudConfigFetching = false;
             return;
         }
 
-        if (config && config.status === 'success' && config.activePeriod) {
-            const remotePeriod = config.activePeriod;
-            const remoteStatus = config.examStatus || 'OPEN';
-            const remoteToken = config.liveToken;
-
-            // 1. Cek perubahan periode aktif dari guru
-            if (remotePeriod && REMEDIAL_PERIODS[remotePeriod] && remotePeriod !== activeTeacherRemedialPeriod) {
-                activeTeacherRemedialPeriod = remotePeriod;
-                currentRemedialPeriod = remotePeriod;
-                officialRemedialPeriod = remotePeriod;
-                localStorage.setItem('tzuchi_teacher_active_period', remotePeriod);
-                localStorage.setItem('tzuchi_official_period', remotePeriod);
-                localStorage.setItem('tzuchi_remedial_period', remotePeriod);
-                applyRemedialPeriod(remotePeriod);
-
-                if (!isInitial) {
-                    const pName = REMEDIAL_PERIODS[remotePeriod]?.name || remotePeriod;
-                    showToast(`📢 Guru Pengawas mengaktifkan: [${pName}]`);
-                    playCuteSound('pop');
-                }
-            }
-
-            // 2. Cek perubahan saklar kunci ujian
-            const currentStatus = isExamSessionOpen() ? 'OPEN' : 'CLOSED';
-            if (remoteStatus && remoteStatus !== currentStatus) {
-                localStorage.setItem('tzuchi_exam_session_status', remoteStatus);
-                updateExamSessionDisplay();
-                applyRemedialPeriod(activeTeacherRemedialPeriod);
-
-                if (!isInitial) {
-                    if (remoteStatus === 'CLOSED') {
-                        showToast('🔒 Guru Pengawas mengunci seluruh akses ujian.');
-                    } else {
-                        showToast('🔓 Guru Pengawas membuka akses ujian!');
-                    }
-                    playCuteSound('pop');
-                }
-            }
-
-            // 3. Cek perubahan token ujian live
-            if (remoteToken && remoteToken !== getActiveExamToken()) {
-                setActiveExamToken(remoteToken);
-                ['k4ExamToken', 'k5ExamToken', 'k6ExamToken'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el && !el.value) el.value = remoteToken;
-                });
-            }
-        }
+        processRemoteExamConfig(config, isInitial);
     } catch (err) {
-        // Silent catch: network fallback
+        // Fallback ke JSONP jika fetch gagal karena CORS atau redirect
+        fallbackJsonpExamConfig();
     } finally {
         isCloudConfigFetching = false;
     }
+}
+
+function fallbackJsonpExamConfig() {
+    try {
+        const oldScript = document.getElementById('jsonpExamConfigScript');
+        if (oldScript && oldScript.parentNode) {
+            oldScript.parentNode.removeChild(oldScript);
+        }
+        const script = document.createElement('script');
+        script.id = 'jsonpExamConfigScript';
+        script.src = GOOGLE_SHEETS_WEBAPP_URL + (GOOGLE_SHEETS_WEBAPP_URL.includes('?') ? '&' : '?') + 'action=getExamConfig&callback=handleCloudExamConfigCallback&_ts=' + Date.now();
+        script.onerror = function() {
+            if (script.parentNode) script.parentNode.removeChild(script);
+        };
+        document.head.appendChild(script);
+    } catch(eJsonp) {}
 }
 
 let cloudPollingInterval = null;
@@ -3955,10 +4020,10 @@ function startCloudConfigPolling() {
     if (cloudPollingInterval) clearInterval(cloudPollingInterval);
     // Langsung cek saat pertama kali halaman terbuka
     fetchExamConfigFromCloud(true);
-    // Polling berkala setiap 8 detik agar responsif antar-komputer di kelas
+    // Polling berkala setiap 5 detik agar responsif antar-komputer di lab
     cloudPollingInterval = setInterval(() => {
         fetchExamConfigFromCloud(false);
-    }, 8000);
+    }, 5000);
 }
 
 function openCloudConfigModal() {
@@ -4865,8 +4930,32 @@ function renderTeacherTable() {
         const activeFilter = String(teacherActiveFilter || 'SEMUA').trim().toUpperCase();
 
         const isAutoPeriod = (teacherPeriodTableFilterMode !== 'SEMUA_PERIODE');
-        const currentActivePeriod = activeTeacherRemedialPeriod || 'sem1_pts';
-        const activePeriodConfig = REMEDIAL_PERIODS[currentActivePeriod] || REMEDIAL_PERIODS['sem1_pts'];
+        const currentActivePeriod = activeTeacherRemedialPeriod || 'sem1_pas';
+        const activePeriodConfig = REMEDIAL_PERIODS[currentActivePeriod] || REMEDIAL_PERIODS['sem1_pas'];
+
+        const isPasPeriod = (currentActivePeriod === 'sem1_pas');
+        const isPatPeriod = (currentActivePeriod === 'sem2_pas');
+        const isPasOrPat = isAutoPeriod ? (isPasPeriod || isPatPeriod) : false;
+
+        // Atur Header Tabel Dinamis (Hilangkan kolom Nilai Awal & Ganti Judul Nilai PAS/PAT)
+        const thNilaiAwal = document.getElementById('thTeacherNilaiAwal');
+        const thScoreLabel = document.getElementById('thTeacherScoreHeaderLabel');
+
+        if (thNilaiAwal) {
+            thNilaiAwal.style.display = isPasOrPat ? 'none' : '';
+        }
+
+        if (thScoreLabel) {
+            if (isPasPeriod) {
+                thScoreLabel.innerText = 'Nilai PAS';
+            } else if (isPatPeriod) {
+                thScoreLabel.innerText = 'Nilai PAT';
+            } else if (currentActivePeriod === 'sem1_pts') {
+                thScoreLabel.innerText = isAutoPeriod ? 'Nilai PTS' : 'Nilai Akhir';
+            } else {
+                thScoreLabel.innerText = 'Nilai Akhir';
+            }
+        }
 
         // Perbarui badge periode di toolbar tabel
         const tablePeriodBadge = document.getElementById('tableCurrentPeriodBadge');
@@ -5072,12 +5161,13 @@ function renderTeacherTable() {
                     </td>
                     <td><span class="class-tag">Kelas ${safeKelas}</span></td>
                     <td><strong>${safeAbsen}</strong></td>
+                    ${!isPasOrPat ? `
                     <td>
                         <button type="button" class="btn-edit-nilai-awal" onclick="editStudentNilaiAwal('${safeId}')" title="Klik untuk mengubah Nilai Awal siswa ini">
                             <span>${safeAwal}</span>
                             <i class="fa-solid fa-pen-to-square"></i>
                         </button>
-                    </td>
+                    </td>` : ''}
                     <td><span class="score-badge-cell">${safeAkhir}</span></td>
                     <td style="max-width: 140px; overflow: hidden;">
                         <span style="font-size: 0.85rem; color: #1e293b; display: block; font-weight: 700;">${displayDate}</span>
@@ -5805,6 +5895,15 @@ function exportRecapToExcel() {
         `;
     }).join('');
 
+    const isPasExport = (activeKey === 'sem1_pas');
+    const isPatExport = (activeKey === 'sem2_pas');
+    const excelScoreColTitle = isPasExport ? 'Nilai PAS (100)' : (isPatExport ? 'Nilai PAT (100)' : 'Nilai Akhir (100)');
+    const excelDocTitle = isPasExport 
+        ? 'LEMBAR REKAPITULASI EVALUASI & NILAI HASIL UJIAN PAS SISWA' 
+        : (isPatExport 
+            ? 'LEMBAR REKAPITULASI EVALUASI & NILAI HASIL UJIAN PAT SISWA' 
+            : 'LEMBAR REKAPITULASI EVALUASI & NILAI HASIL REMEDIAL SISWA');
+
     // Dokumen Template Lengkap Microsoft Excel
     const excelTemplate = `
 <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
@@ -5815,7 +5914,7 @@ function exportRecapToExcel() {
         <x:ExcelWorkbook>
             <x:ExcelWorksheets>
                 <x:ExcelWorksheet>
-                    <x:Name>Rekap Nilai Remedial</x:Name>
+                    <x:Name>Rekap Nilai Siswa</x:Name>
                     <x:WorksheetOptions>
                         <x:DisplayGridlines/>
                         <x:Print>
@@ -5852,7 +5951,7 @@ function exportRecapToExcel() {
         </tr>
         <tr>
             <td colspan="13" style="text-align: center; font-size: 12pt; font-weight: bold; color: #0f172a; padding: 4px 0;">
-                LEMBAR REKAPITULASI EVALUASI & NILAI HASIL REMEDIAL SISWA
+                ${excelDocTitle}
             </td>
         </tr>
         <tr>
@@ -5893,7 +5992,7 @@ function exportRecapToExcel() {
             <th style="border: 1px solid #14532d; text-align: center; width: 85px;">Nilai Awal</th>
             <th style="border: 1px solid #14532d; text-align: center; width: 100px;">Nilai PG (50)</th>
             <th style="border: 1px solid #14532d; text-align: center; width: 110px;">Nilai Uraian (50)</th>
-            <th style="border: 1px solid #14532d; text-align: center; width: 120px;">Nilai Akhir (100)</th>
+            <th style="border: 1px solid #14532d; text-align: center; width: 120px;">${excelScoreColTitle}</th>
             <th style="border: 1px solid #14532d; text-align: center; width: 130px;">Status Hasil</th>
             <th style="border: 1px solid #14532d; text-align: center; width: 150px;">Predikat Capaian</th>
             <th style="border: 1px solid #14532d; text-align: center; width: 110px;">Durasi Pengerjaan</th>
