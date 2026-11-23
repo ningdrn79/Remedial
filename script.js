@@ -4830,6 +4830,8 @@ function togglePasswordVisibility() {
 /* ==============================================================
    TEACHER PORTAL LOGIC (TERSEMBUNYI KHUSUS GURU)
    ============================================================== */
+let teacherSyncInterval = null;
+
 function openTeacherPortal() {
     playCuteSound('pop');
     const modal = document.getElementById('teacherPortalModal');
@@ -4844,11 +4846,25 @@ function openTeacherPortal() {
 
     if (GOOGLE_SHEETS_WEBAPP_URL && GOOGLE_SHEETS_WEBAPP_URL.trim().startsWith('http')) {
         syncDataFromCloud(true);
+        if (teacherSyncInterval) clearInterval(teacherSyncInterval);
+        // Otomatis tarik data siswa dari cloud setiap 8 detik agar nilai siswa baru langsung muncul
+        teacherSyncInterval = setInterval(() => {
+            if (modal.classList.contains('open')) {
+                syncDataFromCloud(true);
+            } else {
+                clearInterval(teacherSyncInterval);
+                teacherSyncInterval = null;
+            }
+        }, 8000);
     }
 }
 
 function closeTeacherPortal() {
     playCuteSound('pop');
+    if (teacherSyncInterval) {
+        clearInterval(teacherSyncInterval);
+        teacherSyncInterval = null;
+    }
     const modal = document.getElementById('teacherPortalModal');
     if (modal) modal.classList.remove('open');
 }
@@ -4885,6 +4901,31 @@ function searchTeacherTable() {
     const input = document.getElementById('teacherSearchInput');
     teacherSearchQuery = input ? input.value.trim().toLowerCase() : '';
     renderTeacherTable();
+}
+
+function moveAllRecentToCurrentPeriod(targetPeriod) {
+    playCuteSound('pop');
+    const localList = getRecapList();
+    if (!localList || localList.length === 0) {
+        showToast('Belum ada data siswa di database');
+        return;
+    }
+    const targetPeriodConfig = REMEDIAL_PERIODS[targetPeriod] || REMEDIAL_PERIODS['sem1_pas'];
+    let count = 0;
+    localList.forEach(st => {
+        if (st.period !== targetPeriod) {
+            st.period = targetPeriod;
+            st.periodName = targetPeriodConfig.name;
+            count++;
+        }
+    });
+    localStorage.setItem('remedial_tzuchi_records', JSON.stringify(localList));
+    localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(localList));
+    renderTeacherTable();
+    playCuteSound('fanfare');
+    if (window.confetti) confetti();
+    showToast(`✅ Berhasil memindahkan ${count} siswa ke periode [${targetPeriodConfig.name}]!`);
+    alert(`✅ BERHASIL MEMINDAHKAN ${count} DATA SISWA!\n\nSeluruh data siswa yang sebelumnya tercatat di periode lain kini resmi dipindahkan ke [${targetPeriodConfig.name}].\n\nTabel nilai langsung menampilkan seluruh data siswa tersebut.`);
 }
 
 /* ==============================================================
@@ -5106,13 +5147,50 @@ function renderTeacherTable() {
                 emptyNotice.style.display = 'block';
                 const emptyTitle = emptyNotice.querySelector('h4');
                 const emptyDesc = emptyNotice.querySelector('p');
+
+                const totalOtherPeriods = list.filter(item => String(item.period || 'sem1_pts').toLowerCase() !== currentActivePeriod).length;
+                const totalInOtherClasses = (activeFilter !== 'SEMUA') ? list.filter(item => String(item.period || 'sem1_pts').toLowerCase() === currentActivePeriod).length : 0;
+
+                let helpHtml = '';
+                if (totalInOtherClasses > 0) {
+                    helpHtml = `<div style="margin-top:14px; padding:10px 16px; background:#eff6ff; border:1.5px solid #93c5fd; border-radius:10px; display:inline-block; text-align:left;">
+                        <span style="color:#1d4ed8; font-weight:800;"><i class="fa-solid fa-filter"></i> Info Filter Kelas:</span> Saat ini filter kelas aktif di <strong>${activeFilter}</strong>.<br>
+                        Terdapat <strong>${totalInOtherClasses}</strong> siswa di kelas lain!
+                        <button type="button" onclick="filterTeacherTable('SEMUA')" style="margin-top:8px; display:inline-flex; align-items:center; gap:6px; background:#2563eb; color:white; border:none; padding:6px 14px; border-radius:6px; font-weight:700; cursor:pointer;">
+                            <i class="fa-solid fa-users"></i> Klik untuk Tampilkan Semua Kelas
+                        </button>
+                    </div>`;
+                } else if (totalOtherPeriods > 0 && isAutoPeriod) {
+                    helpHtml = `<div style="margin-top:14px; padding:12px 18px; background:#fef3c7; border:1.5px solid #fde68a; border-radius:10px; display:inline-block; text-align:left;">
+                        <span style="color:#b45309; font-weight:800;"><i class="fa-solid fa-triangle-exclamation"></i> Ditemukan ${totalOtherPeriods} Data Siswa di Periode Lain!</span><br>
+                        Kemungkinan siswa baru saja mengerjakan saat komputernya masih berada di posisi Sem 1 - PTS.<br>
+                        <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+                            <button type="button" onclick="setTeacherTablePeriodFilter('SEMUA_PERIODE')" style="background:#0d9488; color:white; border:none; padding:7px 14px; border-radius:6px; font-weight:700; cursor:pointer;">
+                                <i class="fa-solid fa-layer-group"></i> Lihat di Semua Periode
+                            </button>
+                            <button type="button" onclick="moveAllRecentToCurrentPeriod('${currentActivePeriod}')" style="background:#0284c7; color:white; border:none; padding:7px 14px; border-radius:6px; font-weight:700; cursor:pointer;">
+                                <i class="fa-solid fa-arrow-right-arrow-left"></i> Pindahkan Semua ke ${activePeriodConfig.shortName}
+                            </button>
+                            <button type="button" onclick="syncDataFromCloud(false)" style="background:#10b981; color:white; border:none; padding:7px 14px; border-radius:6px; font-weight:700; cursor:pointer;">
+                                <i class="fa-solid fa-arrows-rotate"></i> Sinkron Cloud Sekarang
+                            </button>
+                        </div>
+                    </div>`;
+                } else {
+                    helpHtml = `<div style="margin-top:14px;">
+                        <button type="button" class="btn-cloud-sync" onclick="syncDataFromCloud(false)" style="display:inline-flex; align-items:center; gap:6px; background:#10b981; color:white; border:none; padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer;">
+                            <i class="fa-solid fa-arrows-rotate"></i> Klik di Sini untuk Tarik Nilai Siswa dari Cloud
+                        </button>
+                    </div>`;
+                }
+
                 if (emptyTitle && emptyDesc) {
                     if (isAutoPeriod) {
                         emptyTitle.innerText = `Belum Ada Siswa untuk ${activePeriodConfig.name}`;
-                        emptyDesc.innerHTML = `Belum ada siswa yang menyelesaikan remedial untuk <strong>${activePeriodConfig.name}</strong>.<br>Saat siswa menyelesaikan ujian remedial ini, datanya akan langsung otomatis muncul di tabel ini.`;
+                        emptyDesc.innerHTML = `Belum ada data siswa yang masuk untuk <strong>${activePeriodConfig.name}</strong>.<br>${helpHtml}`;
                     } else {
                         emptyTitle.innerText = 'Belum Ada Data Siswa Ditemukan';
-                        emptyDesc.innerText = 'Belum ada siswa yang menyelesaikan remedial untuk kriteria filter ini.';
+                        emptyDesc.innerHTML = `Belum ada siswa yang memenuhi kriteria filter ini.<br>${helpHtml}`;
                     }
                 }
             }
