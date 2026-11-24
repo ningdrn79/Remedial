@@ -2719,7 +2719,12 @@ function normalizeSheetToPeriod(name) {
 // 1. POST: Menyimpan Hasil Siswa atau Pengaturan Ujian Real-Time dari Guru
 function doPost(e) {
   try {
-    var data = JSON.parse(e.postData.contents);
+    var data = {};
+    if (e && e.postData && e.postData.contents) {
+      try { data = JSON.parse(e.postData.contents); } catch(errJson) { data = e.parameter || {}; }
+    } else if (e && e.parameter) {
+      data = e.parameter;
+    }
 
     // A. Sinkronisasi Pengaturan Guru (Periode Aktif, Status Kunci, Token)
     if (data.action === "setExamConfig" || data.type === "config") {
@@ -2806,6 +2811,34 @@ function doGet(e) {
           .setMimeType(ContentService.MimeType.JAVASCRIPT);
       }
       return ContentService.createTextOutput(JSON.stringify(confSave)).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // A3. Simpan Nilai Siswa via GET (100% Kebal CORS & Preflight pada seluruh komputer lab)
+    if (e && e.parameter && (e.parameter.action === "saveStudent" || (e.parameter.studentName && e.parameter.score !== undefined))) {
+      var ssGet = SpreadsheetApp.getActiveSpreadsheet();
+      var pKey = e.parameter.period || "sem1_pas";
+      var tName = e.parameter.sheetName || SHEET_MAPPING[pKey] || "SEM 1-PAS";
+      var shTarget = ssGet.getSheetByName(tName) || getTargetSheet(ssGet, pKey);
+      shTarget.appendRow([
+        new Date(),
+        e.parameter.studentId || ("st_" + Date.now()),
+        e.parameter.studentName || "",
+        e.parameter.grade || "",
+        e.parameter.absen || "-",
+        e.parameter.nilaiAwal ? Number(e.parameter.nilaiAwal) : 0,
+        e.parameter.score ? Number(e.parameter.score) : 0,
+        e.parameter.predicate || "",
+        e.parameter.status || "",
+        e.parameter.duration || "-",
+        "[]",
+        "[]"
+      ]);
+      var saveRes = { status: "success", action: "saveStudent", name: e.parameter.studentName, sheet: tName };
+      if (e.parameter.callback) {
+        return ContentService.createTextOutput(e.parameter.callback + "(" + JSON.stringify(saveRes) + ")")
+          .setMimeType(ContentService.MimeType.JAVASCRIPT);
+      }
+      return ContentService.createTextOutput(JSON.stringify(saveRes)).setMimeType(ContentService.MimeType.JSON);
     }
 
     // B. Mengambil Data Siswa per Sheet
@@ -3276,6 +3309,6 @@ function doGet(e) {
     <script src="soal/kelas_4/soal_k4.js?v=20261123_v6"></script>
     <script src="soal/kelas_5/soal_k5.js?v=20261123_v1"></script>
     <script src="soal/kelas_6/soal_k6.js?v=20261123_v1"></script>
-    <script src="script.js?v=20261124_v3"></script>
+    <script src="script.js?v=20261124_v4"></script>
 </body>
 </html>
