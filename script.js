@@ -3830,7 +3830,8 @@ function getRecapList() {
                     // otomatis masuk ke Semester 1 - PAS agar langsung muncul saat Guru membuka filter SEM 1-PAS
                     const rawDateStr = String(item.date || item.timestamp || '');
                     const todayStr = new Date().toLocaleDateString('id-ID');
-                    if (rawDateStr.includes('23/11/2026') || rawDateStr.includes('24/11/2026') || rawDateStr.includes('25/11/2026') || rawDateStr.includes('/11/2026') || rawDateStr.includes('/12/2026') || rawDateStr.toLowerCase().includes('nov') || rawDateStr.toLowerCase().includes('des') || (todayStr && rawDateStr.includes(todayStr))) {
+                    const isNovOrDecOrToday = rawDateStr.includes('2026-11') || rawDateStr.includes('2026-12') || rawDateStr.includes('-11-') || rawDateStr.includes('-12-') || rawDateStr.includes('/11/') || rawDateStr.includes('/12/') || rawDateStr.includes('23/11') || rawDateStr.includes('24/11') || rawDateStr.includes('25/11') || rawDateStr.toLowerCase().includes('nov') || rawDateStr.toLowerCase().includes('des') || (todayStr && rawDateStr.includes(todayStr));
+                    if (isNovOrDecOrToday) {
                         if (item.period !== 'sem1_pas') {
                             item.period = 'sem1_pas';
                             item.periodName = REMEDIAL_PERIODS['sem1_pas'] ? REMEDIAL_PERIODS['sem1_pas'].name : 'Semester 1 • Remedial PAS (Akhir)';
@@ -4255,7 +4256,8 @@ async function syncDataFromCloud(isSilent = false) {
                 let cPeriod = c.period || normalizeSheetNameToPeriod(c.sheetName) || activeTeacherRemedialPeriod || 'sem1_pas';
                 const dateRaw = String(c.date || c.timestamp || '');
                 const todayStr = new Date().toLocaleDateString('id-ID');
-                if (dateRaw.includes('23/11/2026') || dateRaw.includes('24/11/2026') || dateRaw.includes('25/11/2026') || dateRaw.includes('/11/2026') || dateRaw.includes('/12/2026') || dateRaw.toLowerCase().includes('nov') || (todayStr && dateRaw.includes(todayStr))) {
+                const isNovOrDecOrToday = dateRaw.includes('2026-11') || dateRaw.includes('2026-12') || dateRaw.includes('-11-') || dateRaw.includes('-12-') || dateRaw.includes('/11/') || dateRaw.includes('/12/') || dateRaw.includes('23/11') || dateRaw.includes('24/11') || dateRaw.includes('25/11') || dateRaw.toLowerCase().includes('nov') || dateRaw.toLowerCase().includes('des') || (todayStr && dateRaw.includes(todayStr));
+                if (isNovOrDecOrToday) {
                     cPeriod = 'sem1_pas';
                 }
                 const periodConfig = REMEDIAL_PERIODS[cPeriod] || REMEDIAL_PERIODS['sem1_pas'];
@@ -5207,8 +5209,8 @@ function renderTeacherTable() {
                     let itemPeriod = String(item.period || 'sem1_pts').trim().toLowerCase();
                     const rawDate = String(item.date || item.timestamp || '');
                     const todayStr = new Date().toLocaleDateString('id-ID');
-                    // Siswa yang mengerjakan pada bulan November/Desember atau hari ini otomatis dihitung masuk Sem 1 - PAS
-                    if (currentActivePeriod === 'sem1_pas' && (rawDate.includes('23/11/2026') || rawDate.includes('24/11/2026') || rawDate.includes('25/11/2026') || rawDate.includes('/11/') || rawDate.includes('/12/') || rawDate.toLowerCase().includes('nov') || rawDate.toLowerCase().includes('des') || (todayStr && rawDate.includes(todayStr)))) {
+                    const isRecentPas = rawDate.includes('2026-11') || rawDate.includes('2026-12') || rawDate.includes('-11-') || rawDate.includes('-12-') || rawDate.includes('23/11') || rawDate.includes('24/11') || rawDate.includes('25/11') || rawDate.includes('/11/') || rawDate.includes('/12/') || rawDate.toLowerCase().includes('nov') || rawDate.toLowerCase().includes('des') || (todayStr && rawDate.includes(todayStr));
+                    if (currentActivePeriod === 'sem1_pas' && isRecentPas) {
                         itemPeriod = 'sem1_pas';
                         item.period = 'sem1_pas';
                     }
