@@ -555,6 +555,7 @@ function selectRemedialPeriod(periodKey) {
     }
 
     // Jika siswa mengeklik tombol yang memang sedang AKTIF:
+    currentRemedialPeriod = periodKey;
     playCuteSound('pop');
     showToast(`✨ Periode Aktif Hari Ini: ${REMEDIAL_PERIODS[periodKey]?.shortName || periodKey}`);
 }
@@ -588,6 +589,7 @@ function selectExamPeriod(periodKey) {
     }
 
     // Jika siswa mengeklik tombol yang memang sedang AKTIF:
+    currentRemedialPeriod = periodKey;
     playCuteSound('fanfare');
     const title = periodTitleMap[periodKey] || periodKey;
     showToast(`✨ Periode Ujian Utama Aktif: ${title}! Silakan pilih kelasmu di bawah.`);
@@ -1327,6 +1329,7 @@ function startExamK4(event) {
         if (!confirmRetry) return;
     }
 
+    currentRemedialPeriod = activeTeacherRemedialPeriod || 'sem1_pas';
     currentStudentData = {
         name: name,
         kelas: selectedClass,
@@ -2188,6 +2191,7 @@ function startExamK5(event) {
         if (!confirmRetry) return;
     }
 
+    currentRemedialPeriod = activeTeacherRemedialPeriod || 'sem1_pas';
     currentStudentDataK5 = {
         name: name,
         kelas: selectedClass,
@@ -2934,6 +2938,7 @@ function startExamK6(event) {
         if (!confirmRetry) return;
     }
 
+    currentRemedialPeriod = activeTeacherRemedialPeriod || 'sem1_pas';
     currentStudentDataK6 = {
         name: name,
         kelas: selectedClass,
@@ -3824,7 +3829,7 @@ function getRecapList() {
                     // AUTO-MIGRASI PAS: Siswa yang mengerjakan pada tanggal 23 November 2026 atau bulan November 2026
                     // otomatis masuk ke Semester 1 - PAS agar langsung muncul saat Guru membuka filter SEM 1-PAS
                     const rawDateStr = String(item.date || item.timestamp || '');
-                    if (rawDateStr.includes('23/11/2026') || rawDateStr.includes('11/2026') || rawDateStr.toLowerCase().includes('nov')) {
+                    if (rawDateStr.includes('23/11/2026') || rawDateStr.includes('24/11/2026') || rawDateStr.includes('/11/2026') || rawDateStr.includes('/12/2026') || rawDateStr.toLowerCase().includes('nov')) {
                         if (item.period !== 'sem1_pas') {
                             item.period = 'sem1_pas';
                             item.periodName = REMEDIAL_PERIODS['sem1_pas'] ? REMEDIAL_PERIODS['sem1_pas'].name : 'Semester 1 • Remedial PAS (Akhir)';
@@ -4251,7 +4256,7 @@ async function syncDataFromCloud(isSilent = false) {
                 // Tentukan periode dari data sheet (SEM 1-PTS, SEM 1-PAS, SEM 2-PTS, SEM 2-PAT)
                 let cPeriod = c.period || normalizeSheetNameToPeriod(c.sheetName) || activeTeacherRemedialPeriod || 'sem1_pas';
                 const dateRaw = String(c.date || c.timestamp || '');
-                if (dateRaw.includes('23/11/2026') || dateRaw.includes('11/2026') || dateRaw.toLowerCase().includes('nov')) {
+                if (dateRaw.includes('23/11/2026') || dateRaw.includes('24/11/2026') || dateRaw.includes('/11/2026') || dateRaw.includes('/12/2026') || dateRaw.toLowerCase().includes('nov')) {
                     cPeriod = 'sem1_pas';
                 }
                 const periodConfig = REMEDIAL_PERIODS[cPeriod] || REMEDIAL_PERIODS['sem1_pas'];
@@ -4378,8 +4383,13 @@ function saveStudentToRecap(newStudent) {
 
     // Pengiriman real-time ke Google Sheets (jika URL terhubung)
     if (GOOGLE_SHEETS_WEBAPP_URL && GOOGLE_SHEETS_WEBAPP_URL.trim().startsWith('http')) {
-        const studentPeriod = newStudent.period || currentRemedialPeriod || 'sem1_pts';
-        const targetSheetName = PERIOD_TO_SHEET_MAP[studentPeriod] || 'SEM 1-PTS';
+        let studentPeriod = newStudent.period || currentRemedialPeriod || activeTeacherRemedialPeriod || 'sem1_pas';
+        if (activeTeacherRemedialPeriod && REMEDIAL_PERIODS[activeTeacherRemedialPeriod]) {
+            studentPeriod = activeTeacherRemedialPeriod;
+            newStudent.period = studentPeriod;
+            newStudent.periodName = REMEDIAL_PERIODS[studentPeriod]?.name || studentPeriod;
+        }
+        const targetSheetName = PERIOD_TO_SHEET_MAP[studentPeriod] || (studentPeriod === 'sem1_pas' ? 'SEM 1-PAS' : 'SEM 1-PTS');
         const payload = {
             period: studentPeriod,
             sheetName: targetSheetName,
@@ -4654,7 +4664,7 @@ function processImportSheetData() {
         // otomatis tetapkan periode sebagai 'sem1_pas' (Ujian PAS Semester 1)
         let itemPeriod = targetPeriod;
         const dStr = String(date).toLowerCase();
-        if (dStr.includes('23/11/2026') || dStr.includes('11/2026') || dStr.includes('nov')) {
+        if (dStr.includes('23/11/2026') || dStr.includes('24/11/2026') || dStr.includes('/11/2026') || dStr.includes('/12/2026') || dStr.includes('nov')) {
             itemPeriod = 'sem1_pas';
         }
         const itemPeriodConfig = REMEDIAL_PERIODS[itemPeriod] || REMEDIAL_PERIODS['sem1_pas'];

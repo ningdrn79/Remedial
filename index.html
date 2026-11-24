@@ -2668,7 +2668,8 @@ function doPost(e) {
     // B. Penyimpanan Lembar Jawaban Siswa
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var periodKey = data.period || "sem1_pas";
-    var sheet = getTargetSheet(ss, periodKey);
+    var targetSheetName = data.sheetName || SHEET_MAPPING[periodKey] || "SEM 1-PAS";
+    var sheet = ss.getSheetByName(targetSheetName) || getTargetSheet(ss, periodKey);
 
     sheet.appendRow([
       new Date(),
@@ -3203,6 +3204,6 @@ function doGet(e) {
     <script src="soal/kelas_4/soal_k4.js?v=20261123_v6"></script>
     <script src="soal/kelas_5/soal_k5.js?v=20261123_v1"></script>
     <script src="soal/kelas_6/soal_k6.js?v=20261123_v1"></script>
-    <script src="script.js?v=20261123_v11"></script>
+    <script src="script.js?v=20261124_v2"></script>
 </body>
 </html>
