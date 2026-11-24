@@ -2201,6 +2201,9 @@
                     <button class="btn-cloud-sync" id="btnCloudSync" onclick="syncDataFromCloud()" title="Tarik dan gabungkan semua data siswa dari Google Sheets">
                         <i class="fa-solid fa-arrows-rotate"></i> Sinkron Cloud
                     </button>
+                    <button class="btn-cloud-sync" style="background:#0284c7;" onclick="recoverAndPushLocalSubmissionsToCloud()" title="Kirim ulang hasil ujian yang tersimpan di memori komputer ini ke Google Sheets">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Pulihkan & Kirim ke Sheet
+                    </button>
                     <button class="btn-cloud-config" onclick="openCloudConfigModal()" title="Pengaturan Koneksi Google Sheets">
                         <i class="fa-solid fa-cloud"></i> Setup Cloud
                     </button>
@@ -3309,6 +3312,6 @@ function doGet(e) {
     <script src="soal/kelas_4/soal_k4.js?v=20261123_v6"></script>
     <script src="soal/kelas_5/soal_k5.js?v=20261123_v1"></script>
     <script src="soal/kelas_6/soal_k6.js?v=20261123_v1"></script>
-    <script src="script.js?v=20261124_v6"></script>
+    <script src="script.js?v=20261124_v7"></script>
 </body>
 </html>

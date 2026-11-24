@@ -6701,7 +6701,91 @@ function syncExamUIWithQuestionModules() {
 }
 
 // Inisialisasi data rekap dan bahasa saat halaman dimuat
+
+/* ==============================================================
+   AUTO-RECOVERY & CLOUD RESEND FOR UNSAVED SUBMISSIONS
+   Menjamin data siswa yang tersimpan di memori browser komputer lab
+   langsung terkirim ke Google Sheets (SEM 1-PAS)
+   ============================================================== */
+function autoSyncLocalPendingSubmissions() {
+    try {
+        if (!GOOGLE_SHEETS_WEBAPP_URL || !GOOGLE_SHEETS_WEBAPP_URL.startsWith('http')) return;
+        const localList = getRecapList();
+        if (!Array.isArray(localList) || localList.length === 0) return;
+
+        const todayStr = new Date().toLocaleDateString('id-ID');
+        const pending = localList.filter(item => {
+            if (!item || !item.name) return false;
+            const d = String(item.date || item.timestamp || '');
+            const isRecent = d.includes('2026-11-23') || d.includes('2026-11-24') || d.includes('2026-11-25') ||
+                             d.includes('23/11') || d.includes('24/11') || d.includes('25/11') ||
+                             d.toLowerCase().includes('nov') || (todayStr && d.includes(todayStr));
+            return isRecent && !item.cloudConfirmed;
+        });
+
+        if (pending.length > 0) {
+            console.log(`📡 AutoSync: Mengirim ${pending.length} data ujian dari komputer ini ke Google Sheets...`);
+            pending.forEach(st => {
+                saveStudentToRecap(st);
+                st.cloudConfirmed = true;
+            });
+            localStorage.setItem('remedial_tzuchi_records', JSON.stringify(localList));
+            localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(localList));
+        }
+    } catch (e) {
+        console.warn('AutoSync local submissions notice:', e);
+    }
+}
+
+function recoverAndPushLocalSubmissionsToCloud() {
+    playCuteSound('pop');
+    const localList = getRecapList();
+    if (!Array.isArray(localList) || localList.length === 0) {
+        alert('ℹ️ Tidak ditemukan data siswa di memori browser komputer ini.');
+        return;
+    }
+
+    const todayStr = new Date().toLocaleDateString('id-ID');
+    const recentSubmissions = localList.filter(item => {
+        if (!item || !item.name) return false;
+        const d = String(item.date || item.timestamp || '');
+        return d.includes('2026-11-23') || d.includes('2026-11-24') || d.includes('2026-11-25') ||
+               d.includes('23/11') || d.includes('24/11') || d.includes('25/11') ||
+               d.toLowerCase().includes('nov') || (todayStr && d.includes(todayStr));
+    });
+
+    const targetList = recentSubmissions.length > 0 ? recentSubmissions : localList;
+    let names = targetList.slice(0, 5).map(s => `${s.name} (${s.kelas || '-'}, Skor: ${s.nilaiAkhir || s.score || 0})`).join('\n• ');
+    if (targetList.length > 5) names += `\n... dan ${targetList.length - 5} siswa lainnya.`;
+
+    const confirmMsg = `🔍 DITEMUKAN ${targetList.length} DATA SISWA DI BROWSER KOMPUTER INI:\n\n• ${names}\n\nApakah Anda ingin mengirim ulang seluruh data ini ke Google Sheet (SEM 1-PAS)?`;
+    
+    if (confirm(confirmMsg)) {
+        showToast(`☁️ Sedang mengirim ${targetList.length} data siswa ke Google Sheets...`);
+        let sentCount = 0;
+        targetList.forEach(st => {
+            st.period = 'sem1_pas';
+            st.periodName = REMEDIAL_PERIODS['sem1_pas'].name;
+            st.cloudConfirmed = true;
+            saveStudentToRecap(st);
+            sentCount++;
+        });
+
+        localStorage.setItem('remedial_tzuchi_records', JSON.stringify(localList));
+        localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(localList));
+
+        playCuteSound('fanfare');
+        if (window.confetti) confetti();
+        alert(`✅ BERHASIL MENGIRIM ${sentCount} SISWA KE GOOGLE SHEET!\n\nSeluruh data hasil ujian siswa di komputer ini telah dikirim ke sheet SEM 1-PAS.`);
+        renderTeacherTable();
+    }
+}
+
 window.addEventListener('DOMContentLoaded', () => {
+    try {
+        autoSyncLocalPendingSubmissions();
+    } catch(eAuto) {}
+
     try {
         syncExamUIWithQuestionModules();
     } catch(eSoal) {
