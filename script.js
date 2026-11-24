@@ -3826,10 +3826,11 @@ function getRecapList() {
                         hasChanges = true;
                     }
 
-                    // AUTO-MIGRASI PAS: Siswa yang mengerjakan pada tanggal 23 November 2026 atau bulan November 2026
+                    // AUTO-MIGRASI PAS: Siswa yang mengerjakan pada tanggal 23/24 November 2026, bulan November/Desember, atau hari ini
                     // otomatis masuk ke Semester 1 - PAS agar langsung muncul saat Guru membuka filter SEM 1-PAS
                     const rawDateStr = String(item.date || item.timestamp || '');
-                    if (rawDateStr.includes('23/11/2026') || rawDateStr.includes('24/11/2026') || rawDateStr.includes('/11/2026') || rawDateStr.includes('/12/2026') || rawDateStr.toLowerCase().includes('nov')) {
+                    const todayStr = new Date().toLocaleDateString('id-ID');
+                    if (rawDateStr.includes('23/11/2026') || rawDateStr.includes('24/11/2026') || rawDateStr.includes('25/11/2026') || rawDateStr.includes('/11/2026') || rawDateStr.includes('/12/2026') || rawDateStr.toLowerCase().includes('nov') || rawDateStr.toLowerCase().includes('des') || (todayStr && rawDateStr.includes(todayStr))) {
                         if (item.period !== 'sem1_pas') {
                             item.period = 'sem1_pas';
                             item.periodName = REMEDIAL_PERIODS['sem1_pas'] ? REMEDIAL_PERIODS['sem1_pas'].name : 'Semester 1 • Remedial PAS (Akhir)';
@@ -3904,13 +3905,9 @@ function clearAllExamData() {
 // TEMPELKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
 // AGAR OTOMATIS BERLAKU DI SELURUH LAPTOP/HP SISWA YANG MEMBUKA LINK GITHUB
 const DEFAULT_GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbzlB_FGnomRlzZdhxNX4uMOoz2ERmMImC4FvdzdLJ4_-OUAN7OFvKXMwVI-QlLwo1f6/exec"; 
-let GOOGLE_SHEETS_WEBAPP_URL = localStorage.getItem('tzuchi_sheets_url');
-if (!GOOGLE_SHEETS_WEBAPP_URL || 
-    GOOGLE_SHEETS_WEBAPP_URL.includes('AKfycbzy19oNK6N3foUZVCmP') || 
-    GOOGLE_SHEETS_WEBAPP_URL.includes('AKfycbzEqfYiatXl_8JOGVAAbYdT-KN0VgnrozVTfQN4K8X9il5_hVU1b3ezlhh3bgsGUTfF')) {
-    GOOGLE_SHEETS_WEBAPP_URL = DEFAULT_GOOGLE_SHEETS_URL;
-    localStorage.setItem('tzuchi_sheets_url', DEFAULT_GOOGLE_SHEETS_URL);
-}
+let GOOGLE_SHEETS_WEBAPP_URL = DEFAULT_GOOGLE_SHEETS_URL;
+// Pastikan selalu tersimpan permanen di localStorage seluruh peramban
+localStorage.setItem('tzuchi_sheets_url', DEFAULT_GOOGLE_SHEETS_URL);
 if (GOOGLE_SHEETS_WEBAPP_URL && GOOGLE_SHEETS_WEBAPP_URL.endsWith('/dev')) {
     GOOGLE_SHEETS_WEBAPP_URL = GOOGLE_SHEETS_WEBAPP_URL.replace(/\/dev$/, '/exec');
 }
@@ -4251,12 +4248,14 @@ async function syncDataFromCloud(isSilent = false) {
             let addedCount = 0;
             let updatedCount = 0;
             const periodCounts = {};
+            const justAddedStudents = [];
 
             cloudData.forEach(c => {
                 // Tentukan periode dari data sheet (SEM 1-PTS, SEM 1-PAS, SEM 2-PTS, SEM 2-PAT)
                 let cPeriod = c.period || normalizeSheetNameToPeriod(c.sheetName) || activeTeacherRemedialPeriod || 'sem1_pas';
                 const dateRaw = String(c.date || c.timestamp || '');
-                if (dateRaw.includes('23/11/2026') || dateRaw.includes('24/11/2026') || dateRaw.includes('/11/2026') || dateRaw.includes('/12/2026') || dateRaw.toLowerCase().includes('nov')) {
+                const todayStr = new Date().toLocaleDateString('id-ID');
+                if (dateRaw.includes('23/11/2026') || dateRaw.includes('24/11/2026') || dateRaw.includes('25/11/2026') || dateRaw.includes('/11/2026') || dateRaw.includes('/12/2026') || dateRaw.toLowerCase().includes('nov') || (todayStr && dateRaw.includes(todayStr))) {
                     cPeriod = 'sem1_pas';
                 }
                 const periodConfig = REMEDIAL_PERIODS[cPeriod] || REMEDIAL_PERIODS['sem1_pas'];
@@ -4338,6 +4337,7 @@ async function syncDataFromCloud(isSilent = false) {
                     };
                     newCloudStudent.answers = ensureStudentAnswers(newCloudStudent);
                     localList.unshift(newCloudStudent);
+                    justAddedStudents.push(newCloudStudent);
                     addedCount++;
                 }
             });
@@ -4346,7 +4346,26 @@ async function syncDataFromCloud(isSilent = false) {
             localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(localList));
             renderTeacherTable();
 
-            if (addedCount > 0 || updatedCount > 0) {
+            // Pembaruan Live Status Banner di Panel Guru
+            const liveStatusText = document.getElementById('teacherLiveSyncStatusText');
+            if (liveStatusText) {
+                const timeNow = new Date().toLocaleTimeString('id-ID');
+                liveStatusText.innerHTML = `<i class="fa-solid fa-arrows-rotate fa-spin" style="color: #10b981;"></i> <strong>Live Terhubung:</strong> Memantau ujian serentak setiap 4 detik • Dicek: <strong>${timeNow} WIB</strong> (${localList.length} siswa)`;
+            }
+
+            // Notifikasi Real-Time saat Ujian Sedang Berjalan
+            if (justAddedStudents.length > 0) {
+                playCuteSound('fanfare');
+                if (window.confetti) {
+                    confetti({ particleCount: 60, spread: 70, origin: { y: 0.3 } });
+                }
+                if (justAddedStudents.length === 1) {
+                    const s = justAddedStudents[0];
+                    showToast(`🎉 Siswa Baru: [${s.name}] (Kelas ${s.kelas}) baru saja mengirim nilai ujian: ${s.nilaiAkhir}!`);
+                } else {
+                    showToast(`🎉 Diterima ${justAddedStudents.length} siswa baru yang baru saja mengirim nilai ujian!`);
+                }
+            } else if (addedCount > 0 || updatedCount > 0) {
                 playCuteSound('fanfare');
                 let summaryParts = [];
                 for (const pKey in periodCounts) {
@@ -4358,8 +4377,15 @@ async function syncDataFromCloud(isSilent = false) {
             } else if (!isSilent) {
                 showToast('ℹ️ Seluruh data siswa dari Sheet sudah tersinkron.');
             }
-        } else if (!isSilent) {
-            showToast('ℹ️ Sheet masih kosong atau belum ada siswa yang mengirim.');
+        } else {
+            const liveStatusText = document.getElementById('teacherLiveSyncStatusText');
+            if (liveStatusText) {
+                const timeNow = new Date().toLocaleTimeString('id-ID');
+                liveStatusText.innerHTML = `<i class="fa-solid fa-cloud-arrow-down" style="color: #0284c7;"></i> Siap menerima data ujian siswa • Dicek: <strong>${timeNow} WIB</strong>`;
+            }
+            if (!isSilent) {
+                showToast('ℹ️ Sheet masih kosong atau belum ada siswa yang mengirim.');
+            }
         }
     } catch (err) {
         console.warn('Sync cloud notice:', err);
@@ -4941,7 +4967,7 @@ function openTeacherPortal() {
     if (GOOGLE_SHEETS_WEBAPP_URL && GOOGLE_SHEETS_WEBAPP_URL.trim().startsWith('http')) {
         syncDataFromCloud(true);
         if (teacherSyncInterval) clearInterval(teacherSyncInterval);
-        // Otomatis tarik data siswa dari cloud setiap 8 detik agar nilai siswa baru langsung muncul
+        // Otomatis tarik data siswa dari cloud secara real-time setiap 4 detik saat ujian sedang berjalan
         teacherSyncInterval = setInterval(() => {
             if (modal.classList.contains('open')) {
                 syncDataFromCloud(true);
@@ -4949,7 +4975,7 @@ function openTeacherPortal() {
                 clearInterval(teacherSyncInterval);
                 teacherSyncInterval = null;
             }
-        }, 8000);
+        }, 4000);
     }
 }
 

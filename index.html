@@ -23,6 +23,67 @@
         td.td-nilai-awal.is-hidden {
             display: none !important;
         }
+
+        /* Live Real-Time Monitoring Banner (Ujian Sedang Berjalan) */
+        .teacher-live-monitor-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 12px;
+            padding: 10px 18px;
+            background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+            border-radius: 14px;
+            border: 2px solid #6ee7b7;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.08);
+        }
+        .live-pulse-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #065f46;
+            color: #ffffff;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(6, 95, 70, 0.25);
+        }
+        .live-indicator-dot {
+            width: 10px;
+            height: 10px;
+            background: #34d399;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .live-indicator-dot.pulse {
+            animation: livePulseAnim 1.6s infinite;
+        }
+        @keyframes livePulseAnim {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.8);
+            }
+            70% {
+                transform: scale(1.15);
+                box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+        .live-monitor-status {
+            font-size: 0.86rem;
+            color: #065f46;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
     </style>
 </head>
 <body>
@@ -2299,6 +2360,17 @@
 
                 <!-- Filter & Search Toolbar -->
                 <div class="teacher-toolbar">
+                    <!-- Live Real-Time Exam Monitoring Banner (Ujian Sedang Berjalan) -->
+                    <div class="teacher-live-monitor-banner" id="teacherLiveExamMonitorBanner">
+                        <div class="live-pulse-badge">
+                            <span class="live-indicator-dot pulse"></span>
+                            <span class="live-text-main"><i class="fa-solid fa-tower-broadcast"></i> LIVE MONITORING</span>
+                        </div>
+                        <div class="live-monitor-status" id="teacherLiveSyncStatusText">
+                            <i class="fa-solid fa-arrows-rotate fa-spin" style="color: #10b981;"></i> <strong>Live Terhubung:</strong> Memantau pengiriman ujian serentak secara otomatis setiap 4 detik...
+                        </div>
+                    </div>
+
                     <div class="teacher-period-filter-row" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; width: 100%; margin-bottom: 12px; padding: 8px 14px; background: #f0fdf4; border-radius: 12px; border: 1.5px solid #a7f3d0;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span style="font-size: 0.85rem; font-weight: 800; color: #065f46;"><i class="fa-solid fa-calendar-check" style="color: #0d9488;"></i> Tabel Data Periode:</span>
@@ -3204,6 +3276,6 @@ function doGet(e) {
     <script src="soal/kelas_4/soal_k4.js?v=20261123_v6"></script>
     <script src="soal/kelas_5/soal_k5.js?v=20261123_v1"></script>
     <script src="soal/kelas_6/soal_k6.js?v=20261123_v1"></script>
-    <script src="script.js?v=20261124_v2"></script>
+    <script src="script.js?v=20261124_v3"></script>
 </body>
 </html>
