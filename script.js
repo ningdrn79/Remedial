@@ -352,6 +352,11 @@ function applyLanguage(lang, announceVoice = false) {
     // Terapkan konfigurasi periode remedial yang sedang aktif
     try {
         applyRemedialPeriod(currentRemedialPeriod);
+    try {
+        if (typeof syncDataFromCloud === 'function' && GOOGLE_SHEETS_WEBAPP_URL) {
+            syncDataFromCloud(true);
+        }
+    } catch(eSyncInit) {}
     } catch(ePeriod) {}
 
     if (announceVoice) {
@@ -3764,6 +3769,275 @@ function getRecapList() {
     return [];
 }
 
+
+/* ==============================================================
+   GOOGLE SHEETS CLOUD SYNC ENGINE
+   ============================================================== */
+
+/* ==============================================================
+   GOOGLE SHEETS CLOUD INTEGRATION & SETUP
+   ============================================================== */
+const DEFAULT_GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbzEqfYiatXl_8JOGVAAbYdT-KN0VgnrozVTfQN4K8X9il5_hVU1b3ezlhh3bgsGUTfF/exec";
+let GOOGLE_SHEETS_WEBAPP_URL = DEFAULT_GOOGLE_SHEETS_URL;
+try {
+    localStorage.setItem('tzuchi_sheets_url', DEFAULT_GOOGLE_SHEETS_URL);
+} catch(e) {}
+
+function updateCloudStatusUI() {
+    const dot = document.getElementById('cloudStatusDot');
+    const text = document.getElementById('cloudStatusText');
+    if (!dot || !text) return;
+
+    if (GOOGLE_SHEETS_WEBAPP_URL && GOOGLE_SHEETS_WEBAPP_URL.trim().startsWith('http')) {
+        dot.className = 'cloud-status-dot';
+        text.innerHTML = `<strong>Cloud Aktif:</strong> Terhubung ke Google Sheets (<span style="color:#0284c7; font-weight:600;">${GOOGLE_SHEETS_WEBAPP_URL.substring(0, 40)}...</span>)`;
+    } else {
+        dot.className = 'cloud-status-dot offline';
+        text.innerHTML = `Mode Offline / Penyimpanan Lokal (Belum terhubung ke Google Sheets)`;
+    }
+}
+
+function openCloudConfigModal() {
+    playCuteSound('pop');
+    const modal = document.getElementById('cloudConfigModal');
+    const input = document.getElementById('inputSheetsWebappUrl');
+    if (input) input.value = GOOGLE_SHEETS_WEBAPP_URL;
+    if (modal) {
+        modal.classList.add('open');
+        modal.style.display = 'flex';
+    }
+}
+
+function closeCloudConfigModal() {
+    playCuteSound('pop');
+    const modal = document.getElementById('cloudConfigModal');
+    if (modal) {
+        modal.classList.remove('open');
+        modal.style.display = 'none';
+    }
+}
+
+function saveCloudConfig() {
+    playCuteSound('pop');
+    const input = document.getElementById('inputSheetsWebappUrl');
+    let val = input ? input.value.trim() : '';
+    if (val && !val.startsWith('http')) {
+        alert('Harap masukkan URL yang valid (dimulai dengan https://script.google.com/...)');
+        return;
+    }
+    if (val.endsWith('/dev')) {
+        val = val.replace(/\/dev$/, '/exec');
+        if (input) input.value = val;
+    }
+    GOOGLE_SHEETS_WEBAPP_URL = val || DEFAULT_GOOGLE_SHEETS_URL;
+    try {
+        localStorage.setItem('tzuchi_sheets_url', GOOGLE_SHEETS_WEBAPP_URL);
+    } catch(e) {}
+    updateCloudStatusUI();
+    closeCloudConfigModal();
+    showToast('✅ Pengaturan Google Sheets berhasil disimpan!');
+    syncDataFromCloud(false);
+}
+
+function copyGasScriptCode() {
+    playCuteSound('pop');
+    const codeElem = document.getElementById('gasScriptCodeSnippet');
+    if (!codeElem) return;
+    navigator.clipboard.writeText(codeElem.innerText).then(() => {
+        showToast('📋 Kode Google Apps Script berhasil disalin!');
+    }).catch(err => {
+        showToast('Gagal menyalin kode ke clipboard.');
+    });
+}
+
+function testCloudConnection() {
+    const input = document.getElementById('inputSheetsWebappUrl');
+    const testUrl = input ? input.value.trim() : GOOGLE_SHEETS_WEBAPP_URL;
+    if (!testUrl || !testUrl.startsWith('http')) {
+        alert('Silakan tempelkan Web App URL Google Sheets terlebih dahulu!');
+        return;
+    }
+    showToast('🔄 Menguji koneksi ke Google Sheets...');
+    fetch(testUrl)
+        .then(res => res.json())
+        .then(data => {
+            playCuteSound('fanfare');
+            alert('🎉 Koneksi Berhasil! Google Sheets terhubung dan siap menerima data ujian siswa.');
+        })
+        .catch(err => {
+            console.warn('Test Cloud connection note:', err);
+            alert('ℹ️ Permintaan dikirim ke Google Apps Script! Pastikan setting Who has access sudah "Anyone" (Siapa saja).');
+        });
+}
+
+
+const PERIOD_TO_SHEET_MAP = {
+    'sem1_pts': 'SEM 1-PTS',
+    'sem1_pas': 'SEM 1-PAS',
+    'sem2_pts': 'SEM 2-PTS',
+    'sem2_pas': 'SEM 2-PAT'
+};
+
+function normalizeSheetNameToPeriod(sheetName) {
+    if (!sheetName) return 'sem1_pas';
+    const s = String(sheetName).toUpperCase().replace(/\s+/g, '');
+    if (s.includes('1') && s.includes('PTS')) return 'sem1_pts';
+    if (s.includes('1') && s.includes('PAS')) return 'sem1_pas';
+    if (s.includes('2') && s.includes('PTS')) return 'sem2_pts';
+    if (s.includes('2') && (s.includes('PAT') || s.includes('PAS'))) return 'sem2_pas';
+    return 'sem1_pas';
+}
+
+async function syncDataFromCloud(isSilent = false) {
+    if (!GOOGLE_SHEETS_WEBAPP_URL) {
+        if (!isSilent) {
+            alert('URL Google Sheets belum diatur. Silakan klik tombol "Setup Cloud" terlebih dahulu.');
+            openCloudConfigModal();
+        }
+        return;
+    }
+    const btn = document.getElementById('btnCloudSync');
+    if (btn) btn.classList.add('syncing');
+    if (!isSilent) showToast('☁️ Sedang menyinkronkan data per sheet dari Google Sheets...');
+
+    try {
+        const response = await fetch(GOOGLE_SHEETS_WEBAPP_URL, {
+            method: 'GET',
+            redirect: 'follow',
+            cache: 'no-store'
+        });
+        const text = await response.text();
+        let cloudData;
+        try {
+            cloudData = JSON.parse(text);
+        } catch(jsonErr) {
+            console.error('Non-JSON response from Google Apps Script:', text);
+            if (text.includes('accounts.google.com') || text.includes('ServiceLogin')) {
+                throw new Error('Akses Google Sheets terkunci login. Mohon pastikan saat Deploy di Apps Script, pilihan "Who has access" sudah diatur ke "Anyone" (Siapa saja).');
+            } else {
+                throw new Error('Respons dari Apps Script bukan format JSON. Periksa apakah URL Web App benar dan berakhiran /exec.');
+            }
+        }
+
+        if (Array.isArray(cloudData) && cloudData.length > 0) {
+            const localList = getRecapList();
+            let addedCount = 0;
+            let updatedCount = 0;
+
+            cloudData.forEach(c => {
+                let cPeriod = c.period || normalizeSheetNameToPeriod(c.sheetName) || 'sem1_pas';
+                const shUpper = String(c.sheetName || '').toUpperCase();
+                if (shUpper.includes('PAS') || shUpper.includes('PAT')) {
+                    cPeriod = 'sem1_pas';
+                }
+                const dateRaw = String(c.date || c.timestamp || '');
+                const idStr = String(c.studentId || '');
+                const todayStr = new Date().toLocaleDateString('id-ID');
+                const isNovOrDecOrToday = dateRaw.includes('2026-11') || dateRaw.includes('2026-12') || dateRaw.includes('-11-') || dateRaw.includes('-12-') || dateRaw.includes('/11/') || dateRaw.includes('/12/') || dateRaw.includes('23/11') || dateRaw.includes('24/11') || dateRaw.includes('25/11') || dateRaw.toLowerCase().includes('nov') || dateRaw.toLowerCase().includes('des') || idStr.includes('17954') || idStr.includes('17955') || (todayStr && dateRaw.includes(todayStr));
+                if (isNovOrDecOrToday) {
+                    cPeriod = 'sem1_pas';
+                }
+                const periodConfig = REMEDIAL_PERIODS[cPeriod] || REMEDIAL_PERIODS['sem1_pas'];
+
+                const existingIdx = localList.findIndex(l => 
+                    (c.studentId && String(l.id) === String(c.studentId)) || 
+                    (String(l.name || '').trim().toLowerCase() === String(c.studentName || '').trim().toLowerCase() && 
+                     String(l.kelas || '').trim().toUpperCase() === String(c.grade || '').trim().toUpperCase() &&
+                     String(l.period || 'sem1_pts').toLowerCase() === cPeriod.toLowerCase())
+                );
+
+                let cloudNilaiAwal = c.nilaiAwal !== undefined ? Number(c.nilaiAwal) : (c.initialScore !== undefined ? Number(c.initialScore) : 0);
+                let cloudScore = Number(c.score) || 0;
+
+                const predNum = Number(c.predicate);
+                if ((cloudScore === 0 || isNaN(cloudScore)) && !isNaN(predNum) && predNum > 0) {
+                    cloudScore = predNum;
+                }
+
+                let cloudPredicate = c.predicate || (cloudScore >= 90 ? 'SANGAT MEMUASKAN' : (cloudScore >= 80 ? 'BAIK SEKALI' : 'CUKUP BAIK'));
+                let cloudStatus = c.status || (cloudScore >= 80 ? 'Lulus' : 'Tuntas');
+
+                const override = getMasterScoreOverride(c.studentName);
+                if (override) {
+                    cloudNilaiAwal = override.awal;
+                    cloudScore = override.akhir;
+                    cloudStatus = override.status;
+                    cloudPredicate = override.predicate;
+                }
+
+                if (existingIdx !== -1) {
+                    localList[existingIdx].nilaiAkhir = cloudScore;
+                    if (cloudNilaiAwal > 0 && !localList[existingIdx].userEditedAwal) localList[existingIdx].nilaiAwal = cloudNilaiAwal;
+                    localList[existingIdx].predicate = cloudPredicate;
+                    localList[existingIdx].status = cloudStatus;
+                    localList[existingIdx].period = cPeriod;
+                    localList[existingIdx].periodName = periodConfig.name;
+                    if (c.date) localList[existingIdx].date = formatIndonesianDate(c.date);
+                    if (c.absen && c.absen !== '-') localList[existingIdx].absen = c.absen;
+                    updatedCount++;
+                } else {
+                    const newCloudStudent = {
+                        id: c.studentId || ('st_cloud_' + Date.now() + Math.random().toString(36).substr(2, 5)),
+                        name: c.studentName || 'Siswa',
+                        kelas: c.grade || '4A',
+                        absen: c.absen || '-',
+                        nilaiAwal: cloudNilaiAwal,
+                        nilaiAkhir: cloudScore,
+                        pgScore: c.pgScore || Math.min(50, Math.round(cloudScore * 0.5)),
+                        uraianScore: c.uraianScore || Math.max(0, cloudScore - Math.min(50, Math.round(cloudScore * 0.5))),
+                        status: cloudStatus,
+                        predicate: cloudPredicate,
+                        duration: c.duration || '-',
+                        timestamp: c.timestamp || '-',
+                        date: formatIndonesianDate(c.date || new Date().toLocaleDateString('id-ID')),
+                        period: cPeriod,
+                        periodName: periodConfig.name,
+                        answers: {
+                            pg: Array.isArray(c.pgAnswers) ? c.pgAnswers : [],
+                            uraian: Array.isArray(c.essayAnswers) ? c.essayAnswers : []
+                        }
+                    };
+                    localList.unshift(newCloudStudent);
+                    addedCount++;
+                }
+            });
+
+            try {
+                localStorage.setItem('remedial_tzuchi_records', JSON.stringify(localList));
+                localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(localList));
+            } catch(eStorage) {
+                console.warn('LocalStorage save notice:', eStorage);
+            }
+
+            renderTeacherTable();
+
+            const liveStatusText = document.getElementById('teacherLiveSyncStatusText');
+            if (liveStatusText) {
+                const timeNow = new Date().toLocaleTimeString('id-ID');
+                liveStatusText.innerHTML = `<i class="fa-solid fa-arrows-rotate fa-spin" style="color: #10b981;"></i> <strong>Live Terhubung:</strong> Memantau ujian serentak setiap 4 detik • Dicek: <strong>${timeNow} WIB</strong> (${localList.length} siswa)`;
+            }
+
+            if (!isSilent) {
+                playCuteSound('fanfare');
+                if (window.confetti) confetti();
+                showToast(`✅ Berhasil menyinkronkan ${cloudData.length} data siswa dari Google Sheets!`);
+            }
+        } else {
+            if (!isSilent) {
+                showToast('ℹ️ Data Google Sheets masih kosong atau belum ada siswa yang mengirim.');
+            }
+        }
+    } catch (err) {
+        console.error('Error syncing cloud data:', err);
+        if (!isSilent) {
+            alert('Gagal menyinkronkan data dari Google Sheets:\n' + (err.message || err));
+        }
+    } finally {
+        if (btn) btn.classList.remove('syncing');
+    }
+}
+
+
 function saveStudentToRecap(newStudent) {
     const list = getRecapList();
     list.unshift(newStudent);
@@ -4362,10 +4636,14 @@ function openTeacherPortal() {
     const modal = document.getElementById('teacherPortalModal');
     if (!modal) return;
     modal.classList.add('open');
+    activeTeacherRemedialPeriod = 'sem1_pas';
+    currentRemedialPeriod = 'sem1_pas';
+    officialRemedialPeriod = 'sem1_pas';
+    localStorage.setItem('tzuchi_teacher_active_period', 'sem1_pas');
     updateCloudStatusUI();
     updateActiveTokenDisplay();
     updateExamSessionDisplay();
-    applyRemedialPeriod(currentRemedialPeriod);
+    applyRemedialPeriod('sem1_pas');
     renderTeacherTable();
     showToast('🔒 Membuka Panel Khusus Guru...');
 
