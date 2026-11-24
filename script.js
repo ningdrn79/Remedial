@@ -5166,7 +5166,14 @@ function renderTeacherTable() {
             try {
                 // Filter Periode (Sesuai Tombol Aktif vs Semua Periode)
                 if (isAutoPeriod) {
-                    const itemPeriod = String(item.period || 'sem1_pts').trim().toLowerCase();
+                    let itemPeriod = String(item.period || 'sem1_pts').trim().toLowerCase();
+                    const rawDate = String(item.date || item.timestamp || '');
+                    const todayStr = new Date().toLocaleDateString('id-ID');
+                    // Siswa yang mengerjakan pada bulan November/Desember atau hari ini otomatis dihitung masuk Sem 1 - PAS
+                    if (currentActivePeriod === 'sem1_pas' && (rawDate.includes('23/11/2026') || rawDate.includes('24/11/2026') || rawDate.includes('25/11/2026') || rawDate.includes('/11/') || rawDate.includes('/12/') || rawDate.toLowerCase().includes('nov') || rawDate.toLowerCase().includes('des') || (todayStr && rawDate.includes(todayStr)))) {
+                        itemPeriod = 'sem1_pas';
+                        item.period = 'sem1_pas';
+                    }
                     if (itemPeriod !== currentActivePeriod) {
                         return false;
                     }
