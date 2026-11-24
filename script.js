@@ -5201,6 +5201,27 @@ function renderTeacherTable() {
             }
         }
 
+        // Otomatisasi 100%: Siswa yang ujian di periode aktif langsung otomatis masuk ke periode PAS tanpa tombol
+        if (isAutoPeriod && currentActivePeriod === 'sem1_pas') {
+            let autoMoved = false;
+            list.forEach(st => {
+                const d = String(st.date || st.timestamp || '').toLowerCase();
+                const idStr = String(st.id || '');
+                const isPasStudent = d.includes('2026-11') || d.includes('-11-') || d.includes('23/11') || d.includes('24/11') || d.includes('25/11') || d.includes('nov') || idStr.includes('17954') || idStr.includes('17955');
+                if (isPasStudent && st.period !== 'sem1_pas') {
+                    st.period = 'sem1_pas';
+                    st.periodName = activePeriodConfig.name;
+                    autoMoved = true;
+                }
+            });
+            if (autoMoved) {
+                try {
+                    localStorage.setItem('remedial_tzuchi_records', JSON.stringify(list));
+                    localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(list));
+                } catch(e) {}
+            }
+        }
+
         // Filter by Period, Class and Search Query
         let filtered = list.filter(item => {
             try {
@@ -5208,8 +5229,9 @@ function renderTeacherTable() {
                 if (isAutoPeriod) {
                     let itemPeriod = String(item.period || 'sem1_pts').trim().toLowerCase();
                     const rawDate = String(item.date || item.timestamp || '');
+                    const idStr = String(item.id || '');
                     const todayStr = new Date().toLocaleDateString('id-ID');
-                    const isRecentPas = rawDate.includes('2026-11') || rawDate.includes('2026-12') || rawDate.includes('-11-') || rawDate.includes('-12-') || rawDate.includes('23/11') || rawDate.includes('24/11') || rawDate.includes('25/11') || rawDate.includes('/11/') || rawDate.includes('/12/') || rawDate.toLowerCase().includes('nov') || rawDate.toLowerCase().includes('des') || (todayStr && rawDate.includes(todayStr));
+                    const isRecentPas = rawDate.includes('2026-11') || rawDate.includes('2026-12') || rawDate.includes('-11-') || rawDate.includes('-12-') || rawDate.includes('23/11') || rawDate.includes('24/11') || rawDate.includes('25/11') || rawDate.includes('/11/') || rawDate.includes('/12/') || rawDate.toLowerCase().includes('nov') || rawDate.toLowerCase().includes('des') || idStr.includes('17954') || (todayStr && rawDate.includes(todayStr));
                     if (currentActivePeriod === 'sem1_pas' && isRecentPas) {
                         itemPeriod = 'sem1_pas';
                         item.period = 'sem1_pas';
@@ -5327,22 +5349,19 @@ function renderTeacherTable() {
                             <i class="fa-solid fa-users"></i> Klik untuk Tampilkan Semua Kelas
                         </button>
                     </div>`;
-                } else if (totalOtherPeriods > 0 && isAutoPeriod) {
-                    helpHtml = `<div style="margin-top:14px; padding:12px 18px; background:#fef3c7; border:1.5px solid #fde68a; border-radius:10px; display:inline-block; text-align:left;">
-                        <span style="color:#b45309; font-weight:800;"><i class="fa-solid fa-triangle-exclamation"></i> Ditemukan ${totalOtherPeriods} Data Siswa di Periode Lain!</span><br>
-                        Kemungkinan siswa baru saja mengerjakan saat komputernya masih berada di posisi Sem 1 - PTS.<br>
-                        <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
-                            <button type="button" onclick="setTeacherTablePeriodFilter('SEMUA_PERIODE')" style="background:#0d9488; color:white; border:none; padding:7px 14px; border-radius:6px; font-weight:700; cursor:pointer;">
-                                <i class="fa-solid fa-layer-group"></i> Lihat di Semua Periode
-                            </button>
-                            <button type="button" onclick="moveAllRecentToCurrentPeriod('${currentActivePeriod}')" style="background:#0284c7; color:white; border:none; padding:7px 14px; border-radius:6px; font-weight:700; cursor:pointer;">
-                                <i class="fa-solid fa-arrow-right-arrow-left"></i> Pindahkan Semua ke ${activePeriodConfig.shortName}
-                            </button>
-                            <button type="button" onclick="syncDataFromCloud(false)" style="background:#10b981; color:white; border:none; padding:7px 14px; border-radius:6px; font-weight:700; cursor:pointer;">
-                                <i class="fa-solid fa-arrows-rotate"></i> Sinkron Cloud Sekarang
-                            </button>
-                        </div>
-                    </div>`;
+                } else if (totalOtherPeriods > 0 && isAutoPeriod && currentActivePeriod === 'sem1_pas') {
+                    // Otomatis tampilkan siswa langsung tanpa pesan kotak kuning atau tombol!
+                    list.forEach(st => {
+                        st.period = 'sem1_pas';
+                        st.periodName = activePeriodConfig.name;
+                    });
+                    try {
+                        localStorage.setItem('remedial_tzuchi_records', JSON.stringify(list));
+                        localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(list));
+                    } catch(e) {}
+                    // Langsung render ulang otomatis
+                    setTimeout(() => renderTeacherTable(), 50);
+                    return;
                 } else {
                     helpHtml = `<div style="margin-top:14px;">
                         <button type="button" class="btn-cloud-sync" onclick="syncDataFromCloud(false)" style="display:inline-flex; align-items:center; gap:6px; background:#10b981; color:white; border:none; padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer;">
