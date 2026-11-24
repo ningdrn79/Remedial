@@ -4254,6 +4254,10 @@ async function syncDataFromCloud(isSilent = false) {
             cloudData.forEach(c => {
                 // Tentukan periode dari data sheet (SEM 1-PTS, SEM 1-PAS, SEM 2-PTS, SEM 2-PAT)
                 let cPeriod = c.period || normalizeSheetNameToPeriod(c.sheetName) || activeTeacherRemedialPeriod || 'sem1_pas';
+                const shUpper = String(c.sheetName || '').toUpperCase();
+                if (shUpper.includes('PAS') || shUpper.includes('PAT')) {
+                    cPeriod = 'sem1_pas';
+                }
                 const dateRaw = String(c.date || c.timestamp || '');
                 const todayStr = new Date().toLocaleDateString('id-ID');
                 const isNovOrDecOrToday = dateRaw.includes('2026-11') || dateRaw.includes('2026-12') || dateRaw.includes('-11-') || dateRaw.includes('-12-') || dateRaw.includes('/11/') || dateRaw.includes('/12/') || dateRaw.includes('23/11') || dateRaw.includes('24/11') || dateRaw.includes('25/11') || dateRaw.toLowerCase().includes('nov') || dateRaw.toLowerCase().includes('des') || (todayStr && dateRaw.includes(todayStr));
@@ -4311,9 +4315,7 @@ async function syncDataFromCloud(isSilent = false) {
                     localList[existingIdx].periodName = periodConfig.name;
                     if (c.date) localList[existingIdx].date = formatIndonesianDate(c.date);
                     if (c.absen && c.absen !== '-') localList[existingIdx].absen = c.absen;
-                    if (!localList[existingIdx].answers || !Array.isArray(localList[existingIdx].answers.pg) || localList[existingIdx].answers.pg.length < 10) {
-                        localList[existingIdx].answers = ensureStudentAnswers(localList[existingIdx]);
-                    }
+                    // Lembar jawaban di-generate secara on-demand saat guru klik lihat/unduh PDF agar hemat memori
                     updatedCount++;
                 } else {
                     const newCloudStudent = {
@@ -4337,15 +4339,19 @@ async function syncDataFromCloud(isSilent = false) {
                             uraian: Array.isArray(c.essayAnswers) ? c.essayAnswers : []
                         }
                     };
-                    newCloudStudent.answers = ensureStudentAnswers(newCloudStudent);
+                    // Lembar jawaban di-generate secara on-demand saat guru klik lihat/unduh PDF
                     localList.unshift(newCloudStudent);
                     justAddedStudents.push(newCloudStudent);
                     addedCount++;
                 }
             });
 
-            localStorage.setItem('remedial_tzuchi_records', JSON.stringify(localList));
-            localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(localList));
+            try {
+                localStorage.setItem('remedial_tzuchi_records', JSON.stringify(localList));
+                localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(localList));
+            } catch(eStorage) {
+                console.warn('LocalStorage save notice:', eStorage);
+            }
             renderTeacherTable();
 
             // Pembaruan Live Status Banner di Panel Guru
@@ -5005,7 +5011,7 @@ function openTeacherPortal() {
     showToast('🔒 Membuka Panel Khusus Guru...');
 
     if (GOOGLE_SHEETS_WEBAPP_URL && GOOGLE_SHEETS_WEBAPP_URL.trim().startsWith('http')) {
-        syncDataFromCloud(true);
+        syncDataFromCloud(false);
         if (teacherSyncInterval) clearInterval(teacherSyncInterval);
         // Otomatis tarik data siswa dari cloud secara real-time setiap 4 detik saat ujian sedang berjalan
         teacherSyncInterval = setInterval(() => {
