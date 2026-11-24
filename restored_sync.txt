@@ -1,0 +1,65 @@
+async function syncDataFromCloud() {
++    if (!GOOGLE_SHEETS_WEBAPP_URL) {
++        alert('URL Google Sheets belum diatur. Silakan klik tombol "Setup Cloud" terlebih dahulu.');
++        openCloudConfigModal();
++        return;
++    }
++    const btn = document.getElementById('btnCloudSync');
++    if (btn) btn.classList.add('syncing');
++    showToast('☁️ Sedang menyinkronkan data dari Google Sheets...');
++
++    try {
++        const response = await fetch(GOOGLE_SHEETS_WEBAPP_URL);
++        const cloudData = await response.json();
++
++        if (Array.isArray(cloudData) && cloudData.length > 0) {
++            const localList = getRecapList();
++            let addedCount = 0;
++
++            cloudData.forEach(c => {
++                // Periksa apakah data sudah ada secara lokal
++                const exists = localList.some(l => 
++                    (c.studentId && l.id === c.studentId) || 
++                    (l.name.toLowerCase() === (c.studentName || '').toLowerCase() && l.kelas === c.grade)
++                );
++                if (!exists) {
++                    localList.unshift({
++                        id: c.studentId || ('st_cloud_' + Date.now() + Math.random().toString(36).substr(2, 5)),
++                        name: c.studentName || 'Siswa',
++                        kelas: c.grade || '4A',
++                        absen: c.absen || '-',
++                        nilaiAwal: c.nilaiAwal || 0,
++                        nilaiAkhir: Number(c.score) || 0,
++                        pgScore: c.pgScore || 0,
++                        uraianScore: c.uraianScore || 0,
++                        status: c.status || ((c.score || 0) >= 80 ? 'Lulus' : 'Tuntas'),
++                        predicate: c.predicate || 'SANGAT MEMUASKAN',
++                        duration: c.duration || '-',
++                        timestamp: c.timestamp || '-',
++                        date: c.date || new Date().toLocaleDateString('id-ID'),
++                        answers: {
++                            pg: c.pgAnswers || [],
++                            uraian: c.essayAnswers || []
++                        }
++                    });
++                    addedCount++;
++                }
++            });
++
++            localStorage.setItem('remedial_tzuchi_records', JSON.stringify(localList));
++            localStorage.setItem('remedial_tzuchi_k4', JSON.stringify(localList));
++            renderTeacherTable();
++            playCuteSound('fanfare');
++            showToast(`✅ Sinkronisasi berhasil! Menambahkan ${addedCount} data siswa baru dari Cloud.`);
++        } else {
++            showToast('ℹ️ Data Google Sheets masih kosong atau sudah tersinkron seluruhnya.');
++        }
++    } catch (err) {
++        console.error('Error syncing cloud data:', err);
++        showToast('⚠️ Gagal mengambil data Cloud. Periksa koneksi internet atau Web App URL.');
++    } finally {
++        if (btn) btn.classList.remove('syncing');
++    }
++}
++
+ 

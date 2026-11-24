@@ -1,0 +1,80 @@
+function updateCloudStatusUI() {
++    const dot = document.getElementById('cloudStatusDot');
++    const text = document.getElementById('cloudStatusText');
++    if (!dot || !text) return;
++
++    if (GOOGLE_SHEETS_WEBAPP_URL && GOOGLE_SHEETS_WEBAPP_URL.trim().startsWith('http')) {
++        dot.className = 'cloud-status-dot';
++        text.innerHTML = `<strong>Cloud Aktif:</strong> Terhubung ke Google Sheets (<span style="color:#0284c7; font-weight:600;">${GOOGLE_SHEETS_WEBAPP_URL.substring(0, 40)}...</span>)`;
++    } else {
++        dot.className = 'cloud-status-dot offline';
++        text.innerHTML = `Mode Offline / Penyimpanan Lokal (Belum terhubung ke Google Sheets)`;
++    }
++}
++
++function openCloudConfigModal() {
++    playCuteSound('pop');
++    const modal = document.getElementById('cloudConfigModal');
++    const input = document.getElementById('inputSheetsWebappUrl');
++    if (input) input.value = GOOGLE_SHEETS_WEBAPP_URL;
++    if (modal) modal.style.display = 'flex';
++}
++
++function closeCloudConfigModal() {
++    playCuteSound('pop');
++    const modal = document.getElementById('cloudConfigModal');
++    if (modal) modal.style.display = 'none';
++}
++
++function saveCloudConfig() {
++    playCuteSound('pop');
++    const input = document.getElementById('inputSheetsWebappUrl');
++    const val = input ? input.value.trim() : '';
++    if (val && !val.startsWith('http')) {
++        alert('Harap masukkan URL yang valid (dimulai dengan https://script.google.com/...)');
++        return;
++    }
++    GOOGLE_SHEETS_WEBAPP_URL = val;
++    localStorage.setItem('tzuchi_sheets_url', val);
++    updateCloudStatusUI();
++    closeCloudConfigModal();
++    if (val) {
++        showToast('☁️ URL Google Sheets tersimpan! Sistem siap untuk ujian serentak.');
++    } else {
++        showToast('ℹ️ Konfigurasi Cloud dinonaktifkan. Beralih ke penyimpanan lokal.');
++    }
++}
++
++function copyGasCodeToClipboard() {
++    const codeElem = document.getElementById('gasScriptCodeSnippet');
++    if (!codeElem) return;
++    const text = codeElem.innerText;
++    navigator.clipboard.writeText(text).then(() => {
++        playCuteSound('fanfare');
++        showToast('📋 Kode Google Apps Script berhasil disalin!');
++    }).catch(err => {
++        showToast('Gagal menyalin kode ke clipboard.');
++    });
++}
++
++function testCloudConnection() {
++    const input = document.getElementById('inputSheetsWebappUrl');
++    const testUrl = input ? input.value.trim() : GOOGLE_SHEETS_WEBAPP_URL;
++    if (!testUrl || !testUrl.startsWith('http')) {
++        alert('Silakan tempelkan Web App URL Google Sheets terlebih dahulu!');
++        return;
++    }
++    showToast('🔄 Menguji koneksi ke Google Sheets...');
++    fetch(testUrl)
++        .then(res => res.json())
++        .then(data => {
++            playCuteSound('fanfare');
++            alert('🎉 Koneksi Berhasil! Google Sheets terhubung dan siap menerima data ujian siswa.');
++        })
++        .catch(err => {
++            console.warn('Test Cloud connection note:', err);
++            alert('ℹ️ Permintaan dikirim ke Google Apps Script! Pastikan setting Who has access sudah "Anyone" (Siapa saja).');
++        });
++}
++
++
