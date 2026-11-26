@@ -4012,13 +4012,8 @@ async function syncDataFromCloud(isSilent = false) {
                     ? '25 Menit'
                     : (rawDur || '25 Menit');
 
-                const override = getMasterScoreOverride(name);
-                if (override) {
-                    cloudNilaiAwal = override.awal;
-                    cloudScore = override.akhir;
-                    cloudStatus = override.status;
-                    cloudPredicate = override.predicate;
-                }
+                // Nilai Murni Ujian: Sesuai yang dikerjakan dan dikirimkan oleh siswa (tanpa dioverride)
+                const exactDT = extractExactExamDateTime(c);
 
                 if (existingIdx !== -1) {
                     localList[existingIdx].nilaiAkhir = cloudScore;
@@ -4028,7 +4023,8 @@ async function syncDataFromCloud(isSilent = false) {
                     localList[existingIdx].duration = cloudDuration;
                     localList[existingIdx].period = cPeriod;
                     localList[existingIdx].periodName = periodConfig.name;
-                    if (c.date) localList[existingIdx].date = formatIndonesianDate(c.date);
+                    localList[existingIdx].date = exactDT.date;
+                    localList[existingIdx].timestamp = exactDT.time;
                     if (c.absen && c.absen !== '-') localList[existingIdx].absen = c.absen;
                     updatedCount++;
                 } else {
@@ -4044,8 +4040,8 @@ async function syncDataFromCloud(isSilent = false) {
                         status: cloudStatus,
                         predicate: cloudPredicate,
                         duration: cloudDuration,
-                        timestamp: c.timestamp || '-',
-                        date: formatIndonesianDate(c.date || new Date().toLocaleDateString('id-ID')),
+                        timestamp: exactDT.time,
+                        date: exactDT.date,
                         period: cPeriod,
                         periodName: periodConfig.name,
                         answers: null
@@ -4132,7 +4128,8 @@ function saveStudentToRecap(newStudent) {
             predicate: newStudent.predicate,
             status: newStudent.status,
             duration: newStudent.duration || '-',
-            timestamp: newStudent.timestamp || '-',
+            timestamp: newStudent.timestamp || (new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB'),
+            date: newStudent.date || formatIndonesianDate(new Date()),
             pgAnswers: newStudent.answers ? newStudent.answers.pg : [],
             essayAnswers: newStudent.answers ? newStudent.answers.uraian : []
         };
@@ -5076,20 +5073,7 @@ function renderTeacherTable(overrideList) {
             let safeAkhir = Number(st.nilaiAkhir !== undefined ? st.nilaiAkhir : 0);
             let safeStatus = st.status;
 
-            const override = getMasterScoreOverride(st.name);
-            if (override) {
-                if (!st.userEditedAwal) safeAwal = override.awal;
-                safeAkhir = override.akhir;
-                safeStatus = override.status;
-            } else {
-                const predNum = Number(st.predicate);
-                if (!isNaN(predNum) && predNum > 0) {
-                    if (safeAwal === 0 || safeAwal === safeAkhir) {
-                        safeAwal = safeAkhir;
-                    }
-                    safeAkhir = predNum;
-                }
-            }
+            // Nilai Akhir Murni: Selalu menampilkan nilai riil yang dikerjakan & dikirimkan siswa
             const isPassed = safeAkhir >= 80;
             if (!safeStatus || String(safeStatus).toUpperCase().includes('BAIK') || String(safeStatus).toUpperCase().includes('MEMUASKAN')) {
                 safeStatus = isPassed ? 'Lulus' : 'Tuntas';
@@ -5100,36 +5084,19 @@ function renderTeacherTable(overrideList) {
             const stPeriodObj = REMEDIAL_PERIODS[stPeriodKey] || REMEDIAL_PERIODS['sem1_pts'];
             const stPeriodShort = stPeriodObj.shortName;
 
-            // Format Tanggal dan Waktu pengerjaan (TGL/WAKTU)
-            let rawDate = String(st.date || '').trim();
-            let rawTime = String(st.timestamp || '').trim();
+            // Format Tanggal dan Jam Ujian Asli Siswa (TGL/WAKTU)
+            const exactDT = extractExactExamDateTime(st);
+            let displayDate = exactDT.date;
             let safeDuration = String(st.duration || '').trim();
             if (safeDuration.includes('{') || safeDuration.includes('[') || safeDuration.length > 25) {
-                safeDuration = '60 Menit';
+                safeDuration = '';
             }
 
-            // Validasi tanggal agar tidak menampilkan '-' atau data json corrupt
-            let displayDate = rawDate;
-            if (!displayDate || displayDate === '-' || displayDate.includes('{') || displayDate.includes('[') || displayDate.length > 35) {
-                if (rawTime && (rawTime.includes('202') || rawTime.includes('/') || rawTime.includes('Okt') || rawTime.includes('Sep'))) {
-                    displayDate = rawTime;
-                    rawTime = '';
-                } else {
-                    displayDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-                }
-            }
-
-            // Validasi jam/waktu pengerjaan
-            let displayTime = rawTime;
-            if (displayTime === '-' || displayTime.includes('{') || displayTime.includes('[') || displayTime.length > 35) {
-                displayTime = '';
-            }
-
-            // Susun sub-teks waktu (Jam & Durasi)
+            // Susun sub-teks waktu (Jam Ujian & Durasi Pengerjaan)
             let timeSubParts = [];
-            if (displayTime) timeSubParts.push(displayTime);
+            if (exactDT.time) timeSubParts.push(exactDT.time);
             if (safeDuration && safeDuration !== '-') timeSubParts.push(safeDuration);
-            let displaySub = timeSubParts.join(' • ') || 'Selesai';
+            let displaySub = timeSubParts.join(' • ') || (exactDT.time || 'Selesai');
             const safeId = String(st.id || ('st_' + idx));
 
             return `
@@ -5213,6 +5180,94 @@ function editStudentNilaiAwal(studentId) {
         playCuteSound('fanfare');
         showToast(`✅ Nilai Awal ${student.name} berhasil diubah menjadi ${parsed}!`);
     }
+}
+
+/* ==============================================================
+   RESOLVER TANGGAL & JAM UJIAN ASLI SISWA (AKURAT & PRESISI)
+   Mengekstrak tanggal dan jam pengerjaan asli dari ID pengerjaan
+   atau ISO Google Sheet, sehingga tidak tertimpa tanggal hari ini.
+   ============================================================== */
+function extractExactExamDateTime(st) {
+    if (!st) return { date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }), time: '' };
+    const monthsId = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    let finalDate = '';
+    let finalTime = '';
+
+    const sid = String(st.studentId || st.id || '').trim();
+    const rawDate = String(st.date || '').trim();
+    const rawTime = String(st.timestamp || '').trim();
+
+    // 1. Ekstrak milidetik epoch dari ID siswa (st_179... atau st_k6_179...)
+    // Ini adalah stempel waktu persis saat siswa mengklik "Kirim Jawaban" di komputernya!
+    let epochDate = null;
+    const epochMatches = sid.match(/17\d{11}/);
+    if (epochMatches) {
+        const ms = Number(epochMatches[0]);
+        if (!isNaN(ms) && ms > 1700000000000) {
+            epochDate = new Date(ms);
+        }
+    }
+
+    // 2. Periksa apakah rawDate dari Google Sheet adalah ISO string (misal 2026-11-25T08:02:22.482Z)
+    let sheetIsoDate = null;
+    if (rawDate && rawDate.includes('T') && (rawDate.includes('Z') || rawDate.includes('+'))) {
+        const p = new Date(rawDate);
+        if (!isNaN(p.getTime())) {
+            sheetIsoDate = p;
+        }
+    }
+
+    // 3. Jika guru mengedit tanggal manual di Google Sheet dengan format dd/mm/yyyy hh:mm:ss
+    if (rawDate.includes('/')) {
+        const parts = rawDate.split(' ');
+        const dparts = parts[0].split('/');
+        if (dparts.length === 3) {
+            const d = parseInt(dparts[0], 10);
+            const m = parseInt(dparts[1], 10) - 1;
+            const y = parseInt(dparts[2], 10);
+            if (!isNaN(d) && !isNaN(m) && !isNaN(y) && m >= 0 && m < 12) {
+                finalDate = `${d} ${monthsId[m]} ${y}`;
+            }
+            if (parts[1] && parts[1].includes(':')) {
+                const tparts = parts[1].split(':');
+                finalTime = `${tparts[0].padStart(2, '0')}:${tparts[1].padStart(2, '0')} WIB`;
+            }
+        }
+    }
+
+    // Prioritaskan epochDate asli jika ada (mencegah tanggal hari ini menimpa tanggal pengerjaan kemarin)
+    let chosenObj = epochDate;
+    if (!chosenObj || (sheetIsoDate && !epochDate)) {
+        chosenObj = sheetIsoDate;
+    }
+
+    if (!finalDate && chosenObj) {
+        finalDate = `${chosenObj.getDate()} ${monthsId[chosenObj.getMonth()]} ${chosenObj.getFullYear()}`;
+        if (!finalTime) {
+            const hh = String(chosenObj.getHours()).padStart(2, '0');
+            const mm = String(chosenObj.getMinutes()).padStart(2, '0');
+            finalTime = `${hh}:${mm} WIB`;
+        }
+    }
+
+    // Jika rawDate sudah berbentuk teks Indonesia
+    if (!finalDate && rawDate && !rawDate.includes('{') && !rawDate.includes('[') && rawDate !== '-') {
+        finalDate = rawDate;
+    }
+
+    // Jika ada rawTime yang valid
+    if (!finalTime && rawTime && rawTime !== '-' && !rawTime.includes('{') && !rawTime.includes('[')) {
+        finalTime = rawTime.includes('WIB') ? rawTime : (rawTime + ' WIB');
+    }
+
+    if (!finalDate || finalDate === '-') {
+        finalDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    return {
+        date: finalDate,
+        time: finalTime
+    };
 }
 
 /* ==============================================================
